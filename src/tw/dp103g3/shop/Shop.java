@@ -1,36 +1,53 @@
 package tw.dp103g3.shop;
 
-import java.util.Date;
+import java.sql.Date;
 
 public class Shop {
 	private int id;
-	private String username;
+	private String email;
 	private String password;
-	private int area;
+	private String name;
+	private String tax;
 	private String address;
 	private double latitude;
 	private double longitude;
+	private int area;
 	private byte state;
 	private String info;
 	private Date suspendtime;
-	private String email;
 	private int tt_score;
 	private int ttrate;
-	
-	public Shop(int id, String username, String password, int area, String address, double latitude, double longitude,
-			byte state, String info, Date suspendtime, String email, int tt_score, int ttrate) {
+
+	public Shop(int id, String email, String password, String name, String tax, String address, double latitude,
+			double longitude, int area, byte state, String info, Date suspendtime, int tt_score, int ttrate) {
 		super();
 		this.id = id;
-		this.username = username;
+		this.email = email;
 		this.password = password;
-		this.area = area;
+		this.name = name;
+		this.tax = tax;
 		this.address = address;
 		this.latitude = latitude;
 		this.longitude = longitude;
+		this.area = area;
 		this.state = state;
 		this.info = info;
 		this.suspendtime = suspendtime;
-		this.email = email;
+		this.tt_score = tt_score;
+		this.ttrate = ttrate;
+	}
+	
+	public Shop(int id, String name, String address, double latitude, double longitude, int area, byte state,
+			String info, int tt_score, int ttrate) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.address = address;
+		this.latitude = latitude;
+		this.longitude = longitude;
+		this.area = area;
+		this.state = state;
+		this.info = info;
 		this.tt_score = tt_score;
 		this.ttrate = ttrate;
 	}
@@ -43,12 +60,12 @@ public class Shop {
 		this.id = id;
 	}
 
-	public String getUsername() {
-		return username;
+	public String getEmail() {
+		return email;
 	}
 
-	public void setUsername(String username) {
-		this.username = username;
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
 	public String getPassword() {
@@ -59,12 +76,20 @@ public class Shop {
 		this.password = password;
 	}
 
-	public int getArea() {
-		return area;
+	public String getName() {
+		return name;
 	}
 
-	public void setArea(int area) {
-		this.area = area;
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getTax() {
+		return tax;
+	}
+
+	public void setTax(String tax) {
+		this.tax = tax;
 	}
 
 	public String getAddress() {
@@ -91,6 +116,14 @@ public class Shop {
 		this.longitude = longitude;
 	}
 
+	public int getArea() {
+		return area;
+	}
+
+	public void setArea(int area) {
+		this.area = area;
+	}
+
 	public byte getState() {
 		return state;
 	}
@@ -115,14 +148,6 @@ public class Shop {
 		this.suspendtime = suspendtime;
 	}
 
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
 	public int getTt_score() {
 		return tt_score;
 	}
@@ -138,6 +163,5 @@ public class Shop {
 	public void setTtrate(int ttrate) {
 		this.ttrate = ttrate;
 	}
-	
 	
 }
