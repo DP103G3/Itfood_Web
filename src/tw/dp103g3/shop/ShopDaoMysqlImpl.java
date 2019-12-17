@@ -138,7 +138,7 @@ public class ShopDaoMysqlImpl implements ShopDao {
 		List<Shop> shops = new ArrayList<Shop>();
 		String sql = "SELECT shop_id, shop_name, shop_address, shop_latitude, shop_longitude, "
 				+ "shop_area, shop_state, shop_info, shop_ttscore, shop_ttrate FROM shop "
-				+ "WHERE shop_state != 1;";
+				+ "WHERE shop_state != 0;";
 		try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
 				PreparedStatement ps = connection.prepareStatement(sql);) {
 			ResultSet rs = ps.executeQuery();
@@ -160,6 +160,23 @@ public class ShopDaoMysqlImpl implements ShopDao {
 			e.printStackTrace();
 		}
 		return shops;
+	}
+
+	@Override
+	public byte[] getImage(int id) {
+		byte[] image = null;
+		String sql = "SELECT shop_image FROM shop WHERE id = ?;";
+		try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+				PreparedStatement ps = connection.prepareStatement(sql);) {
+			ps.setInt(1, id);
+			ResultSet rs = ps.executeQuery();
+			if (rs.next()) {
+				image = rs.getBytes(1);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return image;
 	}
 
 }

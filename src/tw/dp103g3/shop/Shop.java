@@ -14,12 +14,13 @@ public class Shop {
 	private int area;
 	private byte state;
 	private String info;
+	private Date jointime;
 	private Date suspendtime;
 	private int tt_score;
 	private int ttrate;
 
 	public Shop(int id, String email, String password, String name, String tax, String address, double latitude,
-			double longitude, int area, byte state, String info, Date suspendtime, int tt_score, int ttrate) {
+			double longitude, int area, byte state, String info, Date jointime, Date suspendtime, int tt_score, int ttrate) {
 		super();
 		this.id = id;
 		this.email = email;
@@ -32,6 +33,7 @@ public class Shop {
 		this.area = area;
 		this.state = state;
 		this.info = info;
+		this.jointime = jointime;
 		this.suspendtime = suspendtime;
 		this.tt_score = tt_score;
 		this.ttrate = ttrate;

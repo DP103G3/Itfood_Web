@@ -10,4 +10,6 @@ public interface ShopDao {
 	List<Shop> getAll();
 	
 	List<Shop> getAllShow();
+	
+	byte[] getImage(int id);
 }
