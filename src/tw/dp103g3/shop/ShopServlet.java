@@ -21,12 +21,13 @@ import tw.dp103g3.main.ImageUtil;
 
 @WebServlet("/ShopServlet")
 public class ShopServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
 	private final static String CONTENT_TYPE = "text/html; charset=utf-8";
 	private ShopDao shopDao = null;
 	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding("utf-8");
-		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd hh:mm:ss").create();
+		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 		BufferedReader br = request.getReader();
 		StringBuilder jsonIn = new StringBuilder();
 		String line = "";
@@ -101,8 +102,8 @@ public class ShopServlet extends HttpServlet {
 		if (shopDao == null) {
 			shopDao = new ShopDaoMysqlImpl();
 		}
-		List<Shop> shops = shopDao.getAllShow();
-		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd hh:mm:ss").create();
+		List<Shop> shops = shopDao.getAll();
+		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 		String outText = gson.toJson(shops);
 		writeText(response, outText);
 	}

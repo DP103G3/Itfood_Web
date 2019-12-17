@@ -9,6 +9,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,13 +30,13 @@ public class ShopDaoMysqlImpl implements ShopDao {
 		if (image != null) {
 			sql = "INSERT INTO shop (shop_email, shop_password, shop_name, shop_tax, "
 					+ "shop_address, shop_latitude, shop_longitude, shop_area, shop_state, "
-					+ "shop_info, shop_suspendtime, shop_ttscore, shop_ttrate, shop_image) "
-					+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+					+ "shop_info, shop_ttscore, shop_ttrate, shop_image) "
+					+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 		} else {
 			sql = "INSERT INTO shop (shop_email, shop_password, shop_name, shop_tax, "
 					+ "shop_address, shop_latitude, shop_longitude, shop_area, shop_state, "
-					+ "shop_info, shop_suspendtime, shop_ttscore, shop_ttrate) "
-					+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+					+ "shop_info, shop_ttscore, shop_ttrate) "
+					+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 		}
 		try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
 				PreparedStatement ps = connection.prepareStatement(sql);) {
@@ -49,11 +50,10 @@ public class ShopDaoMysqlImpl implements ShopDao {
 			ps.setInt(8, shop.getArea());
 			ps.setInt(9, shop.getState());
 			ps.setString(10, shop.getInfo());
-			ps.setDate(11, shop.getSuspendtime());
-			ps.setInt(12, shop.getTt_score());
-			ps.setInt(13, shop.getTtrate());
+			ps.setInt(11, shop.getTt_score());
+			ps.setInt(12, shop.getTtrate());
 			if (image != null) {
-				ps.setBytes(14, image);
+				ps.setBytes(13, image);
 			}
 			count = ps.executeUpdate();
 		} catch (SQLException e) {
@@ -89,7 +89,8 @@ public class ShopDaoMysqlImpl implements ShopDao {
 			ps.setInt(8, shop.getArea());
 			ps.setByte(9, shop.getState());
 			ps.setString(10, shop.getInfo());
-			ps.setDate(11, shop.getSuspendtime());
+			ps.setTimestamp(11, shop.getSuspendtime() == null ? 
+					null : new Timestamp(shop.getSuspendtime().getTime()));
 			ps.setInt(12, shop.getTt_score());
 			ps.setInt(13, shop.getTtrate());
 			if (image != null) {
@@ -120,13 +121,30 @@ public class ShopDaoMysqlImpl implements ShopDao {
 				PreparedStatement ps = connection.prepareStatement(sql);) {
 			ResultSet rs = ps.executeQuery();
 			while (rs.next()) {
-				int id;
+				int id = rs.getInt(1);
+				String email = rs.getString(2);
+				String password = rs.getString(3);
+				String name = rs.getString(4);
+				String tax = rs.getString(5);
+				String address = rs.getString(6);
+				double latitude = rs.getDouble(7);
+				double longitude = rs.getDouble(8);
+				int area = rs.getInt(9);
+				byte state = rs.getByte(10);
+				String info = rs.getString(11);
+				Timestamp jointime = rs.getTimestamp(12);
+				Timestamp suspendtime = rs.getTimestamp(13);
+				int ttscore = rs.getInt(14);
+				int ttrate = rs.getInt(15);
+				Shop shop = new Shop(id, email, password, name, tax, address, latitude, longitude, area, 
+						state, info, jointime, suspendtime, ttscore, ttrate);
+				shops.add(shop);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		
-		return null;
+		return shops;
 	}
 	
 	/**
