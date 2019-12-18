@@ -30,7 +30,7 @@ public class OrderDaoMySqlImpl implements OrderDao {
 	@Override
 	public int insert(Order order) {
 		int count = 0;
-		String sql = "INSERT INTO order (shop_id, mem_id, del_id, pay_id, sp_id, order_ideal, "
+		String sql = "INSERT INTO `order` (shop_id, mem_id, del_id, pay_id, sp_id, order_ideal, "
 				+ "order_delivery, adrs_id, order_name, order_phone, order_ttprice) "
 				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 		Connection connection = null;
@@ -72,7 +72,7 @@ public class OrderDaoMySqlImpl implements OrderDao {
 	@Override
 	public int update(Order order) {
 		int count = 0;
-		String sql = "UPDATE order SET shop_id = ?, mem_id = ?, del_id = ?, pay_id = ?, sp_id = ?,"
+		String sql = "UPDATE `order` SET shop_id = ?, mem_id = ?, del_id = ?, pay_id = ?, sp_id = ?,"
 				+ " order_ideal = ?, order_delivery = ?, adrs_id = ?, order_name = ?, order_phone = ?, "
 				+ "order_ttprice = ?, order_status = ? WHERE order_id = ?;";
 		Connection connection = null;
@@ -117,7 +117,7 @@ public class OrderDaoMySqlImpl implements OrderDao {
 	public List<Order> findByOrderId(int order_id) {
 		String sql = "SELECT  order_id, shop_id, mem_id, del_id, pay_id, order_status, sp_id, order_time, order_ideal, order_delivery, "
 				+ "adrs_id, order_name, order_phone, order_ttpice, order_area "
-				+ "FROM order WHERE order_id = ? ORDER BY order_time DESC;";
+				+ "FROM `order` WHERE order_id = ? ORDER BY order_time DESC;";
 		Connection connection = null;
 		PreparedStatement ps = null;
 		List<Order> orderList = new ArrayList<Order>();
@@ -181,7 +181,7 @@ public class OrderDaoMySqlImpl implements OrderDao {
 		String sql = null;
 		sql = "SELECT  order_id, shop_id, mem_id, del_id, pay_id, order_status, sp_id, order_time, "
 				+ "order_ideal, order_delivery, adrs_id, order_name, order_phone, order_ttpice, order_area "
-				+ "FROM order WHERE " + sqlPart + " = ? AND order_state = ? ORDER BY order_time DESC;";
+				+ "FROM `order` WHERE " + sqlPart + " = ? AND order_state = ? ORDER BY order_time DESC;";
 		
 		Connection connection = null;
 		PreparedStatement ps = null;
@@ -243,11 +243,13 @@ public class OrderDaoMySqlImpl implements OrderDao {
 			case "delivery":
 				sqlPart = "del_id";
 				break;
+			default:
+				return null;
 		}
 		String sql = null;
-		sql = "SELECT  order_id, shop_id, mem_id, del_id, pay_id, order_status, sp_id, order_time, "
-				+ "order_ideal, order_delivery, adrs_id, order_name, order_phone, order_ttpice, order_area "
-				+ "FROM order WHERE " + sqlPart + " = ? ORDER BY order_time DESC;";
+		sql = "SELECT order_id, shop_id, mem_id, del_id, pay_id, order_state, sp_id, order_time, "
+				+ "order_ideal, order_delivery, adrs_id, order_name, order_phone, order_ttprice, order_area "
+				+ "FROM `order` WHERE " + sqlPart + " = ? ORDER BY order_time DESC;";
 		
 		Connection connection = null;
 		PreparedStatement ps = null;

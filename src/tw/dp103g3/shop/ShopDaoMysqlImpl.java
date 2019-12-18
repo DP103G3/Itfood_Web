@@ -30,12 +30,12 @@ public class ShopDaoMysqlImpl implements ShopDao {
 		int count = 0;
 		String sql = "";
 		if (image != null) {
-			sql = "INSERT INTO shop (shop_email, shop_password, shop_name, shop_tax, "
+			sql = "INSERT INTO `shop` (shop_email, shop_password, shop_name, shop_tax, "
 					+ "shop_address, shop_latitude, shop_longitude, shop_area, shop_state, "
 					+ "shop_info, shop_ttscore, shop_ttrate, shop_image) "
 					+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 		} else {
-			sql = "INSERT INTO shop (shop_email, shop_password, shop_name, shop_tax, "
+			sql = "INSERT INTO `shop` (shop_email, shop_password, shop_name, shop_tax, "
 					+ "shop_address, shop_latitude, shop_longitude, shop_area, shop_state, "
 					+ "shop_info, shop_ttscore, shop_ttrate) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 		}
@@ -68,12 +68,12 @@ public class ShopDaoMysqlImpl implements ShopDao {
 		int count = 0;
 		String sql = "";
 		if (image != null) {
-			sql = "UPDATE shop SET shop_email = ?, shop_password = ?, shop_name = ?, "
+			sql = "UPDATE `shop` SET shop_email = ?, shop_password = ?, shop_name = ?, "
 					+ "shop_tax = ?, shop_address = ?, shop_latitude = ?, shop_longitude = ?, "
 					+ "shop_area = ?, shop_state = ?, shop_info = ?, shop_suspendtime = ?, "
 					+ "shop_ttscore = ?, shop_ttrate = ?, shop_image = ? WHERE shop_id = ?;";
 		} else {
-			sql = "UPDATE shop SET shop_email = ?, shop_password = ?, shop_name = ?, "
+			sql = "UPDATE `shop` SET shop_email = ?, shop_password = ?, shop_name = ?, "
 					+ "shop_tax = ?, shop_address = ?, shop_latitude = ?, shop_longitude = ?, "
 					+ "shop_area = ?, shop_state = ?, shop_info = ?, shop_suspendtime = ?, "
 					+ "shop_ttscore = ?, shop_ttrate = ? WHERE shop_id = ?;";
@@ -117,7 +117,7 @@ public class ShopDaoMysqlImpl implements ShopDao {
 		List<Shop> shops = new ArrayList<Shop>();
 		String sql = "SELECT shop_id, shop_email, shop_password, shop_name, shop_tax, shop_address, "
 				+ "shop_latitude, shop_longitude, shop_area, shop_state, shop_info, shop_jointime, "
-				+ "shop_suspendtime, shop_ttscore, shop_ttrate FROM shop;";
+				+ "shop_suspendtime, shop_ttscore, shop_ttrate FROM `shop`;";
 		try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
 				PreparedStatement ps = connection.prepareStatement(sql);) {
 			ResultSet rs = ps.executeQuery();
@@ -157,7 +157,7 @@ public class ShopDaoMysqlImpl implements ShopDao {
 	public List<Shop> getAllShow() { // for user
 		List<Shop> shops = new ArrayList<Shop>();
 		String sql = "SELECT shop_id, shop_name, shop_address, shop_latitude, shop_longitude, "
-				+ "shop_area, shop_state, shop_info, shop_ttscore, shop_ttrate FROM shop " + "WHERE shop_state != 0;";
+				+ "shop_area, shop_state, shop_info, shop_ttscore, shop_ttrate FROM `shop` " + "WHERE shop_state != 0;";
 		try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
 				PreparedStatement ps = connection.prepareStatement(sql);) {
 			ResultSet rs = ps.executeQuery();
@@ -184,7 +184,7 @@ public class ShopDaoMysqlImpl implements ShopDao {
 	@Override
 	public byte[] getImage(int id) {
 		byte[] image = null;
-		String sql = "SELECT shop_image FROM shop WHERE id = ?;";
+		String sql = "SELECT shop_image FROM `shop` WHERE id = ?;";
 		try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
 				PreparedStatement ps = connection.prepareStatement(sql);) {
 			ps.setInt(1, id);
