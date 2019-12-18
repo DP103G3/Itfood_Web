@@ -14,25 +14,25 @@ public class ImageUtil {
 		double sampleSize = 1;
 		int imageWidth = 0;
 		int imageHeight = 0;
-		
+
 		if (newSize <= 50) {
 			newSize = 128;
 		}
-		
+
 		try {
 			BufferedImage srcBufferedImage = ImageIO.read(bais);
 			int type = srcBufferedImage.getType();
 			String format = "";
 			switch (type) {
-				case BufferedImage.TYPE_4BYTE_ABGR:
-				case BufferedImage.TYPE_4BYTE_ABGR_PRE:
-				case BufferedImage.TYPE_INT_ARGB:
-				case BufferedImage.TYPE_INT_ARGB_PRE:
-					format = "png";
-					break;
-				default:
-					format = "jpg";
-					break;
+			case BufferedImage.TYPE_4BYTE_ABGR:
+			case BufferedImage.TYPE_4BYTE_ABGR_PRE:
+			case BufferedImage.TYPE_INT_ARGB:
+			case BufferedImage.TYPE_INT_ARGB_PRE:
+				format = "png";
+				break;
+			default:
+				format = "jpg";
+				break;
 			}
 			imageWidth = srcBufferedImage.getWidth();
 			imageHeight = srcBufferedImage.getHeight();
@@ -45,7 +45,7 @@ public class ImageUtil {
 				imageWidth *= sampleSize;
 				imageHeight *= sampleSize;
 			}
-			
+
 			BufferedImage scaledBufferedImage = new BufferedImage(imageWidth, imageHeight, type);
 			Graphics graphics = scaledBufferedImage.createGraphics();
 			graphics.drawImage(srcBufferedImage, 0, 0, imageWidth, imageHeight, null);

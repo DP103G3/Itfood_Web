@@ -50,10 +50,6 @@ public class MemberServlet extends HttpServlet {
 			System.out.println("memberJson = " + memberJson);
 			int count = 0;
 			writeText(response, String.valueOf(count));
-		} else if (action.equals("memberDelete")) {
-			int memberId = jsonObject.get("memberId").getAsInt();
-			int count = memberDao.delete(memberId);
-			writeText(response, String.valueOf(count));
 		} else if (action.equals("findById")) {
 			int mem_id = jsonObject.get("mem_id").getAsInt();
 			Member member = memberDao.findById(mem_id);

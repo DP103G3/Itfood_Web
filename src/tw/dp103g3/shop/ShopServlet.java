@@ -24,8 +24,9 @@ public class ShopServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private final static String CONTENT_TYPE = "text/html; charset=utf-8";
 	private ShopDao shopDao = null;
-	
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		request.setCharacterEncoding("utf-8");
 		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 		BufferedReader br = request.getReader();
@@ -39,7 +40,7 @@ public class ShopServlet extends HttpServlet {
 		if (shopDao == null) {
 			shopDao = new ShopDaoMysqlImpl();
 		}
-		
+
 		String action = jsonObject.get("action").getAsString();
 		String shopJson = null;
 		Shop shop = null;
@@ -48,57 +49,58 @@ public class ShopServlet extends HttpServlet {
 		List<Shop> shops = null;
 		int id = 0;
 		switch (action) {
-			case "insert":
-			case "update":
-				shopJson = jsonObject.get("shop").getAsString();
-				shop = gson.fromJson(shopJson, Shop.class);
-				if (jsonObject.get("imageBase64") != null) {
-					String imageBase64 = jsonObject.get("imageBase64").getAsString();
-					if (imageBase64 != null && !imageBase64.isEmpty()) {
-						image = Base64.getMimeDecoder().decode(imageBase64);
-					}
+		case "insert":
+		case "update":
+			shopJson = jsonObject.get("shop").getAsString();
+			shop = gson.fromJson(shopJson, Shop.class);
+			if (jsonObject.get("imageBase64") != null) {
+				String imageBase64 = jsonObject.get("imageBase64").getAsString();
+				if (imageBase64 != null && !imageBase64.isEmpty()) {
+					image = Base64.getMimeDecoder().decode(imageBase64);
 				}
-				if (action.equals("insert")) {
-					count = shopDao.insert(shop, image);
-				} else {
-					count = shopDao.update(shop, image);
-				}
-				writeText(response, String.valueOf(count));
-				break;
-			case "getAll":
-				shops = shopDao.getAll();
-				writeText(response, gson.toJson(shops));
-				break;
-			case "getAllShow":
-				shops = shopDao.getAllShow();
-				writeText(response, gson.toJson(shops));
-				break;
-			case "getImage":
-				OutputStream os = response.getOutputStream();
-				id = jsonObject.get("id").getAsInt();
-				int imageSize = jsonObject.get("imageSize").getAsInt();
-				image = shopDao.getImage(id);
-				if (image != null) {
-					image = ImageUtil.shink(image, imageSize);
-					response.setContentType("image/jpeg");
-					response.setContentLength(image.length);
-					os.write(image);
-				}
-				break;
-			default:
-				writeText(response, "");
-				break;
+			}
+			if (action.equals("insert")) {
+				count = shopDao.insert(shop, image);
+			} else {
+				count = shopDao.update(shop, image);
+			}
+			writeText(response, String.valueOf(count));
+			break;
+		case "getAll":
+			shops = shopDao.getAll();
+			writeText(response, gson.toJson(shops));
+			break;
+		case "getAllShow":
+			shops = shopDao.getAllShow();
+			writeText(response, gson.toJson(shops));
+			break;
+		case "getImage":
+			OutputStream os = response.getOutputStream();
+			id = jsonObject.get("id").getAsInt();
+			int imageSize = jsonObject.get("imageSize").getAsInt();
+			image = shopDao.getImage(id);
+			if (image != null) {
+				image = ImageUtil.shink(image, imageSize);
+				response.setContentType("image/jpeg");
+				response.setContentLength(image.length);
+				os.write(image);
+			}
+			break;
+		default:
+			writeText(response, "");
+			break;
 		}
 	}
-	
+
 	private void writeText(HttpServletResponse response, String outText) throws IOException {
 		response.setContentType(CONTENT_TYPE);
 		PrintWriter out = response.getWriter();
 		out.print(outText);
 		System.out.println("output: " + outText);
 	}
-	
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
 		if (shopDao == null) {
 			shopDao = new ShopDaoMysqlImpl();
 		}

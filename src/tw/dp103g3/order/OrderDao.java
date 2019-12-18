@@ -9,18 +9,7 @@ public interface OrderDao {
 	
 	List<Order> findByOrderId (int order_id);
 	
-	List<Order> findByMemId (int mem_id);
+	List<Order> findByCase(int id, String type, int State);
 	
-	List<Order> findByShopId (int shop_id);
-	
-	List<Order> findByDelId(int del_id);
-	
-	List<Order> findMemOrderByStatus(int mem_id, int order_status);
-	
-	List<Order> findShopOrderByStatus(int shop_id, int order_status);
-	
-	List<Order> findDelOrderByStatus(int del_id, int order_status);
-	
-
-
+	List<Order> findByCase(int id, String type);
 }

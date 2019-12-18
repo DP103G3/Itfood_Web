@@ -7,8 +7,6 @@ public interface MemberDao {
 
 	int update(Member member);
 
-	int delete(int mem_id);
-
 	Member findById(int mem_id);
 
 	List<Member> getAll();

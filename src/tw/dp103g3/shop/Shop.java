@@ -1,6 +1,5 @@
 package tw.dp103g3.shop;
 
-import java.sql.Timestamp;
 import java.util.Date;
 
 public class Shop {
@@ -15,13 +14,14 @@ public class Shop {
 	private int area;
 	private byte state;
 	private String info;
-	private Timestamp jointime;
+	private Date jointime;
 	private Date suspendtime;
 	private int tt_score;
 	private int ttrate;
 
 	public Shop(int id, String email, String password, String name, String tax, String address, double latitude,
-			double longitude, int area, byte state, String info, Timestamp jointime, Date suspendtime, int tt_score, int ttrate) {
+			double longitude, int area, byte state, String info, Date jointime, Date suspendtime, int tt_score,
+			int ttrate) {
 		super();
 		this.id = id;
 		this.email = email;
@@ -39,7 +39,7 @@ public class Shop {
 		this.tt_score = tt_score;
 		this.ttrate = ttrate;
 	}
-	
+
 	public Shop(int id, String name, String address, double latitude, double longitude, int area, byte state,
 			String info, int tt_score, int ttrate) {
 		super();
@@ -143,11 +143,11 @@ public class Shop {
 		this.info = info;
 	}
 
-	public Timestamp getJointime() {
+	public Date getJointime() {
 		return jointime;
 	}
 
-	public void setJointime(Timestamp jointime) {
+	public void setJointime(Date jointime) {
 		this.jointime = jointime;
 	}
 
@@ -174,5 +174,5 @@ public class Shop {
 	public void setTtrate(int ttrate) {
 		this.ttrate = ttrate;
 	}
-	
+
 }

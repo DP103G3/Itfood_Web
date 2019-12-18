@@ -1,5 +1,6 @@
 package tw.dp103g3.shop;
 
+import static tw.dp103g3.main.Common.CLASS_NAME;
 import static tw.dp103g3.main.Common.PASSWORD;
 import static tw.dp103g3.main.Common.URL;
 import static tw.dp103g3.main.Common.USER;
@@ -11,13 +12,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ShopDaoMysqlImpl implements ShopDao {
-	
+
 	public ShopDaoMysqlImpl() {
 		try {
-			Class.forName("com.mysql.cj.jdbc.Driver");
+			Class.forName(CLASS_NAME);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
@@ -35,8 +37,7 @@ public class ShopDaoMysqlImpl implements ShopDao {
 		} else {
 			sql = "INSERT INTO shop (shop_email, shop_password, shop_name, shop_tax, "
 					+ "shop_address, shop_latitude, shop_longitude, shop_area, shop_state, "
-					+ "shop_info, shop_ttscore, shop_ttrate) "
-					+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+					+ "shop_info, shop_ttscore, shop_ttrate) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 		}
 		try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
 				PreparedStatement ps = connection.prepareStatement(sql);) {
@@ -89,8 +90,7 @@ public class ShopDaoMysqlImpl implements ShopDao {
 			ps.setInt(8, shop.getArea());
 			ps.setByte(9, shop.getState());
 			ps.setString(10, shop.getInfo());
-			ps.setTimestamp(11, shop.getSuspendtime() == null ? 
-					null : new Timestamp(shop.getSuspendtime().getTime()));
+			ps.setTimestamp(11, shop.getSuspendtime() == null ? null : new Timestamp(shop.getSuspendtime().getTime()));
 			ps.setInt(12, shop.getTt_score());
 			ps.setInt(13, shop.getTtrate());
 			if (image != null) {
@@ -99,16 +99,17 @@ public class ShopDaoMysqlImpl implements ShopDao {
 			} else {
 				ps.setInt(14, shop.getId());
 			}
-			
+
 			count = ps.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return count;
 	}
-	
+
 	/**
 	 * getAll is for backside
+	 * 
 	 * @return all columns in shop table
 	 */
 	@Override
@@ -132,31 +133,31 @@ public class ShopDaoMysqlImpl implements ShopDao {
 				int area = rs.getInt(9);
 				byte state = rs.getByte(10);
 				String info = rs.getString(11);
-				Timestamp jointime = rs.getTimestamp(12);
-				Timestamp suspendtime = rs.getTimestamp(13);
+				Date jointime = rs.getTimestamp(12);
+				Date suspendtime = rs.getTimestamp(13);
 				int ttscore = rs.getInt(14);
 				int ttrate = rs.getInt(15);
-				Shop shop = new Shop(id, email, password, name, tax, address, latitude, longitude, area, 
-						state, info, jointime, suspendtime, ttscore, ttrate);
+				Shop shop = new Shop(id, email, password, name, tax, address, latitude, longitude, area, state, info,
+						jointime, suspendtime, ttscore, ttrate);
 				shops.add(shop);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
+
 		return shops;
 	}
-	
+
 	/**
 	 * getAllShow is for normal user
+	 * 
 	 * @return all necessary columns for show
 	 */
 	@Override
-	public List<Shop> getAllShow() { //for user
+	public List<Shop> getAllShow() { // for user
 		List<Shop> shops = new ArrayList<Shop>();
 		String sql = "SELECT shop_id, shop_name, shop_address, shop_latitude, shop_longitude, "
-				+ "shop_area, shop_state, shop_info, shop_ttscore, shop_ttrate FROM shop "
-				+ "WHERE shop_state != 0;";
+				+ "shop_area, shop_state, shop_info, shop_ttscore, shop_ttrate FROM shop " + "WHERE shop_state != 0;";
 		try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
 				PreparedStatement ps = connection.prepareStatement(sql);) {
 			ResultSet rs = ps.executeQuery();

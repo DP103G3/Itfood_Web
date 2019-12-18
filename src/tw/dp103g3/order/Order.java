@@ -1,6 +1,6 @@
 package tw.dp103g3.order;
 
-import org.eclipse.jdt.annotation.Nullable;
+import java.util.Date;
 
 public class Order {
 	private int order_id;
@@ -10,17 +10,17 @@ public class Order {
 	private int pay_id;
 	private int order_status;
 	private int sp_id;
-	private String order_time;
-	private String order_ideal;
-	private String order_delivery;
+	private Date order_time;
+	private Date order_ideal;
+	private Date order_delivery;
 	private int adrs_id;
 	private String order_name;
 	private String order_phone;
 	private int order_ttprice;
 	private int order_area;
 	
-	public Order(int shop_id, int mem_id, int del_id, int pay_id, int sp_id , @Nullable String order_ideal,
-			@Nullable String order_delivery, int adrs_id, String order_name, String order_phone, int order_ttprice) {
+	public Order(int shop_id, int mem_id, int del_id, int pay_id, int sp_id, Date order_ideal, Date order_delivery, 
+			int adrs_id, String order_name, String order_phone, int order_ttprice) {
 		super();
 		this.del_id = del_id;
 		this.shop_id = shop_id;
@@ -35,8 +35,8 @@ public class Order {
 		this.order_ttprice = order_ttprice;
 	}
 	
-	public Order(int order_id, int shop_id, int mem_id,int del_id, int pay_id, int sp_id, @Nullable String order_ideal,
-			String order_time ,@Nullable String order_delivery, int adrs_id, String order_name, String order_phone, int order_ttprice, int order_area, int order_status) {
+	public Order(int order_id, int shop_id, int mem_id,int del_id, int pay_id, int sp_id, Date order_ideal,
+			Date order_time, Date order_delivery, int adrs_id, String order_name, String order_phone, int order_ttprice, int order_area, int order_status) {
 		super();
 		this.order_id = order_id;
 		this.del_id = del_id;
@@ -111,27 +111,27 @@ public class Order {
 		this.sp_id = sp_id;
 	}
 
-	public String getOrder_time() {
+	public Date getOrder_time() {
 		return order_time;
 	}
 
-	public void setOrder_time(String order_time) {
+	public void setOrder_time(Date order_time) {
 		this.order_time = order_time;
 	}
 
-	public String getOrder_ideal() {
+	public Date getOrder_ideal() {
 		return order_ideal;
 	}
 
-	public void setOrder_ideal(String order_ideal) {
+	public void setOrder_ideal(Date order_ideal) {
 		this.order_ideal = order_ideal;
 	}
 
-	public String getOrder_delivery() {
+	public Date getOrder_delivery() {
 		return order_delivery;
 	}
 
-	public void setOrder_delivery(String order_delivery) {
+	public void setOrder_delivery(Date order_delivery) {
 		this.order_delivery = order_delivery;
 	}
 

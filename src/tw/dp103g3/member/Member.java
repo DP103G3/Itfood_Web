@@ -1,6 +1,6 @@
 package tw.dp103g3.member;
 
-import java.sql.Date;
+import java.util.Date;
 
 public class Member {
 	private int mem_id;

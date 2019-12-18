@@ -6,7 +6,7 @@ import static tw.dp103g3.main.Common.URL;
 import static tw.dp103g3.main.Common.USER;
 
 import java.sql.Connection;
-import java.sql.Date;
+import java.util.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -96,36 +96,6 @@ public class MemberDaoMySqlImpl implements MemberDao {
 	}
 
 	@Override
-	public int delete(int mem_id) {
-		int count = 0;
-		String sql = "DELETE FROM itfood.member WHERE mem_id = ?;";
-		Connection connection = null;
-		PreparedStatement ps = null;
-		try {
-			connection = DriverManager.getConnection(URL, USER, PASSWORD);
-			ps = connection.prepareStatement(sql);
-			ps.setInt(1, mem_id);
-			count = ps.executeUpdate();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				if (ps != null) {
-					// When a Statement object is closed,
-					// its current ResultSet object is also closed
-					ps.close();
-				}
-				if (connection != null) {
-					connection.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-		return count;
-	}
-
-	@Override
 	public Member findById(int mem_id) {
 		String sql = "SELECT mem_name, mem_password, mem_email, mem_phone, mem_joindate, mem_suspendtime, mem_state FROM itfood.member WHERE mem_id = ?;";
 		Connection conn = null;
@@ -141,8 +111,8 @@ public class MemberDaoMySqlImpl implements MemberDao {
 				String mem_password = rs.getString(3);
 				String mem_email = rs.getString(4);
 				String mem_phone = rs.getString(5);
-				Date mem_joindate = rs.getDate(6);
-				Date mem_suspendtime = rs.getDate(7);
+				Date mem_joindate = rs.getTimestamp(6);
+				Date mem_suspendtime = rs.getTimestamp(7);
 				int mem_state = rs.getInt(8);
 				member = new Member(mem_id, mem_name, mem_password, mem_email,mem_phone,mem_joindate,mem_suspendtime,mem_state);
 			}
@@ -179,8 +149,8 @@ public class MemberDaoMySqlImpl implements MemberDao {
 				String mem_password = rs.getString(3);
 				String mem_email = rs.getString(4);
 				String mem_phone = rs.getString(5);
-				Date mem_joindate = rs.getDate(6);
-				Date mem_suspendtime = rs.getDate(7);
+				Date mem_joindate = rs.getTimestamp(6);
+				Date mem_suspendtime = rs.getTimestamp(7);
 				int mem_state = rs.getInt(8);
 				Member member = new Member(mem_id, mem_name, mem_password, mem_email,mem_phone,mem_joindate,mem_suspendtime,mem_state);
 				memberList.add(member);

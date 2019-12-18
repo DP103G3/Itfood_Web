@@ -54,35 +54,11 @@ public class OrderServlet extends HttpServlet {
 			List<Order> orders = orderDao.findByOrderId(order_id);
 			writeText(response, gson.toJson(orders));
 		} else if (action.equals("findByMemId")) {
-			int mem_id = jsonObject.get("mem_id").getAsInt();
-			List<Order> orders = orderDao.findByMemId(mem_id);
+			int id = jsonObject.get("id").getAsInt();
+			String type = jsonObject.get("type").getAsString();
+			List<Order> orders = orderDao.findByCase(id, type);
 			writeText(response, gson.toJson(orders));
-		} else if (action.equals("findByShopId")) {
-			int shop_id = jsonObject.get("shop_id").getAsInt();
-			List<Order> orders = orderDao.findByShopId(shop_id);
-			writeText(response, gson.toJson(orders));
-		} else if (action.equals("findByDelId")) {
-			int del_id = jsonObject.get("del_id").getAsInt();
-			List<Order> orders = orderDao.findByDelId(del_id);
-			writeText(response, gson.toJson(orders));
-		} else if (action.equals("findMemOrderByStatus")) {
-			int mem_id = jsonObject.get("mem_id").getAsInt();
-			int order_status = jsonObject.get("order_status").getAsInt();
-			List<Order> orders = orderDao.findMemOrderByStatus(mem_id, order_status);
-			writeText(response, gson.toJson(orders));
-		} else if (action.equals("findShopOrderByStatus")) {
-			int shop_id = jsonObject.get("shop_id").getAsInt();
-			int order_status = jsonObject.get("order_status").getAsInt();
-			List<Order> orders = orderDao.findShopOrderByStatus(shop_id, order_status);
-			writeText(response, gson.toJson(orders));
-		} else if (action.equals("findDelOrderByStatus")) {
-			int del_id = jsonObject.get("del_id").getAsInt();
-			int order_status = jsonObject.get("order_status").getAsInt();
-			List<Order> orders = orderDao.findDelOrderByStatus(del_id, order_status);
-			writeText(response, gson.toJson(orders));
-		}
-
-		else {
+		} else {
 			writeText(response, "");
 		}
 	}
