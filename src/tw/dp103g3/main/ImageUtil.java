@@ -41,11 +41,10 @@ public class ImageUtil {
 			}
 			int longer = Math.max(imageHeight, imageWidth);
 			if (longer > newSize) {
-				sampleSize = (long) newSize / longer;
+				sampleSize = (double) newSize / longer;
 				imageWidth *= sampleSize;
 				imageHeight *= sampleSize;
 			}
-
 			BufferedImage scaledBufferedImage = new BufferedImage(imageWidth, imageHeight, type);
 			Graphics graphics = scaledBufferedImage.createGraphics();
 			graphics.drawImage(srcBufferedImage, 0, 0, imageWidth, imageHeight, null);

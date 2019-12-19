@@ -19,9 +19,9 @@ import com.google.gson.JsonObject;
 
 import tw.dp103g3.main.ImageUtil;
 
+@SuppressWarnings("serial")
 @WebServlet("/ShopServlet")
 public class ShopServlet extends HttpServlet {
-	private static final long serialVersionUID = 1L;
 	private final static String CONTENT_TYPE = "text/html; charset=utf-8";
 	private ShopDao shopDao = null;
 
@@ -104,7 +104,7 @@ public class ShopServlet extends HttpServlet {
 		if (shopDao == null) {
 			shopDao = new ShopDaoMysqlImpl();
 		}
-		List<Shop> shops = shopDao.getAll();
+		List<Shop> shops = shopDao.getAllShow();
 		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 		String outText = gson.toJson(shops);
 		writeText(response, outText);
