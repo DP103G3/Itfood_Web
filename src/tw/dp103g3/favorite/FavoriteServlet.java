@@ -1,4 +1,4 @@
-package tw.dp103g3.favortie;
+package tw.dp103g3.favorite;
 
 import java.io.BufferedReader;
 import java.io.IOException;

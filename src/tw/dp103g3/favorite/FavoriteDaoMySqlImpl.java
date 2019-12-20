@@ -1,4 +1,4 @@
-package tw.dp103g3.favortie;
+package tw.dp103g3.favorite;
 
 import static tw.dp103g3.main.Common.CLASS_NAME;
 import static tw.dp103g3.main.Common.PASSWORD;
