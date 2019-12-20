@@ -55,7 +55,7 @@ public class OrderServlet extends HttpServlet {
 			List<Order> orders = orderDao.findByOrderId(order_id);
 			writeText(response, gson.toJson(orders));
 		} else if (action.equals("findByCase")) {
-			int id = jsonObject.get("id").getAsInt();
+			int id = jsonObject.get("order_id").getAsInt();
 			String type = jsonObject.get("type").getAsString();
 			List<Order> orders = orderDao.findByCase(id, type);
 			writeText(response, gson.toJson(orders));

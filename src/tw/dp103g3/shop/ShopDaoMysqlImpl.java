@@ -208,4 +208,39 @@ public class ShopDaoMysqlImpl implements ShopDao {
 		return image;
 	}
 
+	@Override
+	public Shop getShopById(int id) {
+		Shop shop = null;
+		List<String> types = new ArrayList<String>();
+		String sql = "SELECT shop_name, shop_address, shop_latitude, shop_longitude, shop_area, "
+				+ "shop_state, shop_info, shop_jointime, shop_ttscore, shop_ttrate, type_name FROM `shop` "
+				+ "JOIN `shop_type` ON `shop_type`.shop_id = `shop`.shop_id JOIN `type` ON "
+				+ "`type`.type_id = `shop_type`.type_id WHERE shop_state != 0 AND `shop`.shop_id = ?;";
+		try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+				PreparedStatement ps = connection.prepareStatement(sql);) {
+			ps.setInt(1, id);
+			ResultSet rs = ps.executeQuery();
+			while (rs.next()) {
+				String name = rs.getString(1);
+				String address = rs.getString(2);
+				double latitude = rs.getDouble(3);
+				double longitude = rs.getDouble(4);
+				int area = rs.getInt(5);
+				byte state = rs.getByte(6);
+				String info = rs.getString(7);
+				Date jointime = rs.getTimestamp(8);
+				int ttscore = rs.getInt(9);
+				int ttrate = rs.getInt(10);
+				String type = rs.getString(11);
+				shop = new Shop(id, name, address, latitude, longitude, area, state, info, jointime, ttscore, ttrate);
+				types.add(type);
+				shop.setTypes(types);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return shop;
+	}
+
 }

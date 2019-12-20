@@ -12,4 +12,6 @@ public interface ShopDao {
 	List<Shop> getAllShow();
 
 	byte[] getImage(int id);
+	
+	Shop getShopById(int id);
 }

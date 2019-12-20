@@ -86,6 +86,10 @@ public class ShopServlet extends HttpServlet {
 				os.write(image);
 			}
 			break;
+		case "getShopById":
+			id = jsonObject.get("id").getAsInt();
+			shop = shopDao.getShopById(id);
+			writeText(response, gson.toJson(shop));
 		default:
 			writeText(response, "");
 			break;
