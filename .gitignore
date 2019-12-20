@@ -4,3 +4,4 @@ build/
 .settings/
 .DS_Store
 src/tw/dp103g3/main/Common.java
+/bin/
