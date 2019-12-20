@@ -51,7 +51,7 @@ public class ShopDaoMysqlImpl implements ShopDao {
 			ps.setInt(8, shop.getArea());
 			ps.setInt(9, shop.getState());
 			ps.setString(10, shop.getInfo());
-			ps.setInt(11, shop.getTt_score());
+			ps.setInt(11, shop.getTtscore());
 			ps.setInt(12, shop.getTtrate());
 			if (image != null) {
 				ps.setBytes(13, image);
@@ -91,7 +91,7 @@ public class ShopDaoMysqlImpl implements ShopDao {
 			ps.setByte(9, shop.getState());
 			ps.setString(10, shop.getInfo());
 			ps.setTimestamp(11, shop.getSuspendtime() == null ? null : new Timestamp(shop.getSuspendtime().getTime()));
-			ps.setInt(12, shop.getTt_score());
+			ps.setInt(12, shop.getTtscore());
 			ps.setInt(13, shop.getTtrate());
 			if (image != null) {
 				ps.setBytes(14, image);
@@ -156,8 +156,11 @@ public class ShopDaoMysqlImpl implements ShopDao {
 	@Override
 	public List<Shop> getAllShow() { // for user
 		List<Shop> shops = new ArrayList<Shop>();
-		String sql = "SELECT shop_id, shop_name, shop_address, shop_latitude, shop_longitude, "
-				+ "shop_area, shop_state, shop_info, shop_ttscore, shop_ttrate FROM `shop` " + "WHERE shop_state != 0;";
+		List<String> types = new ArrayList<String>();
+		String sql = "SELECT `shop`.shop_id, shop_name, shop_address, shop_latitude, shop_longitude, shop_area, "
+				+ "shop_state, shop_info, shop_jointime, shop_ttscore, shop_ttrate, type_name FROM `shop` JOIN `shop_type` ON "
+				+ "`shop_type`.shop_id = `shop`.shop_id JOIN `type` ON `type`.type_id = `shop_type`.type_id "
+				+ "WHERE shop_state != 0 ORDER BY shop_id;";
 		try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
 				PreparedStatement ps = connection.prepareStatement(sql);) {
 			ResultSet rs = ps.executeQuery();
@@ -170,9 +173,16 @@ public class ShopDaoMysqlImpl implements ShopDao {
 				int area = rs.getInt(6);
 				byte state = rs.getByte(7);
 				String info = rs.getString(8);
-				int ttscore = rs.getInt(9);
-				int ttrate = rs.getInt(10);
-				Shop shop = new Shop(id, name, address, latitude, longitude, area, state, info, ttscore, ttrate);
+				Date jointime = rs.getTimestamp(9);
+				int ttscore = rs.getInt(10);
+				int ttrate = rs.getInt(11);
+				String type = rs.getString(12);
+				Shop shop = new Shop(id, name, address, latitude, longitude, area, state, info, jointime, ttscore, ttrate);
+				if (!shops.remove(shop)) {
+					types = new ArrayList<String>();
+				}
+				types.add(type);
+				shop.setTypes(types);
 				shops.add(shop);
 			}
 		} catch (SQLException e) {
@@ -184,7 +194,7 @@ public class ShopDaoMysqlImpl implements ShopDao {
 	@Override
 	public byte[] getImage(int id) {
 		byte[] image = null;
-		String sql = "SELECT shop_image FROM `shop` WHERE id = ?;";
+		String sql = "SELECT shop_image FROM `shop` WHERE shop_id = ?;";
 		try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
 				PreparedStatement ps = connection.prepareStatement(sql);) {
 			ps.setInt(1, id);

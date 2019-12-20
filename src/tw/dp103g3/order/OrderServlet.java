@@ -63,7 +63,7 @@ public class OrderServlet extends HttpServlet {
 			writeText(response, "");
 		}
 	}
-
+	
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		orderDao = new OrderDaoMySqlImpl();
 		List<Order> orders = orderDao.findByCase(1, "member");
