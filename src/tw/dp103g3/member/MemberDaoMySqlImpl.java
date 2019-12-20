@@ -29,7 +29,7 @@ public class MemberDaoMySqlImpl implements MemberDao {
 	@Override
 	public int insert(Member member) {
 		int count = 0;
-		String sql = "INSERT INTO itfood.member (mem_name, mem_password, mem_email, mem_phone, mem_state) VALUES(?, ?, ?, ?, ?);";
+		String sql = "INSERT INTO `member` (mem_name, mem_password, mem_email, mem_phone, mem_state) VALUES(?, ?, ?, ?, ?);";
 		Connection connection = null;
 		PreparedStatement ps = null;
 		try {
@@ -63,7 +63,7 @@ public class MemberDaoMySqlImpl implements MemberDao {
 	@Override
 	public int update(Member member) {
 		int count = 0;
-		String sql = "UPDATE itfood.member SET mem_name = ?, mem_password = ?, mem_email = ?, mem_phone = ?,mem_state = ?  WHERE mem_id = ?;";
+		String sql = "UPDATE `member` SET mem_name = ?, mem_password = ?, mem_email = ?, mem_phone = ?,mem_state = ?  WHERE mem_id = ?;";
 		Connection connection = null;
 		PreparedStatement ps = null;
 		try {
@@ -97,7 +97,7 @@ public class MemberDaoMySqlImpl implements MemberDao {
 
 	@Override
 	public Member findById(int mem_id) {
-		String sql = "SELECT mem_name, mem_password, mem_email, mem_phone, mem_joindate, mem_suspendtime, mem_state FROM itfood.member WHERE mem_id = ?;";
+		String sql = "SELECT mem_name, mem_password, mem_email, mem_phone, mem_joindate, mem_suspendtime, mem_state FROM `member` WHERE mem_id = ?;";
 		Connection conn = null;
 		PreparedStatement ps = null;
 		Member member = null;
@@ -135,7 +135,7 @@ public class MemberDaoMySqlImpl implements MemberDao {
 
 	@Override
 	public List<Member> getAll() {
-		String sql = "SELECT mem_id, mem_name, mem_password, mem_email, mem_phone, mem_joindate, mem_suspendtime, mem_state FROM itfood.member ORDER BY mem_joindate DESC;";
+		String sql = "SELECT mem_id, mem_name, mem_password, mem_email, mem_phone, mem_joindate, mem_suspendtime, mem_state FROM `member` ORDER BY mem_joindate DESC;";
 		Connection connection = null;
 		PreparedStatement ps = null;
 		List<Member> memberList = new ArrayList<Member>();
