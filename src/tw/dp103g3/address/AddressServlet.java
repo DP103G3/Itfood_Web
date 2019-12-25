@@ -69,7 +69,12 @@ public class AddressServlet extends HttpServlet {
 	}
 	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
+		if (addressDao == null) {
+			addressDao = new AddressDaoMysqlImpl();
+		}
+		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
+		List<Address> addresses = addressDao.getAll(1);
+		writeText(response, gson.toJson(addresses));
 	}
 	
 	private void writeText(HttpServletResponse response, String outText) throws IOException {
