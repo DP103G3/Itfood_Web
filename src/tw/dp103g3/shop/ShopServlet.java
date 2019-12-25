@@ -17,12 +17,12 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
+import static tw.dp103g3.main.Common.*;
 import tw.dp103g3.main.ImageUtil;
 
 @SuppressWarnings("serial")
 @WebServlet("/ShopServlet")
 public class ShopServlet extends HttpServlet {
-	private final static String CONTENT_TYPE = "text/html; charset=utf-8";
 	private ShopDao shopDao = null;
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)

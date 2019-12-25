@@ -30,12 +30,12 @@ public class ShopDaoMysqlImpl implements ShopDao {
 		int count = 0;
 		String sql = "";
 		if (image != null) {
-			sql = "INSERT INTO `shop` (shop_email, shop_password, shop_name, shop_tax, "
+			sql = "INSERT INTO `shop` (shop_email, shop_password, shop_name, shop_phone, shop_tax, "
 					+ "shop_address, shop_latitude, shop_longitude, shop_area, shop_state, "
 					+ "shop_info, shop_ttscore, shop_ttrate, shop_image) "
 					+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 		} else {
-			sql = "INSERT INTO `shop` (shop_email, shop_password, shop_name, shop_tax, "
+			sql = "INSERT INTO `shop` (shop_email, shop_password, shop_name, shop_phone, shop_tax, "
 					+ "shop_address, shop_latitude, shop_longitude, shop_area, shop_state, "
 					+ "shop_info, shop_ttscore, shop_ttrate) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 		}
@@ -44,17 +44,18 @@ public class ShopDaoMysqlImpl implements ShopDao {
 			ps.setString(1, shop.getEmail());
 			ps.setString(2, shop.getPassword());
 			ps.setString(3, shop.getName());
-			ps.setString(4, shop.getTax());
-			ps.setString(5, shop.getAddress());
-			ps.setDouble(6, shop.getLatitude());
-			ps.setDouble(7, shop.getLongitude());
-			ps.setInt(8, shop.getArea());
-			ps.setInt(9, shop.getState());
-			ps.setString(10, shop.getInfo());
-			ps.setInt(11, shop.getTtscore());
-			ps.setInt(12, shop.getTtrate());
+			ps.setString(4, shop.getPhone());
+			ps.setString(5, shop.getTax());
+			ps.setString(6, shop.getAddress());
+			ps.setDouble(7, shop.getLatitude());
+			ps.setDouble(8, shop.getLongitude());
+			ps.setInt(9, shop.getArea());
+			ps.setInt(10, shop.getState());
+			ps.setString(11, shop.getInfo());
+			ps.setInt(12, shop.getTtscore());
+			ps.setInt(13, shop.getTtrate());
 			if (image != null) {
-				ps.setBytes(13, image);
+				ps.setBytes(14, image);
 			}
 			count = ps.executeUpdate();
 		} catch (SQLException e) {
@@ -68,12 +69,12 @@ public class ShopDaoMysqlImpl implements ShopDao {
 		int count = 0;
 		String sql = "";
 		if (image != null) {
-			sql = "UPDATE `shop` SET shop_email = ?, shop_password = ?, shop_name = ?, "
+			sql = "UPDATE `shop` SET shop_email = ?, shop_password = ?, shop_name = ?, shop_phone = ?, "
 					+ "shop_tax = ?, shop_address = ?, shop_latitude = ?, shop_longitude = ?, "
 					+ "shop_area = ?, shop_state = ?, shop_info = ?, shop_suspendtime = ?, "
 					+ "shop_ttscore = ?, shop_ttrate = ?, shop_image = ? WHERE shop_id = ?;";
 		} else {
-			sql = "UPDATE `shop` SET shop_email = ?, shop_password = ?, shop_name = ?, "
+			sql = "UPDATE `shop` SET shop_email = ?, shop_password = ?, shop_name = ?, shop_phone = ?, "
 					+ "shop_tax = ?, shop_address = ?, shop_latitude = ?, shop_longitude = ?, "
 					+ "shop_area = ?, shop_state = ?, shop_info = ?, shop_suspendtime = ?, "
 					+ "shop_ttscore = ?, shop_ttrate = ? WHERE shop_id = ?;";
@@ -83,21 +84,22 @@ public class ShopDaoMysqlImpl implements ShopDao {
 			ps.setString(1, shop.getEmail());
 			ps.setString(2, shop.getPassword());
 			ps.setString(3, shop.getName());
-			ps.setString(4, shop.getTax());
-			ps.setString(5, shop.getAddress());
-			ps.setDouble(6, shop.getLatitude());
-			ps.setDouble(7, shop.getLongitude());
-			ps.setInt(8, shop.getArea());
-			ps.setByte(9, shop.getState());
-			ps.setString(10, shop.getInfo());
-			ps.setTimestamp(11, shop.getSuspendtime() == null ? null : new Timestamp(shop.getSuspendtime().getTime()));
-			ps.setInt(12, shop.getTtscore());
-			ps.setInt(13, shop.getTtrate());
+			ps.setString(4, shop.getPhone());
+			ps.setString(5, shop.getTax());
+			ps.setString(6, shop.getAddress());
+			ps.setDouble(7, shop.getLatitude());
+			ps.setDouble(8, shop.getLongitude());
+			ps.setInt(9, shop.getArea());
+			ps.setByte(10, shop.getState());
+			ps.setString(11, shop.getInfo());
+			ps.setTimestamp(12, shop.getSuspendtime() == null ? null : new Timestamp(shop.getSuspendtime().getTime()));
+			ps.setInt(13, shop.getTtscore());
+			ps.setInt(14, shop.getTtrate());
 			if (image != null) {
-				ps.setBytes(14, image);
-				ps.setInt(15, shop.getId());
+				ps.setBytes(15, image);
+				ps.setInt(16, shop.getId());
 			} else {
-				ps.setInt(14, shop.getId());
+				ps.setInt(15, shop.getId());
 			}
 
 			count = ps.executeUpdate();
@@ -115,7 +117,7 @@ public class ShopDaoMysqlImpl implements ShopDao {
 	@Override
 	public List<Shop> getAll() {
 		List<Shop> shops = new ArrayList<Shop>();
-		String sql = "SELECT shop_id, shop_email, shop_password, shop_name, shop_tax, shop_address, "
+		String sql = "SELECT shop_id, shop_email, shop_password, shop_name, shop_phone, shop_tax, shop_address, "
 				+ "shop_latitude, shop_longitude, shop_area, shop_state, shop_info, shop_jointime, "
 				+ "shop_suspendtime, shop_ttscore, shop_ttrate FROM `shop`;";
 		try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
@@ -126,18 +128,19 @@ public class ShopDaoMysqlImpl implements ShopDao {
 				String email = rs.getString(2);
 				String password = rs.getString(3);
 				String name = rs.getString(4);
-				String tax = rs.getString(5);
-				String address = rs.getString(6);
-				double latitude = rs.getDouble(7);
-				double longitude = rs.getDouble(8);
-				int area = rs.getInt(9);
-				byte state = rs.getByte(10);
-				String info = rs.getString(11);
-				Date jointime = rs.getTimestamp(12);
-				Date suspendtime = rs.getTimestamp(13);
-				int ttscore = rs.getInt(14);
-				int ttrate = rs.getInt(15);
-				Shop shop = new Shop(id, email, password, name, tax, address, latitude, longitude, area, state, info,
+				String phone = rs.getString(5);
+				String tax = rs.getString(6);
+				String address = rs.getString(7);
+				double latitude = rs.getDouble(8);
+				double longitude = rs.getDouble(9);
+				int area = rs.getInt(10);
+				byte state = rs.getByte(11);
+				String info = rs.getString(12);
+				Date jointime = rs.getTimestamp(13);
+				Date suspendtime = rs.getTimestamp(14);
+				int ttscore = rs.getInt(15);
+				int ttrate = rs.getInt(16);
+				Shop shop = new Shop(id, email, password, name, phone, tax, address, latitude, longitude, area, state, info,
 						jointime, suspendtime, ttscore, ttrate);
 				shops.add(shop);
 			}

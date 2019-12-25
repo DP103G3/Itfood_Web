@@ -1,12 +1,12 @@
 package tw.dp103g3.dish;
 
 public class Dish {
-	int id;
-	String name;
-	String info;
-	byte state;
-	int shop_id;
-	int price;
+	private int id;
+	private String name;
+	private String info;
+	private byte state;
+	private int shop_id;
+	private int price;
 	
 	public Dish(int id, String name, String info, byte state, int shop_id, int price) {
 		super();
