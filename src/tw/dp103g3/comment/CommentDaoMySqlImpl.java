@@ -32,20 +32,19 @@ public class CommentDaoMySqlImpl implements CommentDao {
 	@Override
 	public int insert(Comment comment) {
 		int count = 0;
-		String sql = "INSERT INTO `comment` (cmt_id, cmt_score, cmt_detail, shop_id, mem_id, cmt_state,"
-				+ " cmt_feedback )" + "VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+		String sql = "INSERT INTO `comment` (cmt_score, cmt_detail, shop_id, mem_id, cmt_state,"
+				+ " cmt_feedback)" + "VALUES (?, ?, ?, ?, ?, ?);";
 		Connection connection = null;
 		PreparedStatement ps = null;
 		try {
 			connection = DriverManager.getConnection(URL, USER, PASSWORD);
 			ps = connection.prepareStatement(sql);
-			ps.setInt(1, comment.getCmt_id());
-			ps.setInt(2, comment.getCmt_score());
-			ps.setString(3, comment.getCmt_detail());
-			ps.setInt(4, comment.getShop_id());
-			ps.setInt(5, comment.getMem_id());
-			ps.setInt(6, comment.getCmt_state());
-			ps.setString(7, comment.getCmt_feedback());			
+			ps.setInt(1, comment.getCmt_score());
+			ps.setString(2, comment.getCmt_detail());
+			ps.setInt(3, comment.getShop_id());
+			ps.setInt(4, comment.getMem_id());
+			ps.setInt(5, comment.getCmt_state());
+			ps.setString(6, comment.getCmt_feedback());		
 
 			count = ps.executeUpdate();
 		} catch (SQLException e) {

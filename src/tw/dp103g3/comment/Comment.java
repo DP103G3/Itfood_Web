@@ -24,6 +24,17 @@ public class Comment {
 		this.cmt_feedback = cmt_feedback;
 		this.cmt_time = cmt_time;
 	}
+	
+	//Constructor while inserting.
+	public Comment(int cmt_score, String cmt_detail, int shop_id, int mem_id, int cmt_state) {
+		super();
+		this.cmt_score = cmt_score;
+		this.cmt_detail = cmt_detail;
+		this.shop_id = shop_id;
+		this.mem_id = mem_id;
+		this.cmt_state = cmt_state;
+	}
+
 
 	public Date getCmt_time() {
 		return cmt_time;
