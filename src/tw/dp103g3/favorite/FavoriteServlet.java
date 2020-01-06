@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-import tw.dp103g3.main.Common;
+import static tw.dp103g3.main.Common.*;
 
 @WebServlet("/FavoriteServlet")
 public class FavoriteServlet extends HttpServlet {
@@ -79,7 +79,7 @@ public class FavoriteServlet extends HttpServlet {
 	}
 
 	private void writeText(HttpServletResponse response, String outText) throws IOException {
-		response.setContentType(Common.CONTENT_TYPE);
+		response.setContentType(CONTENT_TYPE);
 		PrintWriter out = response.getWriter();
 		out.print(outText);
 		System.out.println("output: " + outText);
