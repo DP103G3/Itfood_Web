@@ -1,4 +1,4 @@
-package tw.dp103g3.order;
+package tw.dp103g3.comment;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,68 +15,65 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
-@WebServlet("/OrderServlet")
-public class OrderServlet extends HttpServlet {
+@WebServlet("/CommentServlet")
+public class CommentServlet extends HttpServlet {
+	
 	private static final long serialVersionUID = 1L;
 	private final static String CONTENT_TYPE = "text/html; charset=utf-8";
-	OrderDao orderDao = null;
-
+	CommentDao commentDao = null;
+	
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding("utf-8");
 		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 		BufferedReader br = request.getReader();
 		StringBuilder jsonIn = new StringBuilder();
 		String line = null;
-		while ((line = br.readLine()) != null) {
+		while((line = br.readLine()) != null) {
 			jsonIn.append(line);
 		}
-
+		
 		JsonObject jsonObject = gson.fromJson(jsonIn.toString(), JsonObject.class);
-		if (orderDao == null) {
-			orderDao = new OrderDaoMySqlImpl();
-		}
-
-		String action = jsonObject.get("action").getAsString();
-
-		if (action.equals("orderInsert") || action.equals("orderUpdate")) {
-			String orderJson = jsonObject.get("order").getAsString();
-			System.out.println("orderJson = " + orderJson);
-			Order order = gson.fromJson(orderJson, Order.class);
-
-			int count = 0;
-			if (action.equals("orderInsert")) {
-				count = orderDao.insert(order);
-			} else if (action.equals("orderUpdate")) {
-				count = orderDao.update(order);
-			}
-			writeText(response, String.valueOf(count));
-		} else if (action.equals("findByOrderId")) {
-			int order_id = jsonObject.get("order_id").getAsInt();
-			List<Order> orders = orderDao.findByOrderId(order_id);
-			writeText(response, gson.toJson(orders));
-		} else if (action.equals("findByCase")) {
-			int id = jsonObject.get("order_id").getAsInt();
-			String type = jsonObject.get("type").getAsString();
-			List<Order> orders = orderDao.findByCase(id, type);
-			writeText(response, gson.toJson(orders));
-		} else if (action.equals("findByCaseWithState")) {
-			int id = jsonObject.get("order_id").getAsInt();
-			String type = jsonObject.get("type").getAsString();
-			int state = jsonObject.get("state").getAsInt();
-			List<Order> orders = orderDao.findByCase(id, type, state);
-			writeText(response, gson.toJson(orders));
+		if(commentDao == null) {
+			commentDao = new CommentDaoMySqlImpl();
 		}
 		
-		else {
-			writeText(response, "");
+		String action = jsonObject.get("action").getAsString();
+		
+		if(action.equals("commentInsert") || action.equals("commentUpdate")) {
+			String commentJson = jsonObject.get("comment").getAsString();
+			System.out.println("commentJson = " + commentJson);
+			Comment comment = gson.fromJson(commentJson, Comment.class);
+			
+			int count = 0;
+			if (action.equals("commentInsert")) {
+				count = commentDao.insert(comment);
+			} else if (action.equals("commentUpdate")) {
+				count = commentDao.update(comment);
+			}
+			writeText(response, String.valueOf(count));
+		} else if (action.equals("findByCommentId")) {
+			int cmt_id = jsonObject.get("cmt_id").getAsInt();
+			Comment comment = commentDao.findByCommentId(cmt_id);
+			writeText(response, gson.toJson(comment));
+		} else if (action.equals("findByCase")) {
+			int id = jsonObject.get("id").getAsInt();
+			String type = jsonObject.get("type").getAsString();
+			List<Comment> comments = commentDao.findByCase(id, type);
+			writeText(response, gson.toJson(comments));
+		} else if (action.equals("findByCaseWithState")) {
+			int id = jsonObject.get("id").getAsInt();
+			String type = jsonObject.get("type").getAsString();
+			int state = jsonObject.get("state").getAsInt();
+			List<Comment> comments = commentDao.findByCase(id, type, state);
+			writeText(response, gson.toJson(comments));
 		}
 	}
-	
+   
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		orderDao = new OrderDaoMySqlImpl();
-		List<Order> orders = orderDao.findByCase(1, "member");
+		commentDao = new CommentDaoMySqlImpl();
+		List<Comment> comments = commentDao.findByCase(1, "shop");
 		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
-		writeText(response, gson.toJson(orders));
+		writeText(response, gson.toJson(comments));
 	}
 
 	private void writeText(HttpServletResponse response, String outText) throws IOException {
@@ -86,4 +83,5 @@ public class OrderServlet extends HttpServlet {
 		// 將輸出資料列印出來除錯用
 		System.out.println("output: " + outText);
 	}
+
 }

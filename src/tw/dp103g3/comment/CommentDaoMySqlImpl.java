@@ -198,7 +198,7 @@ public class CommentDaoMySqlImpl implements CommentDao {
 	}
 
 	@Override
-	public List<Comment> findByCae(int id, String type) {
+	public List<Comment> findByCase(int id, String type) {
 		String sqlPart = "";
 		switch (type) {
 			case "member":

@@ -12,7 +12,7 @@ public interface CommentDao {
 	
 	List<Comment> findByCase(int id, String type, int state);
 	
-	List<Comment> findByCae(int id, String type);
+	List<Comment> findByCase(int id, String type);
 	
 
 }
