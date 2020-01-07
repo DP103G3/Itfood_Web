@@ -12,7 +12,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+
+import tw.dp103g3.order.Order;
+import tw.dp103g3.order.OrderDaoMySqlImpl;
 
 import static tw.dp103g3.main.Common.*;
 
@@ -27,6 +31,10 @@ public class FavoriteServlet extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		favoriteDao = new FavoriteDaoMySqlImpl();
+		List<Favorite> favorites = favoriteDao.findByMemberId(1);
+		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
+		writeText(response, gson.toJson(favorites));
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
