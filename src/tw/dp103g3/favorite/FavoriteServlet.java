@@ -15,8 +15,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
-import tw.dp103g3.order.Order;
-import tw.dp103g3.order.OrderDaoMySqlImpl;
 
 import static tw.dp103g3.main.Common.*;
 
