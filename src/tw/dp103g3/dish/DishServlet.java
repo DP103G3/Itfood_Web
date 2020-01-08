@@ -18,12 +18,12 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
+import static tw.dp103g3.main.Common.CONTENT_TYPE;
 import tw.dp103g3.main.ImageUtil;
 
 @SuppressWarnings("serial")
 @WebServlet("/DishServlet")
 public class DishServlet extends HttpServlet {
-	private final static String CONTENT_TYPE = "text/html; charset=utf-8";
 	private DishDao dishDao = null;
 	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

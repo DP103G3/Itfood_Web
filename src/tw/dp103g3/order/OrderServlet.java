@@ -14,11 +14,11 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import static tw.dp103g3.main.Common.CONTENT_TYPE;
 
 @WebServlet("/OrderServlet")
 public class OrderServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private final static String CONTENT_TYPE = "text/html; charset=utf-8";
 	OrderDao orderDao = null;
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

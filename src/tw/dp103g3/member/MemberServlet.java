@@ -17,11 +17,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import static tw.dp103g3.main.Common.CONTENT_TYPE;
 
 @SuppressWarnings("serial")
 @WebServlet("/MemberServlet")
 public class MemberServlet extends HttpServlet {
-	private final static String CONTENT_TYPE = "text/html; charset=utf-8";
 	MemberDao memberDao = null;
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
