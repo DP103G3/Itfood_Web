@@ -108,6 +108,7 @@ public class CommentDaoMySqlImpl implements CommentDao {
 		try {
 			connection = DriverManager.getConnection(URL, USER, PASSWORD);
 			ps = connection.prepareStatement(sql);
+			ps.setInt(1, cmt_id);
 			ResultSet rs = ps.executeQuery();
 			while (rs.next()) {
 				int cmtId = rs.getInt(1);

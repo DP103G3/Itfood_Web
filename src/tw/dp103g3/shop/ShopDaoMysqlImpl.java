@@ -161,7 +161,8 @@ public class ShopDaoMysqlImpl implements ShopDao {
 		List<Shop> shops = new ArrayList<Shop>();
 		List<String> types = new ArrayList<String>();
 		String sql = "SELECT `shop`.shop_id, shop_name, shop_address, shop_latitude, shop_longitude, shop_area, "
-				+ "shop_state, shop_info, shop_jointime, shop_ttscore, shop_ttrate, type_name FROM `shop` LEFT JOIN `shop_type` ON "
+				+ "shop_state, shop_info, shop_jointime, shop_ttscore, shop_ttrate, type_name, shop_email, shop_password, shop_phone"
+				+ " FROM `shop` LEFT JOIN `shop_type` ON "
 				+ "`shop_type`.shop_id = `shop`.shop_id LEFT JOIN `type` ON `type`.type_id = `shop_type`.type_id "
 				+ "WHERE shop_state != 0 ORDER BY shop_id;";
 		try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
@@ -180,7 +181,10 @@ public class ShopDaoMysqlImpl implements ShopDao {
 				int ttscore = rs.getInt(10);
 				int ttrate = rs.getInt(11);
 				String type = rs.getString(12);
-				Shop shop = new Shop(id, name, address, latitude, longitude, area, state, info, jointime, ttscore, ttrate);
+				String email = rs.getString(13);
+				String password = rs.getString(14);
+				String phone = rs.getString(15);
+				Shop shop = new Shop(id, email, password, name, phone, address, latitude, longitude, area, state, info, jointime, ttscore, ttrate);
 				if (!shops.remove(shop)) {
 					types = new ArrayList<String>();
 				}
@@ -216,7 +220,8 @@ public class ShopDaoMysqlImpl implements ShopDao {
 		Shop shop = null;
 		List<String> types = new ArrayList<String>();
 		String sql = "SELECT shop_name, shop_address, shop_latitude, shop_longitude, shop_area, "
-				+ "shop_state, shop_info, shop_jointime, shop_ttscore, shop_ttrate, type_name FROM `shop` "
+				+ "shop_state, shop_info, shop_jointime, shop_ttscore, shop_ttrate, type_name, shop_email, shop_password, shop_phone"
+				+ " FROM `shop` "
 				+ "JOIN `shop_type` ON `shop_type`.shop_id = `shop`.shop_id JOIN `type` ON "
 				+ "`type`.type_id = `shop_type`.type_id WHERE shop_state != 0 AND `shop`.shop_id = ?;";
 		try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
@@ -235,7 +240,10 @@ public class ShopDaoMysqlImpl implements ShopDao {
 				int ttscore = rs.getInt(9);
 				int ttrate = rs.getInt(10);
 				String type = rs.getString(11);
-				shop = new Shop(id, name, address, latitude, longitude, area, state, info, jointime, ttscore, ttrate);
+				String email = rs.getString(12);
+				String password = rs.getString(13);
+				String phone = rs.getString(14);
+				shop = new Shop(id, email, password, name, phone, address, latitude, longitude, area, state, info, jointime, ttscore, ttrate);
 				types.add(type);
 				shop.setTypes(types);
 			}
