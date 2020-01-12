@@ -30,6 +30,8 @@ public class OrderServlet extends HttpServlet {
 		while ((line = br.readLine()) != null) {
 			jsonIn.append(line);
 		}
+		
+		System.out.println("input: " + jsonIn);
 
 		JsonObject jsonObject = gson.fromJson(jsonIn.toString(), JsonObject.class);
 		if (orderDao == null) {
@@ -55,12 +57,12 @@ public class OrderServlet extends HttpServlet {
 			List<Order> orders = orderDao.findByOrderId(order_id);
 			writeText(response, gson.toJson(orders));
 		} else if (action.equals("findByCase")) {
-			int id = jsonObject.get("order_id").getAsInt();
+			int id = jsonObject.get("id").getAsInt();
 			String type = jsonObject.get("type").getAsString();
 			List<Order> orders = orderDao.findByCase(id, type);
 			writeText(response, gson.toJson(orders));
 		} else if (action.equals("findByCaseWithState")) {
-			int id = jsonObject.get("order_id").getAsInt();
+			int id = jsonObject.get("id").getAsInt();
 			String type = jsonObject.get("type").getAsString();
 			int state = jsonObject.get("state").getAsInt();
 			List<Order> orders = orderDao.findByCase(id, type, state);
