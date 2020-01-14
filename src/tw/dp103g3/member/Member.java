@@ -26,7 +26,21 @@ public class Member {
 		this.mem_suspendtime = mem_suspendtime;
 		this.mem_state = mem_state;
 		
+	
+		
 	}
+	
+	public Member(int mem_id, String mem_name, String mem_password, String mem_email, String mem_phone
+			 ) {
+		super();
+		this.mem_id = mem_id;
+		this.mem_name = mem_name;
+		this.mem_password = mem_password;
+		this.mem_email = mem_email;
+		this.mem_phone = mem_phone;
+	}
+	
+
 	public int getMemId() {
 		return mem_id;
 	}

@@ -97,7 +97,7 @@ public class MemberDaoMySqlImpl implements MemberDao {
 
 	@Override
 	public Member findById(int mem_id) {
-		String sql = "SELECT mem_name, mem_password, mem_email, mem_phone, mem_joindate, mem_suspendtime, mem_state FROM `member` WHERE mem_id = ?;";
+		String sql = "SELECT mem_name, mem_password, mem_email, mem_phone FROM `member` WHERE mem_id = ?;";
 		Connection conn = null;
 		PreparedStatement ps = null;
 		Member member = null;
@@ -115,6 +115,7 @@ public class MemberDaoMySqlImpl implements MemberDao {
 				Date mem_suspendtime = rs.getTimestamp(7);
 				int mem_state = rs.getInt(8);
 				member = new Member(mem_id, mem_name, mem_password, mem_email,mem_phone,mem_joindate,mem_suspendtime,mem_state);
+				member = new Member(mem_id, mem_name, mem_password, mem_email,mem_phone);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -157,6 +158,7 @@ public class MemberDaoMySqlImpl implements MemberDao {
 				
 			}
 			System.out.println("output add sql:" + memberList);
+			//System.out.println("output add sql:" + memberList);
 			return memberList;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -173,6 +175,7 @@ public class MemberDaoMySqlImpl implements MemberDao {
 			}
 		}
 		System.out.println("output getAll return sql:" + memberList);
+		//System.out.println("output getAll return sql:" + memberList);
 		return memberList;
 	}
 
