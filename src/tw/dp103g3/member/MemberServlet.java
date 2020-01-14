@@ -17,6 +17,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import static tw.dp103g3.main.Common.CONTENT_TYPE;
 
 @SuppressWarnings("serial")
 @WebServlet("/MemberServlet")
@@ -27,6 +28,7 @@ public class MemberServlet extends HttpServlet {
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding("utf-8");
 		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm").create();
+		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 		BufferedReader br = request.getReader();
 		StringBuilder jsonIn = new StringBuilder();
 		String line = null;

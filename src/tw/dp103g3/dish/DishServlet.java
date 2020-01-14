@@ -18,6 +18,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
+import static tw.dp103g3.main.Common.CONTENT_TYPE;
 import tw.dp103g3.main.ImageUtil;
 
 @SuppressWarnings("serial")

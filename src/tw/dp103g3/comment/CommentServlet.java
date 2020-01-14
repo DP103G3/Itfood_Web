@@ -37,6 +37,8 @@ public class CommentServlet extends HttpServlet {
 			commentDao = new CommentDaoMySqlImpl();
 		}
 		
+		System.out.println("input: " + jsonIn.toString());
+		
 		String action = jsonObject.get("action").getAsString();
 		
 		if(action.equals("commentInsert") || action.equals("commentUpdate")) {

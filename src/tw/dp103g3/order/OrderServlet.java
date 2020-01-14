@@ -14,11 +14,11 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import static tw.dp103g3.main.Common.CONTENT_TYPE;
 
 @WebServlet("/OrderServlet")
 public class OrderServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private final static String CONTENT_TYPE = "text/html; charset=utf-8";
 	OrderDao orderDao = null;
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -30,6 +30,8 @@ public class OrderServlet extends HttpServlet {
 		while ((line = br.readLine()) != null) {
 			jsonIn.append(line);
 		}
+		
+		System.out.println("input: " + jsonIn);
 
 		JsonObject jsonObject = gson.fromJson(jsonIn.toString(), JsonObject.class);
 		if (orderDao == null) {
@@ -55,12 +57,12 @@ public class OrderServlet extends HttpServlet {
 			List<Order> orders = orderDao.findByOrderId(order_id);
 			writeText(response, gson.toJson(orders));
 		} else if (action.equals("findByCase")) {
-			int id = jsonObject.get("order_id").getAsInt();
+			int id = jsonObject.get("id").getAsInt();
 			String type = jsonObject.get("type").getAsString();
 			List<Order> orders = orderDao.findByCase(id, type);
 			writeText(response, gson.toJson(orders));
 		} else if (action.equals("findByCaseWithState")) {
-			int id = jsonObject.get("order_id").getAsInt();
+			int id = jsonObject.get("id").getAsInt();
 			String type = jsonObject.get("type").getAsString();
 			int state = jsonObject.get("state").getAsInt();
 			List<Order> orders = orderDao.findByCase(id, type, state);

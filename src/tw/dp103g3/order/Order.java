@@ -8,7 +8,8 @@ public class Order {
 	private int shop_id;
 	private int mem_id;
 	private int pay_id;
-	private int order_status;
+	private int order_statu;
+	private int order_state;
 	private int sp_id;
 	private Date order_time;
 	private Date order_ideal;
@@ -18,9 +19,11 @@ public class Order {
 	private String order_phone;
 	private int order_ttprice;
 	private int order_area;
+	private int order_type;
 	
 	public Order(int shop_id, int mem_id, int del_id, int pay_id, int sp_id, Date order_ideal, Date order_delivery, 
 			int adrs_id, String order_name, String order_phone, int order_ttprice) {
+			int adrs_id, String order_name, String order_phone, int order_ttprice, int order_type) {
 		super();
 		this.del_id = del_id;
 		this.shop_id = shop_id;
@@ -33,10 +36,11 @@ public class Order {
 		this.order_name = order_name;
 		this.order_phone = order_phone;
 		this.order_ttprice = order_ttprice;
+		this.order_type = order_type;
 	}
 	
 	public Order(int order_id, int shop_id, int mem_id,int del_id, int pay_id, int sp_id, Date order_ideal,
-			Date order_time, Date order_delivery, int adrs_id, String order_name, String order_phone, int order_ttprice, int order_area, int order_status) {
+			Date order_time, Date order_delivery, int adrs_id, String order_name, String order_phone, int order_ttprice, int order_area, int order_state, int order_type) {
 		super();
 		this.order_id = order_id;
 		this.del_id = del_id;
@@ -52,7 +56,8 @@ public class Order {
 		this.order_phone = order_phone;
 		this.order_ttprice = order_ttprice;
 		this.order_area = order_area;
-		this.order_status = order_status;
+		this.order_state = order_state;
+		this.order_type = order_type;
 	}
 
 	public int getOrder_id() {
@@ -95,12 +100,12 @@ public class Order {
 		this.pay_id = pay_id;
 	}
 
-	public int getOrder_status() {
-		return order_status;
+	public int getOrder_state() {
+		return order_state;
 	}
 
-	public void setOrder_status(int order_status) {
-		this.order_status = order_status;
+	public void setOrder_state(int order_statu) {
+		this.order_state = order_statu;
 	}
 
 	public int getSp_id() {
@@ -173,6 +178,14 @@ public class Order {
 
 	public void setOrder_area(int order_area) {
 		this.order_area = order_area;
+	}
+
+	public int getOrder_type() {
+		return order_type;
+	}
+
+	public void setOrder_type(int order_type) {
+		this.order_type = order_type;
 	}
 	
 	

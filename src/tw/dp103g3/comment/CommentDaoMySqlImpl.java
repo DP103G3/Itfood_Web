@@ -108,6 +108,7 @@ public class CommentDaoMySqlImpl implements CommentDao {
 		try {
 			connection = DriverManager.getConnection(URL, USER, PASSWORD);
 			ps = connection.prepareStatement(sql);
+			ps.setInt(1, cmt_id);
 			ResultSet rs = ps.executeQuery();
 			while (rs.next()) {
 				int cmtId = rs.getInt(1);
@@ -157,6 +158,7 @@ public class CommentDaoMySqlImpl implements CommentDao {
 		sql = "SELECT cmt_id, cmt_score, cmt_detail, shop_id, mem_id"
 				+ ", cmt_state, cmt_feedback, cmt_time "
 				+ "FROM `comment` WHERE " + sqlPart + " = ? AND comment_state = ? ORDER BY cmt_time DESC;";
+				+ "FROM `comment` WHERE " + sqlPart + " = ? AND cmt_state = ? ORDER BY cmt_time DESC;";
 		Connection connection = null;
 		PreparedStatement ps = null;
 		List<Comment> commentList = new ArrayList<Comment>();

@@ -31,8 +31,8 @@ public class OrderDaoMySqlImpl implements OrderDao {
 	public int insert(Order order) {
 		int count = 0;
 		String sql = "INSERT INTO `order` (shop_id, mem_id, del_id, pay_id, sp_id, order_ideal, "
-				+ "order_delivery, adrs_id, order_name, order_phone, order_ttprice) "
-				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+				+ "order_delivery, adrs_id, order_name, order_phone, order_ttprice, order_type, order_state) "
+				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 		Connection connection = null;
 		PreparedStatement ps = null;
 		try {
@@ -50,6 +50,8 @@ public class OrderDaoMySqlImpl implements OrderDao {
 			ps.setString(9, order.getOrder_name());
 			ps.setString(10, order.getOrder_phone());
 			ps.setInt(11, order.getOrder_ttprice());
+			ps.setInt(12, order.getOrder_type());
+			ps.setInt(13, order.getOrder_state());
 
 			count = ps.executeUpdate();
 		} catch (SQLException e) {
@@ -74,7 +76,7 @@ public class OrderDaoMySqlImpl implements OrderDao {
 		int count = 0;
 		String sql = "UPDATE `order` SET shop_id = ?, mem_id = ?, del_id = ?, pay_id = ?, sp_id = ?,"
 				+ " order_ideal = ?, order_delivery = ?, adrs_id = ?, order_name = ?, order_phone = ?, "
-				+ "order_ttprice = ?, order_status = ? WHERE order_id = ?;";
+				+ "order_ttprice = ?, order_state = ?, order_type = ? WHERE order_id = ?;";
 		Connection connection = null;
 		PreparedStatement ps = null;
 		try {
@@ -92,8 +94,10 @@ public class OrderDaoMySqlImpl implements OrderDao {
 			ps.setString(9, order.getOrder_name());
 			ps.setString(10, order.getOrder_phone());
 			ps.setInt(11, order.getOrder_ttprice());
-			ps.setInt(12, order.getOrder_status());
-			ps.setInt(13, order.getOrder_id());
+			ps.setInt(12, order.getOrder_state());
+			ps.setInt(13, order.getOrder_type());
+			ps.setInt(14, order.getOrder_id());
+			
 
 			count = ps.executeUpdate();
 		} catch (SQLException e) {
@@ -115,8 +119,8 @@ public class OrderDaoMySqlImpl implements OrderDao {
 
 	@Override
 	public List<Order> findByOrderId(int order_id) {
-		String sql = "SELECT  order_id, shop_id, mem_id, del_id, pay_id, order_status, sp_id, order_time, order_ideal, order_delivery, "
-				+ "adrs_id, order_name, order_phone, order_ttpice, order_area "
+		String sql = "SELECT  order_id, shop_id, mem_id, del_id, pay_id, order_state, sp_id, order_time, order_ideal, order_delivery, "
+				+ "adrs_id, order_name, order_phone, order_ttpice, order_area, order_type  "
 				+ "FROM `order` WHERE order_id = ? ORDER BY order_time DESC;";
 		Connection connection = null;
 		PreparedStatement ps = null;
@@ -132,7 +136,7 @@ public class OrderDaoMySqlImpl implements OrderDao {
 				int memId = rs.getInt(3);
 				int delId = rs.getInt(4);
 				int payId = rs.getInt(5);
-				int orderStatus = rs.getInt(6);
+				int orderState = rs.getInt(6);
 				int spId = rs.getInt(7);
 				Date orderTime = rs.getTimestamp(8);
 				Date orderIdeal = rs.getTimestamp(9);
@@ -142,8 +146,9 @@ public class OrderDaoMySqlImpl implements OrderDao {
 				String order_phone = rs.getString(13);
 				int order_ttprice = rs.getInt(14);
 				int order_area = rs.getInt(15);
+				int order_type = rs.getInt(16);
 				Order order = new Order(orderId, shopId, memId, delId, payId, spId, orderIdeal, orderTime,
-						orderDelivery, adrsId, order_name, order_phone, order_ttprice, order_area, orderStatus);
+						orderDelivery, adrsId, order_name, order_phone, order_ttprice, order_area, orderState, order_type);
 				orderList.add(order);
 			}
 			return orderList;
@@ -179,8 +184,8 @@ public class OrderDaoMySqlImpl implements OrderDao {
 				break;
 		}
 		String sql = null;
-		sql = "SELECT  order_id, shop_id, mem_id, del_id, pay_id, order_status, sp_id, order_time, "
-				+ "order_ideal, order_delivery, adrs_id, order_name, order_phone, order_ttpice, order_area "
+		sql = "SELECT  order_id, shop_id, mem_id, del_id, pay_id, order_state, sp_id, order_time, "
+				+ "order_ideal, order_delivery, adrs_id, order_name, order_phone, order_ttprice, order_area, order_type "
 				+ "FROM `order` WHERE " + sqlPart + " = ? AND order_state = ? ORDER BY order_time DESC;";
 		
 		Connection connection = null;
@@ -208,8 +213,9 @@ public class OrderDaoMySqlImpl implements OrderDao {
 				String order_phone = rs.getString(13);
 				int order_ttprice = rs.getInt(14);
 				int order_area = rs.getInt(15);
+				int order_type = rs.getInt(16);
 				Order order = new Order(orderId, shopId, memId, delId, payId, spId, orderIdeal, orderTime,
-						orderDelivery, adrsId, order_name, order_phone, order_ttprice, order_area, orderStatus);
+						orderDelivery, adrsId, order_name, order_phone, order_ttprice, order_area, orderStatus, order_type);
 				orderList.add(order);
 			}
 			return orderList;
@@ -248,7 +254,7 @@ public class OrderDaoMySqlImpl implements OrderDao {
 		}
 		String sql = null;
 		sql = "SELECT order_id, shop_id, mem_id, del_id, pay_id, order_state, sp_id, order_time, "
-				+ "order_ideal, order_delivery, adrs_id, order_name, order_phone, order_ttprice, order_area "
+				+ "order_ideal, order_delivery, adrs_id, order_name, order_phone, order_ttprice, order_area , order_type "
 				+ "FROM `order` WHERE " + sqlPart + " = ? ORDER BY order_time DESC;";
 		
 		Connection connection = null;
@@ -265,7 +271,7 @@ public class OrderDaoMySqlImpl implements OrderDao {
 				int memId = rs.getInt(3);
 				int delId = rs.getInt(4);
 				int payId = rs.getInt(5);
-				int orderStatus = rs.getInt(6);
+				int orderState = rs.getInt(6);
 				int spId = rs.getInt(7);
 				Date orderTime = rs.getTimestamp(8);
 				Date orderIdeal = rs.getTimestamp(9);
@@ -275,8 +281,9 @@ public class OrderDaoMySqlImpl implements OrderDao {
 				String order_phone = rs.getString(13);
 				int order_ttprice = rs.getInt(14);
 				int order_area = rs.getInt(15);
+				int order_type = rs.getInt(16);
 				Order order = new Order(orderId, shopId, memId, delId, payId, spId, orderIdeal, orderTime,
-						orderDelivery, adrsId, order_name, order_phone, order_ttprice, order_area, orderStatus);
+						orderDelivery, adrsId, order_name, order_phone, order_ttprice, order_area, orderState, order_type);
 				orderList.add(order);
 			}
 			return orderList;
