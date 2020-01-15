@@ -121,7 +121,6 @@ public class MemberDaoMySqlImpl implements MemberDao {
 				Date mem_joindate = rs.getTimestamp(5);
 				Date mem_suspendtime = rs.getTimestamp(6);
 				int mem_state = rs.getInt(7);
-				member = new Member(mem_id, mem_name, mem_password, mem_email,mem_phone,mem_joindate,mem_suspendtime,mem_state);
 				member = new Member(mem_id, mem_name, mem_password, mem_email,mem_phone);
 			}
 		} catch (SQLException e) {
