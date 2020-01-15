@@ -107,22 +107,11 @@ public class MemberDaoMySqlImpl implements MemberDao {
 			ps.setInt(1, mem_id);
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
-				String mem_name = rs.getString(2);
-				String mem_password = rs.getString(3);
-				String mem_email = rs.getString(4);
-				String mem_phone = rs.getString(5);
-				Date mem_joindate = rs.getTimestamp(6);
-				Date mem_suspendtime = rs.getTimestamp(7);
-				int mem_state = rs.getInt(8);
 				String mem_name = rs.getString(1);
 				String mem_password = rs.getString(2);
 				String mem_email = rs.getString(3);
 				String mem_phone = rs.getString(4);
-				Date mem_joindate = rs.getTimestamp(5);
-				Date mem_suspendtime = rs.getTimestamp(6);
-				int mem_state = rs.getInt(7);
-				member = new Member(mem_id, mem_name, mem_password, mem_email,mem_phone,mem_joindate,mem_suspendtime,mem_state);
-				member = new Member(mem_id, mem_name, mem_password, mem_email,mem_phone);
+				member = new Member(mem_id, mem_name, mem_password, mem_email, mem_phone);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

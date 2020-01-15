@@ -18,6 +18,11 @@ public class OrderDetail {
 		this.od_price = od_price;
 		this.od_message = od_message;
 	}
+	
+	public OrderDetail(int dish_id, int od_count) {
+		this.dish_id = dish_id;
+		this.od_count = od_count;
+	}
 
 	public int getOd_id() {
 		return od_id;

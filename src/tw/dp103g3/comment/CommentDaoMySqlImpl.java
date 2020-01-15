@@ -157,7 +157,6 @@ public class CommentDaoMySqlImpl implements CommentDao {
 		String sql = null;
 		sql = "SELECT cmt_id, cmt_score, cmt_detail, shop_id, mem_id"
 				+ ", cmt_state, cmt_feedback, cmt_time "
-				+ "FROM `comment` WHERE " + sqlPart + " = ? AND comment_state = ? ORDER BY cmt_time DESC;";
 				+ "FROM `comment` WHERE " + sqlPart + " = ? AND cmt_state = ? ORDER BY cmt_time DESC;";
 		Connection connection = null;
 		PreparedStatement ps = null;
