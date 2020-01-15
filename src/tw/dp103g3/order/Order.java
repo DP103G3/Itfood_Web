@@ -21,7 +21,7 @@ public class Order {
 	private int order_area;
 	private int order_type;
 	
-	public Order(int shop_id, int mem_id, int del_id, int pay_id, int sp_id, Date order_ideal, Date order_delivery,
+	public Order(int shop_id, int mem_id, int del_id, int pay_id, int sp_id, Date order_ideal, Date order_delivery, 
 			int adrs_id, String order_name, String order_phone, int order_ttprice, int order_type) {
 		super();
 		this.del_id = del_id;
