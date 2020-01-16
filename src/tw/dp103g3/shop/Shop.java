@@ -44,14 +44,11 @@ public class Shop {
 		this.ttrate = ttrate;
 	}
 
-	public Shop(int id, String email,String password, String name,String phone, String address, double latitude, double longitude, int area, byte state,
+	public Shop(int id, String name, String address, double latitude, double longitude, int area, byte state,
 			String info, Date jointime, int ttscore, int ttrate) {
 		super();
 		this.id = id;
-		this.email = email;
-		this.password = password;
 		this.name = name;
-		this.phone = phone;
 		this.address = address;
 		this.latitude = latitude;
 		this.longitude = longitude;
