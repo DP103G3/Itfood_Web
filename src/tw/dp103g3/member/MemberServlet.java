@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+
+
 import tw.dp103g3.member.Member;
 import tw.dp103g3.member.MemberDao;
 import tw.dp103g3.member.MemberDaoMySqlImpl;
@@ -28,7 +30,6 @@ public class MemberServlet extends HttpServlet {
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding("utf-8");
 		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm").create();
-		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 		BufferedReader br = request.getReader();
 		StringBuilder jsonIn = new StringBuilder();
 		String line = null;
@@ -42,23 +43,48 @@ public class MemberServlet extends HttpServlet {
 		if (memberDao == null) {
 			memberDao = new MemberDaoMySqlImpl();
 		}
-
+		List<Member> members = null;
+		int count = 0;
+		int mem_id = 0;
+		Member member = null;
+		String memberJson = null;
 		String action = jsonObject.get("action").getAsString();
 
-		if (action.equals("getAll")) {
-			List<Member> members = memberDao.getAll();
+		switch (action) {
+		case "insert":
+		case "getAll":
+			members = memberDao.getAll();
 			writeText(response, gson.toJson(members));
-		} else if (action.equals("memberInsert") || action.equals("memberUpdate")) {
-			String memberJson = jsonObject.get("member").getAsString();
-			System.out.println("memberJson = " + memberJson);
-			int count = 0;
+			break;
+		case "update":
+			memberJson = jsonObject.get("member").getAsString();
+			member = gson.fromJson(memberJson, Member.class);
 			writeText(response, String.valueOf(count));
-		} else if (action.equals("findById")) {
-			int mem_id = jsonObject.get("mem_id").getAsInt();
-			Member member = memberDao.findById(mem_id);
+			System.out.println("update = " + memberJson);
+			break;
+		case "findById":
+			mem_id = jsonObject.get("mem_id").getAsInt();
+			member = memberDao.findById(mem_id);
 			writeText(response, gson.toJson(member));
-		} else {
+			System.out.println("findById: " + member);
+			break;
+		case "getAccount":
+			mem_id = jsonObject.get("mem_id").getAsInt();
+			member = memberDao.getAccount(mem_id);
+			writeText(response, gson.toJson(member));
+			System.out.println("getAccount: " + member);
+			break;
+		case "saveAccount":
+			memberJson = jsonObject.get("member").getAsString();
+			member = gson.fromJson(memberJson, Member.class);
+			writeText(response, String.valueOf(count));
+			System.out.println("saveAccount = " + memberJson);
+			break;
+		default:
 			writeText(response, "not fun");
+			break;
+			
+			
 		}
 	}
 
