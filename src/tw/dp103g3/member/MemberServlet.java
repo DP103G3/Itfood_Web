@@ -30,7 +30,7 @@ public class MemberServlet extends HttpServlet {
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding("utf-8");
 
-		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm").create();
+		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 
 		BufferedReader br = request.getReader();
 		StringBuilder jsonIn = new StringBuilder();
