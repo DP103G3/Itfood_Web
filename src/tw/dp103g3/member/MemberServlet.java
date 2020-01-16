@@ -29,11 +29,9 @@ public class MemberServlet extends HttpServlet {
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		request.setCharacterEncoding("utf-8");
-<<<<<<< HEAD
+
 		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm").create();
-=======
-		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
->>>>>>> 0065d138f29f4b80a3877c9cfab63c041a2450d9
+
 		BufferedReader br = request.getReader();
 		StringBuilder jsonIn = new StringBuilder();
 		String line = null;

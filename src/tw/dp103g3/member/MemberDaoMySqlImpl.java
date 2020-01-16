@@ -173,7 +173,6 @@ public class MemberDaoMySqlImpl implements MemberDao {
 			ps.setInt(1, mem_id);
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
-<<<<<<< HEAD
 				String mem_name = rs.getString(2);
 				String mem_password = rs.getString(3);
 				String mem_email = rs.getString(4);
@@ -182,13 +181,7 @@ public class MemberDaoMySqlImpl implements MemberDao {
 				Date mem_suspendtime = rs.getTimestamp(7);
 				int mem_state = rs.getInt(8);
 				member = new Member(mem_id, mem_name, mem_password, mem_email, mem_phone, mem_joindate, mem_suspendtime, mem_state);
-=======
-				String mem_name = rs.getString(1);
-				String mem_password = rs.getString(2);
-				String mem_email = rs.getString(3);
-				String mem_phone = rs.getString(4);
-				member = new Member(mem_id, mem_name, mem_password, mem_email, mem_phone);
->>>>>>> 0065d138f29f4b80a3877c9cfab63c041a2450d9
+
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
