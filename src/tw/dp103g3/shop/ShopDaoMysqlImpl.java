@@ -162,9 +162,9 @@ public class ShopDaoMysqlImpl implements ShopDao {
 		List<String> types = new ArrayList<String>();
 		String sql = "SELECT `shop`.shop_id, shop_name, shop_address, shop_latitude, shop_longitude, shop_area, shop_state, " + 
 				"shop_info, shop_jointime, shop_ttscore, shop_ttrate, type_name FROM `shop` " + 
-				"JOIN `shop_type` ON `shop_type`.shop_id = `shop`.shop_id " + 
-				"JOIN `type` ON `type`.type_id = `shop_type`.type_id " + 
-				"WHERE shop_state != 0;";
+				"LEFT JOIN `shop_type` ON `shop_type`.shop_id = `shop`.shop_id " + 
+				"LEFT JOIN `type` ON `type`.type_id = `shop_type`.type_id " + 
+				"WHERE shop_state != 0 ORDER BY `shop`.shop_id;";
 		try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
 				PreparedStatement ps = connection.prepareStatement(sql);) {
 			ResultSet rs = ps.executeQuery();
@@ -218,9 +218,9 @@ public class ShopDaoMysqlImpl implements ShopDao {
 		List<String> types = new ArrayList<String>();
 		String sql = "SELECT shop_name, shop_address, shop_latitude, shop_longitude, shop_area, shop_state, " + 
 				"shop_info, shop_jointime, shop_ttscore, shop_ttrate, type_name FROM `shop` " + 
-				"JOIN `shop_type` ON `shop_type`.shop_id = `shop`.shop_id \" + \n" + 
-				"JOIN `type` ON `type`.type_id = `shop_type`.type_id \" + \n" + 
-				"WHERE shop_state != 0;";
+				"JOIN `shop_type` ON `shop_type`.shop_id = `shop`.shop_id " + 
+				"JOIN `type` ON `type`.type_id = `shop_type`.type_id " + 
+				"WHERE shop_state != 0 AND `shop`.shop_id = ?;";
 		try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
 				PreparedStatement ps = connection.prepareStatement(sql);) {
 			ps.setInt(1, id);

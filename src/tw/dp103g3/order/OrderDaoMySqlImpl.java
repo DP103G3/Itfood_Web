@@ -186,7 +186,7 @@ public class OrderDaoMySqlImpl implements OrderDao {
 		String sql = null;
 		sql = "SELECT  order_id, shop_id, mem_id, del_id, pay_id, order_state, sp_id, order_time, "
 				+ "order_ideal, order_delivery, adrs_id, order_name, order_phone, order_ttprice, order_area, order_type "
-				+ "FROM `order` WHERE " + sqlPart + " = ? AND order_state = ? ORDER BY order_time DESC;";
+				+ "FROM `order` WHERE " + sqlPart + " = ? AND " + (state == -1 ? "" : "order_state = ? ") + "ORDER BY order_time DESC;";
 		
 		Connection connection = null;
 		PreparedStatement ps = null;
@@ -195,7 +195,9 @@ public class OrderDaoMySqlImpl implements OrderDao {
 			connection = DriverManager.getConnection(URL, USER, PASSWORD);
 			ps = connection.prepareStatement(sql);
 			ps.setInt(1, id);
-			ps.setInt(2, state);
+			if (state != -1) {
+				ps.setInt(2, state);
+			}
 			ResultSet rs = ps.executeQuery();
 			while (rs.next()) {
 				int orderId = rs.getInt(1);
@@ -238,69 +240,74 @@ public class OrderDaoMySqlImpl implements OrderDao {
 
 	@Override
 	public List<Order> findByCase(int id, String type) {
-		String sqlPart = "";
-		switch (type) {
-			case "member":
-				sqlPart = "mem_id";
-				break;
-			case "shop":
-				sqlPart = "shop_id";
-				break;
-			case "delivery":
-				sqlPart = "del_id";
-				break;
-			default:
-				return null;
-		}
-		String sql = null;
-		sql = "SELECT order_id, shop_id, mem_id, del_id, pay_id, order_state, sp_id, order_time, "
-				+ "order_ideal, order_delivery, adrs_id, order_name, order_phone, order_ttprice, order_area , order_type "
-				+ "FROM `order` WHERE " + sqlPart + " = ? ORDER BY order_time DESC;";
-		
-		Connection connection = null;
-		PreparedStatement ps = null;
-		List<Order> orderList = new ArrayList<Order>();
-		try {
-			connection = DriverManager.getConnection(URL, USER, PASSWORD);
-			ps = connection.prepareStatement(sql);
-			ps.setInt(1, id);
-			ResultSet rs = ps.executeQuery();
-			while (rs.next()) {
-				int orderId = rs.getInt(1);
-				int shopId = rs.getInt(2);
-				int memId = rs.getInt(3);
-				int delId = rs.getInt(4);
-				int payId = rs.getInt(5);
-				int orderState = rs.getInt(6);
-				int spId = rs.getInt(7);
-				Date orderTime = rs.getTimestamp(8);
-				Date orderIdeal = rs.getTimestamp(9);
-				Date orderDelivery = rs.getTimestamp(10);
-				int adrsId = rs.getInt(11);
-				String order_name = rs.getString(12);
-				String order_phone = rs.getString(13);
-				int order_ttprice = rs.getInt(14);
-				int order_area = rs.getInt(15);
-				int order_type = rs.getInt(16);
-				Order order = new Order(orderId, shopId, memId, delId, payId, spId, orderIdeal, orderTime,
-						orderDelivery, adrsId, order_name, order_phone, order_ttprice, order_area, orderState, order_type);
-				orderList.add(order);
-			}
-			return orderList;
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				if (ps != null) {
-					ps.close();
-				}
-				if (connection != null) {
-					connection.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-		return orderList;
+		return findByCase(id, type, -1);
 	}
+	
+//	@Override
+//	public List<Order> findByCase(int id, String type) {
+//		String sqlPart = "";
+//		switch (type) {
+//			case "member":
+//				sqlPart = "mem_id";
+//				break;
+//			case "shop":
+//				sqlPart = "shop_id";
+//				break;
+//			case "delivery":
+//				sqlPart = "del_id";
+//				break;
+//			default:
+//				return null;
+//		}
+//		String sql = null;
+//		sql = "SELECT order_id, shop_id, mem_id, del_id, pay_id, order_state, sp_id, order_time, "
+//				+ "order_ideal, order_delivery, adrs_id, order_name, order_phone, order_ttprice, order_area , order_type "
+//				+ "FROM `order` WHERE " + sqlPart + " = ? ORDER BY order_time DESC;";
+//		
+//		Connection connection = null;
+//		PreparedStatement ps = null;
+//		List<Order> orderList = new ArrayList<Order>();
+//		try {
+//			connection = DriverManager.getConnection(URL, USER, PASSWORD);
+//			ps = connection.prepareStatement(sql);
+//			ps.setInt(1, id);
+//			ResultSet rs = ps.executeQuery();
+//			while (rs.next()) {
+//				int orderId = rs.getInt(1);
+//				int shopId = rs.getInt(2);
+//				int memId = rs.getInt(3);
+//				int delId = rs.getInt(4);
+//				int payId = rs.getInt(5);
+//				int orderState = rs.getInt(6);
+//				int spId = rs.getInt(7);
+//				Date orderTime = rs.getTimestamp(8);
+//				Date orderIdeal = rs.getTimestamp(9);
+//				Date orderDelivery = rs.getTimestamp(10);
+//				int adrsId = rs.getInt(11);
+//				String order_name = rs.getString(12);
+//				String order_phone = rs.getString(13);
+//				int order_ttprice = rs.getInt(14);
+//				int order_area = rs.getInt(15);
+//				int order_type = rs.getInt(16);
+//				Order order = new Order(orderId, shopId, memId, delId, payId, spId, orderIdeal, orderTime,
+//						orderDelivery, adrsId, order_name, order_phone, order_ttprice, order_area, orderState, order_type);
+//				orderList.add(order);
+//			}
+//			return orderList;
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//		} finally {
+//			try {
+//				if (ps != null) {
+//					ps.close();
+//				}
+//				if (connection != null) {
+//					connection.close();
+//				}
+//			} catch (SQLException e) {
+//				e.printStackTrace();
+//			}
+//		}
+//		return orderList;
+//	}
 }
