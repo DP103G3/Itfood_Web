@@ -61,6 +61,7 @@ public class MemberServlet extends HttpServlet {
 		case "update":
 			memberJson = jsonObject.get("member").getAsString();
 			member = gson.fromJson(memberJson, Member.class);
+			count = memberDao.update(member);
 			writeText(response, String.valueOf(count));
 			System.out.println("update = " + memberJson);
 			break;
@@ -79,6 +80,7 @@ public class MemberServlet extends HttpServlet {
 		case "saveAccount":
 			memberJson = jsonObject.get("member").getAsString();
 			member = gson.fromJson(memberJson, Member.class);
+			count = memberDao.saveAccount(member);
 			writeText(response, String.valueOf(count));
 			System.out.println("saveAccount = " + memberJson);
 			break;
