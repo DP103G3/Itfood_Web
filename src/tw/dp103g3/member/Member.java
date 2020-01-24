@@ -12,8 +12,6 @@ public class Member {
 	private Date mem_suspendtime;
 	private int mem_state;
 
-	
-	
 	public Member(int mem_id, String mem_name, String mem_password, String mem_email, String mem_phone,
 			Date mem_joindate, Date mem_suspendtime, int mem_state) {
 		super();
@@ -25,12 +23,9 @@ public class Member {
 		this.mem_joindate = mem_joindate;
 		this.mem_suspendtime = mem_suspendtime;
 		this.mem_state = mem_state;
-		
-	
-		
 	}
 	
-	public Member(int mem_id, String mem_name, String mem_password, String mem_email, String mem_phone
+	public Member(int mem_id, String mem_name, String mem_password, String mem_email, String mem_phone, Date mem_joindate, int mem_state
 			 ) {
 		super();
 		this.mem_id = mem_id;
@@ -38,6 +33,14 @@ public class Member {
 		this.mem_password = mem_password;
 		this.mem_email = mem_email;
 		this.mem_phone = mem_phone;
+		this.mem_joindate = mem_joindate;
+		this.mem_state = mem_state;
+	}
+	
+	public  Member(int mem_id, int mem_state) {
+		super();
+		this.mem_id = mem_id;
+		this.mem_state = mem_state;
 	}
 	
 

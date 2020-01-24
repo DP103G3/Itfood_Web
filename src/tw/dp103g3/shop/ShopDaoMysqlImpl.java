@@ -220,7 +220,7 @@ public class ShopDaoMysqlImpl implements ShopDao {
 				"shop_info, shop_jointime, shop_ttscore, shop_ttrate, type_name FROM `shop` " + 
 				"JOIN `shop_type` ON `shop_type`.shop_id = `shop`.shop_id " + 
 				"JOIN `type` ON `type`.type_id = `shop_type`.type_id " + 
-				"WHERE shop_state != 0 AND `shop`.shop_id = ?;";
+				"WHERE shop_state != 0 AND shop.shop_id = ? ;";
 		try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
 				PreparedStatement ps = connection.prepareStatement(sql);) {
 			ps.setInt(1, id);

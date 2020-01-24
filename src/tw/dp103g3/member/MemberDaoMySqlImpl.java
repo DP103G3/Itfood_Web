@@ -94,10 +94,76 @@ public class MemberDaoMySqlImpl implements MemberDao {
 		}
 		return count;
 	}
+	
+	@Override
+	public Member getAccount(int mem_id) {
+		String sql = "SELECT mem_id, mem_state FROM `member` WHERE mem_id = ?;";
+		Connection connection = null;
+		PreparedStatement ps = null;
+		Member member = null;
+		try {
+			connection = DriverManager.getConnection(URL, USER, PASSWORD);
+			ps = connection.prepareStatement(sql);
+			ps.setInt(1, mem_id);
+			ResultSet rs = ps.executeQuery();
+			if (rs.next()) {
+			int mem_state = rs.getInt(2);
+			member = new Member(mem_id, mem_state);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (ps != null) {
+					// When a Statement object is closed,
+					// its current ResultSet object is also closed
+					ps.close();
+				}
+				if (connection != null) {
+					connection.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return member;
+	}
 
 	@Override
+	public int saveAccount(Member member) {
+		int count = 0;
+		String sql = "UPDATE `member` SET mem_state = ?  WHERE mem_id = ?;";
+		Connection connection = null;
+		PreparedStatement ps = null;
+		try {
+			connection = DriverManager.getConnection(URL, USER, PASSWORD);
+			ps = connection.prepareStatement(sql);
+			ps.setInt(1, member.getMemState());
+			ps.setInt(2, member.getMemId());
+			count = ps.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (ps != null) {
+					// When a Statement object is closed,
+					// its current ResultSet object is also closed
+					ps.close();
+				}
+				if (connection != null) {
+					connection.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return count;
+	}
+	
+	
+	@Override
 	public Member findById(int mem_id) {
-		String sql = "SELECT mem_name, mem_password, mem_email, mem_phone FROM `member` WHERE mem_id = ?;";
+		String sql = "SELECT mem_id, mem_name, mem_password, mem_email, mem_phone, mem_joindate, mem_state FROM `member` WHERE mem_id = ?;";
 		Connection conn = null;
 		PreparedStatement ps = null;
 		Member member = null;
@@ -107,11 +173,14 @@ public class MemberDaoMySqlImpl implements MemberDao {
 			ps.setInt(1, mem_id);
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
-				String mem_name = rs.getString(1);
-				String mem_password = rs.getString(2);
-				String mem_email = rs.getString(3);
-				String mem_phone = rs.getString(4);
-				member = new Member(mem_id, mem_name, mem_password, mem_email, mem_phone);
+				String mem_name = rs.getString(2);
+				String mem_password = rs.getString(3);
+				String mem_email = rs.getString(4);
+				String mem_phone = rs.getString(5);
+				Date mem_joindate = rs.getTimestamp(6);
+				int mem_state = rs.getInt(7);
+				member = new Member(mem_id, mem_name, mem_password, mem_email, mem_phone, mem_joindate, mem_state);
+
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -150,10 +219,8 @@ public class MemberDaoMySqlImpl implements MemberDao {
 				Date mem_suspendtime = rs.getTimestamp(7);
 				int mem_state = rs.getInt(8);
 				Member member = new Member(mem_id, mem_name, mem_password, mem_email,mem_phone,mem_joindate,mem_suspendtime,mem_state);
-				memberList.add(member);
-				
+				memberList.add(member);	
 			}
-			System.out.println("output add sql:" + memberList);
 			//System.out.println("output add sql:" + memberList);
 			return memberList;
 		} catch (SQLException e) {

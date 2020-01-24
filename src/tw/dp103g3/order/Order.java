@@ -8,7 +8,6 @@ public class Order {
 	private int shop_id;
 	private int mem_id;
 	private int pay_id;
-	private int order_statu;
 	private int order_state;
 	private int sp_id;
 	private Date order_time;
