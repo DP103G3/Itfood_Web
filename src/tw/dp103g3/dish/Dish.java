@@ -9,7 +9,6 @@ public class Dish {
 	private int price;
 	
 	public Dish(int id, String name, String info, byte state, int shop_id, int price) {
-		super();
 		this.id = id;
 		this.name = name;
 		this.info = info;
@@ -19,12 +18,15 @@ public class Dish {
 	}
 	
 	public Dish(int id, String name, String info, int shop_id, int price) {
-		super();
 		this.id = id;
 		this.name = name;
 		this.info = info;
 		this.shop_id = shop_id;
 		this.price = price;
+	}
+	
+	public Dish(int id, String name, String info) {
+		this(id, name, info, 0, 0);
 	}
 
 	public int getId() {
