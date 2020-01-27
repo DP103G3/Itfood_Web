@@ -60,6 +60,7 @@ public class Shop {
 		this.ttrate = ttrate;
 	}
 
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

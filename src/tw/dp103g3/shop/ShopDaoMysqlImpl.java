@@ -247,5 +247,5 @@ public class ShopDaoMysqlImpl implements ShopDao {
 		
 		return shop;
 	}
-
+	
 }

@@ -90,6 +90,7 @@ public class ShopServlet extends HttpServlet {
 			id = jsonObject.get("id").getAsInt();
 			shop = shopDao.getShopById(id);
 			writeText(response, gson.toJson(shop));
+		
 		default:
 			writeText(response, "");
 			break;

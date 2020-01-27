@@ -14,4 +14,5 @@ public interface ShopDao {
 	byte[] getImage(int id);
 	
 	Shop getShopById(int id);
+
 }
