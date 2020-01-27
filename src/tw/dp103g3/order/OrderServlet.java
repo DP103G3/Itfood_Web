@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Optional;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -13,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import static tw.dp103g3.main.Common.CONTENT_TYPE;
 
@@ -59,15 +61,18 @@ public class OrderServlet extends HttpServlet {
 		} else if (action.equals("findByCase")) {
 			int id = jsonObject.get("id").getAsInt();
 			String type = jsonObject.get("type").getAsString();
-			List<Order> orders = orderDao.findByCase(id, type);
-			writeText(response, gson.toJson(orders));
-		} else if (action.equals("findByCaseWithState")) {
-			int id = jsonObject.get("id").getAsInt();
-			String type = jsonObject.get("type").getAsString();
-			int state = jsonObject.get("state").getAsInt();
+			JsonElement stateJE = jsonObject.get("state");
+			int state = stateJE != null ? stateJE.getAsInt() : -1;
 			List<Order> orders = orderDao.findByCase(id, type, state);
 			writeText(response, gson.toJson(orders));
 		}
+//		else if (action.equals("findByCaseWithState")) {
+//			int id = jsonObject.get("id").getAsInt();
+//			String type = jsonObject.get("type").getAsString();
+//			int state = jsonObject.get("state").getAsInt();
+//			List<Order> orders = orderDao.findByCase(id, type, state);
+//			writeText(response, gson.toJson(orders));
+//		}
 		
 		else {
 			writeText(response, "");

@@ -13,10 +13,17 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+
+import tw.dp103g3.order_detail.OrderDetail;
+import tw.dp103g3.order_detail.OrderDetailDao;
+import tw.dp103g3.order_detail.OrderDetailDaoMySqlImpl;
+import tw.dp103g3.shop.Shop;
+
 import java.util.Date;
 
 
 public class OrderDaoMySqlImpl implements OrderDao {
+	private OrderDetailDao orderDetailDao = new OrderDetailDaoMySqlImpl();
 
 	public OrderDaoMySqlImpl() {
 		super();
@@ -38,7 +45,7 @@ public class OrderDaoMySqlImpl implements OrderDao {
 		try {
 			connection = DriverManager.getConnection(URL, USER, PASSWORD);
 			ps = connection.prepareStatement(sql);
-			ps.setInt(1, order.getShop_id());
+			ps.setInt(1, order.getShop().getId());
 			ps.setInt(2, order.getMem_id());
 			ps.setInt(3, order.getDel_id() != 0 ? order.getDel_id() : null);
 			ps.setInt(4, order.getPay_id());
@@ -82,7 +89,7 @@ public class OrderDaoMySqlImpl implements OrderDao {
 		try {
 			connection = DriverManager.getConnection(URL, USER, PASSWORD);
 			ps = connection.prepareStatement(sql);
-			ps.setInt(1, order.getShop_id());
+			ps.setInt(1, order.getShop().getId());
 			ps.setInt(2, order.getMem_id());
 			ps.setInt(3, order.getDel_id() != 0 ? order.getDel_id() : 0);
 			ps.setInt(4, order.getPay_id());
@@ -119,7 +126,7 @@ public class OrderDaoMySqlImpl implements OrderDao {
 
 	@Override
 	public List<Order> findByOrderId(int order_id) {
-		String sql = "SELECT  order_id, shop_id, mem_id, del_id, pay_id, order_state, sp_id, order_time, order_ideal, order_delivery, "
+		String sql = "SELECT  order_id, shop_id, shop_name, mem_id, del_id, pay_id, order_state, sp_id, order_time, order_ideal, order_delivery, "
 				+ "adrs_id, order_name, order_phone, order_ttpice, order_area, order_type  "
 				+ "FROM `order` WHERE order_id = ? ORDER BY order_time DESC;";
 		Connection connection = null;
@@ -133,22 +140,25 @@ public class OrderDaoMySqlImpl implements OrderDao {
 			while (rs.next()) {
 				int orderId = rs.getInt(1);
 				int shopId = rs.getInt(2);
-				int memId = rs.getInt(3);
-				int delId = rs.getInt(4);
-				int payId = rs.getInt(5);
-				int orderState = rs.getInt(6);
-				int spId = rs.getInt(7);
-				Date orderTime = rs.getTimestamp(8);
-				Date orderIdeal = rs.getTimestamp(9);
-				Date orderDelivery = rs.getTimestamp(10);
-				int adrsId = rs.getInt(11);
-				String order_name = rs.getString(12);
-				String order_phone = rs.getString(13);
-				int order_ttprice = rs.getInt(14);
-				int order_area = rs.getInt(15);
-				int order_type = rs.getInt(16);
-				Order order = new Order(orderId, shopId, memId, delId, payId, spId, orderIdeal, orderTime,
-						orderDelivery, adrsId, order_name, order_phone, order_ttprice, order_area, orderState, order_type);
+				String shopName = rs.getString(3);
+				int memId = rs.getInt(4);
+				int delId = rs.getInt(5);
+				int payId = rs.getInt(6);
+				int orderState = rs.getInt(7);
+				int spId = rs.getInt(8);
+				Date orderTime = rs.getTimestamp(9);
+				Date orderIdeal = rs.getTimestamp(10);
+				Date orderDelivery = rs.getTimestamp(11);
+				int adrsId = rs.getInt(12);
+				String order_name = rs.getString(13);
+				String order_phone = rs.getString(14);
+				int order_ttprice = rs.getInt(15);
+				int order_area = rs.getInt(16);
+				int order_type = rs.getInt(17);
+				List<OrderDetail> orderDetails = orderDetailDao.findByOrderId(order_id);
+				Order order = new Order(orderId, new Shop(shopId, shopName), memId, delId, payId, spId, orderIdeal, orderTime,
+						orderDelivery, adrsId, order_name, order_phone, order_ttprice, order_area, orderState, 
+						order_type, orderDetails);
 				orderList.add(order);
 			}
 			return orderList;
@@ -177,17 +187,16 @@ public class OrderDaoMySqlImpl implements OrderDao {
 				sqlPart = "mem_id";
 				break;
 			case "shop":
-				sqlPart = "shop_id";
+				sqlPart = "`shop`.shop_id";
 				break;
 			case "delivery":
 				sqlPart = "del_id";
 				break;
 		}
-		String sql = null;
-		sql = "SELECT  order_id, shop_id, mem_id, del_id, pay_id, order_state, sp_id, order_time, "
-				+ "order_ideal, order_delivery, adrs_id, order_name, order_phone, order_ttprice, order_area, order_type "
-				+ "FROM `order` WHERE " + sqlPart + " = ? AND order_state = ? ORDER BY order_time DESC;";
-		
+		String sql = "SELECT order_id, `shop`.shop_id, shop_name, mem_id, del_id, pay_id, order_state, sp_id, order_time, order_ideal, " + 
+				"order_delivery, adrs_id, order_name, order_phone, order_ttprice, order_area, order_type FROM `order` " + 
+				"LEFT JOIN `shop` ON `order`.shop_id = `shop`.shop_id " + 
+				"WHERE " + sqlPart + " = ? " + (state == -1 ? "" : "AND order_state = ? ") + "ORDER BY order_time DESC;";
 		Connection connection = null;
 		PreparedStatement ps = null;
 		List<Order> orderList = new ArrayList<Order>();
@@ -195,27 +204,32 @@ public class OrderDaoMySqlImpl implements OrderDao {
 			connection = DriverManager.getConnection(URL, USER, PASSWORD);
 			ps = connection.prepareStatement(sql);
 			ps.setInt(1, id);
-			ps.setInt(2, state);
+			if (state != -1) {
+				ps.setInt(2, state);
+			}
 			ResultSet rs = ps.executeQuery();
 			while (rs.next()) {
 				int orderId = rs.getInt(1);
 				int shopId = rs.getInt(2);
-				int memId = rs.getInt(3);
-				int delId = rs.getInt(4);
-				int payId = rs.getInt(5);
-				int orderStatus = rs.getInt(6);
-				int spId = rs.getInt(7);
-				Date orderTime = rs.getTimestamp(8);
-				Date orderIdeal = rs.getTimestamp(9);
-				Date orderDelivery = rs.getTimestamp(10);
-				int adrsId = rs.getInt(11);
-				String order_name = rs.getString(12);
-				String order_phone = rs.getString(13);
-				int order_ttprice = rs.getInt(14);
-				int order_area = rs.getInt(15);
-				int order_type = rs.getInt(16);
-				Order order = new Order(orderId, shopId, memId, delId, payId, spId, orderIdeal, orderTime,
-						orderDelivery, adrsId, order_name, order_phone, order_ttprice, order_area, orderStatus, order_type);
+				String shopName = rs.getString(3);
+				int memId = rs.getInt(4);
+				int delId = rs.getInt(5);
+				int payId = rs.getInt(6);
+				int orderStatus = rs.getInt(7);
+				int spId = rs.getInt(8);
+				Date orderTime = rs.getTimestamp(9);
+				Date orderIdeal = rs.getTimestamp(10);
+				Date orderDelivery = rs.getTimestamp(11);
+				int adrsId = rs.getInt(12);
+				String order_name = rs.getString(13);
+				String order_phone = rs.getString(14);
+				int order_ttprice = rs.getInt(15);
+				int order_area = rs.getInt(16);
+				int order_type = rs.getInt(17);
+				List<OrderDetail> orderDetails = orderDetailDao.findByOrderId(orderId);
+				Order order = new Order(orderId, new Shop(shopId, shopName), memId, delId, payId, spId, orderIdeal, orderTime,
+						orderDelivery, adrsId, order_name, order_phone, order_ttprice, order_area, orderStatus, 
+						order_type, orderDetails);
 				orderList.add(order);
 			}
 			return orderList;
@@ -238,69 +252,74 @@ public class OrderDaoMySqlImpl implements OrderDao {
 
 	@Override
 	public List<Order> findByCase(int id, String type) {
-		String sqlPart = "";
-		switch (type) {
-			case "member":
-				sqlPart = "mem_id";
-				break;
-			case "shop":
-				sqlPart = "shop_id";
-				break;
-			case "delivery":
-				sqlPart = "del_id";
-				break;
-			default:
-				return null;
-		}
-		String sql = null;
-		sql = "SELECT order_id, shop_id, mem_id, del_id, pay_id, order_state, sp_id, order_time, "
-				+ "order_ideal, order_delivery, adrs_id, order_name, order_phone, order_ttprice, order_area , order_type "
-				+ "FROM `order` WHERE " + sqlPart + " = ? ORDER BY order_time DESC;";
-		
-		Connection connection = null;
-		PreparedStatement ps = null;
-		List<Order> orderList = new ArrayList<Order>();
-		try {
-			connection = DriverManager.getConnection(URL, USER, PASSWORD);
-			ps = connection.prepareStatement(sql);
-			ps.setInt(1, id);
-			ResultSet rs = ps.executeQuery();
-			while (rs.next()) {
-				int orderId = rs.getInt(1);
-				int shopId = rs.getInt(2);
-				int memId = rs.getInt(3);
-				int delId = rs.getInt(4);
-				int payId = rs.getInt(5);
-				int orderState = rs.getInt(6);
-				int spId = rs.getInt(7);
-				Date orderTime = rs.getTimestamp(8);
-				Date orderIdeal = rs.getTimestamp(9);
-				Date orderDelivery = rs.getTimestamp(10);
-				int adrsId = rs.getInt(11);
-				String order_name = rs.getString(12);
-				String order_phone = rs.getString(13);
-				int order_ttprice = rs.getInt(14);
-				int order_area = rs.getInt(15);
-				int order_type = rs.getInt(16);
-				Order order = new Order(orderId, shopId, memId, delId, payId, spId, orderIdeal, orderTime,
-						orderDelivery, adrsId, order_name, order_phone, order_ttprice, order_area, orderState, order_type);
-				orderList.add(order);
-			}
-			return orderList;
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				if (ps != null) {
-					ps.close();
-				}
-				if (connection != null) {
-					connection.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-		return orderList;
+		return findByCase(id, type, -1);
 	}
+	
+//	@Override
+//	public List<Order> findByCase(int id, String type) {
+//		String sqlPart = "";
+//		switch (type) {
+//			case "member":
+//				sqlPart = "mem_id";
+//				break;
+//			case "shop":
+//				sqlPart = "shop_id";
+//				break;
+//			case "delivery":
+//				sqlPart = "del_id";
+//				break;
+//			default:
+//				return null;
+//		}
+//		String sql = null;
+//		sql = "SELECT order_id, shop_id, mem_id, del_id, pay_id, order_state, sp_id, order_time, "
+//				+ "order_ideal, order_delivery, adrs_id, order_name, order_phone, order_ttprice, order_area , order_type "
+//				+ "FROM `order` WHERE " + sqlPart + " = ? ORDER BY order_time DESC;";
+//		
+//		Connection connection = null;
+//		PreparedStatement ps = null;
+//		List<Order> orderList = new ArrayList<Order>();
+//		try {
+//			connection = DriverManager.getConnection(URL, USER, PASSWORD);
+//			ps = connection.prepareStatement(sql);
+//			ps.setInt(1, id);
+//			ResultSet rs = ps.executeQuery();
+//			while (rs.next()) {
+//				int orderId = rs.getInt(1);
+//				int shopId = rs.getInt(2);
+//				int memId = rs.getInt(3);
+//				int delId = rs.getInt(4);
+//				int payId = rs.getInt(5);
+//				int orderState = rs.getInt(6);
+//				int spId = rs.getInt(7);
+//				Date orderTime = rs.getTimestamp(8);
+//				Date orderIdeal = rs.getTimestamp(9);
+//				Date orderDelivery = rs.getTimestamp(10);
+//				int adrsId = rs.getInt(11);
+//				String order_name = rs.getString(12);
+//				String order_phone = rs.getString(13);
+//				int order_ttprice = rs.getInt(14);
+//				int order_area = rs.getInt(15);
+//				int order_type = rs.getInt(16);
+//				Order order = new Order(orderId, shopId, memId, delId, payId, spId, orderIdeal, orderTime,
+//						orderDelivery, adrsId, order_name, order_phone, order_ttprice, order_area, orderState, order_type);
+//				orderList.add(order);
+//			}
+//			return orderList;
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//		} finally {
+//			try {
+//				if (ps != null) {
+//					ps.close();
+//				}
+//				if (connection != null) {
+//					connection.close();
+//				}
+//			} catch (SQLException e) {
+//				e.printStackTrace();
+//			}
+//		}
+//		return orderList;
+//	}
 }

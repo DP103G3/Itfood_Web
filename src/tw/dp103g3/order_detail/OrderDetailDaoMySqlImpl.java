@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import tw.dp103g3.dish.Dish;
 
 import static tw.dp103g3.main.Common.CLASS_NAME;
 import static tw.dp103g3.main.Common.PASSWORD;
@@ -37,7 +38,7 @@ public class OrderDetailDaoMySqlImpl implements OrderDetailDao{
 			ps = connection.prepareStatement(sql);
 			ps.setInt(1, orderDetail.getOd_id());
 			ps.setInt(2, orderDetail.getOrder_id());
-			ps.setInt(3, orderDetail.getDish_id());
+			ps.setInt(3, orderDetail.getDish().getId());
 			ps.setInt(4, orderDetail.getOd_count());
 			ps.setInt(5, orderDetail.getOd_price());
 			ps.setString(6, orderDetail.getOd_message());
@@ -72,7 +73,7 @@ public class OrderDetailDaoMySqlImpl implements OrderDetailDao{
 			ps = connection.prepareStatement(sql);
 			ps.setInt(1, orderDetail.getOd_id());
 			ps.setInt(2, orderDetail.getOrder_id());
-			ps.setInt(3, orderDetail.getDish_id());
+			ps.setInt(3, orderDetail.getDish().getId());
 			ps.setInt(4, orderDetail.getOd_count());
 			ps.setInt(5, orderDetail.getOd_price());
 			ps.setString(6, orderDetail.getOd_message());
@@ -97,8 +98,9 @@ public class OrderDetailDaoMySqlImpl implements OrderDetailDao{
 
 	@Override
 	public List<OrderDetail> findByOrderId(int order_id) {
-		String sql = "SELECT  od_id, order_id, dish_id, od_count, od_price, od_message"
-				+ " FROM `order_detail` WHERE order_id = ? ORDER BY od_id;";
+		String sql = "SELECT  od_id, order_id, `order_detail`.dish_id, dish_name, dish_info, od_count, od_price, "
+				+ "od_message FROM `order_detail` JOIN `dish` ON `dish`.dish_id = `order_detail`.dish_id " + 
+				"WHERE order_id = ? ORDER BY od_id;";
 		Connection connection = null;
 		PreparedStatement ps = null;
 		List<OrderDetail> orderDetailList = new ArrayList<OrderDetail>();
@@ -111,10 +113,13 @@ public class OrderDetailDaoMySqlImpl implements OrderDetailDao{
 				int od_id = rs.getInt(1);
 				int orderId = rs.getInt(2);
 				int dish_id = rs.getInt(3);
-				int od_count = rs.getInt(4);
-				int od_price = rs.getInt(5);
-				String od_message = rs.getString(6);
-				OrderDetail orderDetail = new OrderDetail(od_id, orderId, dish_id, od_count, od_price, od_message);
+				String dish_name = rs.getString(4);
+				String dish_info = rs.getString(5);
+				int od_count = rs.getInt(6);
+				int od_price = rs.getInt(7);
+				String od_message = rs.getString(8);
+				OrderDetail orderDetail = new OrderDetail(od_id, orderId, new Dish(dish_id, dish_name, dish_info), 
+						od_count, od_price, od_message);
 				orderDetailList.add(orderDetail);
 			}
 			return orderDetailList;

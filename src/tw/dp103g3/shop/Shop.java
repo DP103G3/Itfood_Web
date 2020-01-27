@@ -59,6 +59,10 @@ public class Shop {
 		this.ttscore = ttscore;
 		this.ttrate = ttrate;
 	}
+	
+	public Shop(int id, String name) {
+		this(id, name, null, -1, -1, 0, (byte) 0, null, null, 0, 0);
+	}
 
 
 	@Override
