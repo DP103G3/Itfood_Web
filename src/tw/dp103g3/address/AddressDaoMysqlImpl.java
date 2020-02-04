@@ -63,6 +63,7 @@ public class AddressDaoMysqlImpl implements AddressDao {
 				ps.setDouble(5, address.getLatitude());
 				ps.setDouble(6, address.getLongitude());
 				count = ps.executeUpdate();
+				connection.commit();
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -84,6 +85,7 @@ public class AddressDaoMysqlImpl implements AddressDao {
 			ps.setDouble(5, address.getLongitude());
 			ps.setInt(6, address.getId());
 			count = ps.executeUpdate();
+			connection.commit();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

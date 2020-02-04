@@ -45,6 +45,7 @@ public class PaymentDaoMySqlImpl implements PaymentDao {
 			ps.setInt(8, payment.getPay_state());
 			
 			count = ps.executeUpdate();
+			connection.commit();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
@@ -75,6 +76,7 @@ public class PaymentDaoMySqlImpl implements PaymentDao {
 			ps.setInt(2, payment.getPay_id());
 			
 			count = ps.executeUpdate();
+			connection.commit();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
