@@ -12,7 +12,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class AddressDaoMysqlImpl implements AddressDao {
 	public AddressDaoMysqlImpl() {
@@ -50,21 +49,21 @@ public class AddressDaoMysqlImpl implements AddressDao {
 	@Override
 	public int insert(Address address) {
 		int count = 0;
-		String sql = "INSERT INTO `address` (adrs_id, mem_id, adrs_name, adrs_info, adrs_state, "
-				+ "adrs_latitude, adrs_longitude) VALUES (?, ?, ?, ?, ?, ?, ?);";
+		String sql = "INSERT INTO `address` (mem_id, adrs_name, adrs_info, adrs_state, "
+				+ "adrs_latitude, adrs_longitude) VALUES (?, ?, ?, ?, ?, ?);";
 		if (getAll(address.getMem_id()).stream().anyMatch(v -> v.equals(address))) {
 			count = update(address);
 		} else {
 			try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
 					PreparedStatement ps = connection.prepareStatement(sql);) {
-				ps.setInt(1, address.getId());
-				ps.setInt(2, address.getMem_id());
-				ps.setString(3, address.getName());
-				ps.setString(4, address.getInfo());
-				ps.setByte(5, address.getState());
-				ps.setDouble(6, address.getLatitude());
-				ps.setDouble(7, address.getLongitude());
+				ps.setInt(1, address.getMem_id());
+				ps.setString(2, address.getName());
+				ps.setString(3, address.getInfo());
+				ps.setInt(4, address.getState());
+				ps.setDouble(5, address.getLatitude());
+				ps.setDouble(6, address.getLongitude());
 				count = ps.executeUpdate();
+				connection.commit();
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -81,11 +80,12 @@ public class AddressDaoMysqlImpl implements AddressDao {
 				PreparedStatement ps = connection.prepareStatement(sql);) {
 			ps.setString(1, address.getName());
 			ps.setString(2, address.getInfo());
-			ps.setByte(3, address.getState());
+			ps.setInt(3, address.getState());
 			ps.setDouble(4, address.getLatitude());
 			ps.setDouble(5, address.getLongitude());
 			ps.setInt(6, address.getId());
 			count = ps.executeUpdate();
+			connection.commit();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -105,7 +105,7 @@ public class AddressDaoMysqlImpl implements AddressDao {
 				int id = rs.getInt(1);
 				String name = rs.getString(2);
 				String info = rs.getString(3);
-				byte state = rs.getByte(4);
+				int state = rs.getInt(4);
 				double latitude = rs.getDouble(5);
 				double longitude = rs.getDouble(6);
 				Address address = new Address(id, mem_id, name, info, state, latitude, longitude);

@@ -9,6 +9,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import tw.dp103g3.shop.Shop;
 
 import static tw.dp103g3.main.Common.PASSWORD;
 import static tw.dp103g3.main.Common.CLASS_NAME;
@@ -30,29 +31,51 @@ public class CommentDaoMySqlImpl implements CommentDao {
 	}
 
 	@Override
-	public int insert(Comment comment) {
+	public int insert(Comment comment, Shop shop){
 		int count = 0;
-		String sql = "INSERT INTO `comment` (cmt_score, cmt_detail, shop_id, mem_id, cmt_state,"
+		String sqlComment = "INSERT INTO `comment` (cmt_score, cmt_detail, shop_id, mem_id, cmt_state,"
 				+ " cmt_feedback)" + "VALUES (?, ?, ?, ?, ?, ?);";
+		String sqlShop	= " UPDATE `shop` SET shop_ttscore = ?, shop_ttrate = ? "
+				+ "WHERE shop_id = ?;";
 		Connection connection = null;
-		PreparedStatement ps = null;
+		PreparedStatement psComment = null;
+		PreparedStatement psShop = null;
 		try {
 			connection = DriverManager.getConnection(URL, USER, PASSWORD);
-			ps = connection.prepareStatement(sql);
-			ps.setInt(1, comment.getCmt_score());
-			ps.setString(2, comment.getCmt_detail());
-			ps.setInt(3, comment.getShop_id());
-			ps.setInt(4, comment.getMem_id());
-			ps.setInt(5, comment.getCmt_state());
-			ps.setString(6, comment.getCmt_feedback());		
-
-			count = ps.executeUpdate();
+			connection.setAutoCommit(false);
+			psComment = connection.prepareStatement(sqlComment);
+			psShop = connection.prepareStatement(sqlShop);
+			psComment.setInt(1, comment.getCmt_score());
+			psComment.setString(2, comment.getCmt_detail());
+			psComment.setInt(3, comment.getShop_id());
+			psComment.setInt(4, comment.getMem_id());
+			psComment.setInt(5, comment.getCmt_state());
+			psComment.setString(6, comment.getCmt_feedback());
+			psShop.setInt(1, shop.getTtscore());
+			psShop.setInt(2, shop.getTtrate());
+			psShop.setInt(3, shop.getId());
+			
+			if (psComment.executeUpdate() == psShop.executeUpdate()) {
+				count = 1;
+			} else {
+				count = 0;
+			}
+			
+			connection.commit();
 		} catch (SQLException e) {
+			try {
+			connection.rollback();
+			} catch (SQLException exception) {
+				exception.printStackTrace();
+			}
 			e.printStackTrace();
 		} finally {
 			try {
-				if (ps != null) {
-					ps.close();
+				if (psComment != null) {
+					psComment.close();
+				}
+				if (psShop != null) {
+					psShop.close();
 				}
 				if (connection != null) {
 					connection.close();
@@ -64,28 +87,49 @@ public class CommentDaoMySqlImpl implements CommentDao {
 	}
 
 	@Override
-	public int update(Comment comment) {
+	public int update(Comment comment, Shop shop) {
 		int count = 0;
-		String sql = "UPDATE `comment` SET cmt_score = ?, cmt_detail = ?, cmt_state = ?, cmt_feedback = ?"
+		String sqlComment = "UPDATE `comment` SET cmt_score = ?, cmt_detail = ?, cmt_state = ?, cmt_feedback = ?"
 				+ " WHERE cmt_id = ?;";
+		String sqlShop = "UPDATE `shop` SET shop_ttrate = ?, shop_ttscore = ? WHERE shop_id = ?;";
 		Connection connection = null;
-		PreparedStatement ps = null;
+		PreparedStatement psComment = null;
+		PreparedStatement psShop = null;
 		try {
 			connection = DriverManager.getConnection(URL, USER, PASSWORD);
-			ps = connection.prepareStatement(sql);
-			ps.setInt(1, comment.getCmt_score());
-			ps.setString(2, comment.getCmt_detail());
-			ps.setInt(3, comment.getCmt_state());
-			ps.setString(4, comment.getCmt_feedback());
-			ps.setInt(5, comment.getCmt_id());
-
-			count = ps.executeUpdate();
+			connection.setAutoCommit(false);
+			psComment = connection.prepareStatement(sqlComment);
+			psShop = connection.prepareStatement(sqlShop);
+			psComment.setInt(1, comment.getCmt_score());
+			psComment.setString(2, comment.getCmt_detail());
+			psComment.setInt(3, comment.getCmt_state());
+			psComment.setString(4, comment.getCmt_feedback());
+			psComment.setInt(5, comment.getCmt_id());
+			psShop.setInt(1, shop.getTtrate());
+			psShop.setInt(2, shop.getTtscore());
+			psShop.setInt(3, shop.getId());
+			
+			if (psComment.executeUpdate() == psShop.executeUpdate()) {
+				count = 1;
+			} else {
+				count = 0;
+			}
+			
+			connection.commit();
 		} catch (SQLException e) {
+			try {
+				connection.rollback();
+			} catch (SQLException exception) {
+				exception.printStackTrace();
+			}
 			e.printStackTrace();
 		} finally {
 			try {
-				if (ps != null) {
-					ps.close();
+				if (psComment != null) {
+					psComment.close();
+				}
+				if (psShop != null) {
+					psShop.close();
 				}
 				if (connection != null) {
 					connection.close();

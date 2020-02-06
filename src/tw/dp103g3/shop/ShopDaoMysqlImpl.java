@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import tw.dp103g3.member.Member;
+
 public class ShopDaoMysqlImpl implements ShopDao {
 
 	public ShopDaoMysqlImpl() {
@@ -196,6 +198,72 @@ public class ShopDaoMysqlImpl implements ShopDao {
 	}
 
 	@Override
+	public Shop getAccount(int id) {
+		String sql = "SELECT shop_id, shop_state FROM `shop` WHERE shop_id = ?;";
+		Connection connection = null;
+		PreparedStatement ps = null;
+		Shop shop = null;
+		try {
+			connection = DriverManager.getConnection(URL, USER, PASSWORD);
+			ps = connection.prepareStatement(sql);
+			ps.setInt(1, id);
+			ResultSet rs = ps.executeQuery();
+			if (rs.next()) {
+			byte state = rs.getByte(2);
+			shop = new Shop(id, state);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (ps != null) {
+					// When a Statement object is closed,
+					// its current ResultSet object is also closed
+					ps.close();
+				}
+				if (connection != null) {
+					connection.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return shop;
+	}
+
+
+	@Override
+	public int saveAccount(Shop shop) {
+		int count = 0;
+		String sql = "UPDATE `shop` SET shop_state = ?  WHERE shop_id = ?;";
+		Connection connection = null;
+		PreparedStatement ps = null;
+		try {
+			connection = DriverManager.getConnection(URL, USER, PASSWORD);
+			ps = connection.prepareStatement(sql);
+			ps.setByte(1, shop.getState());
+			ps.setInt(2, shop.getId());
+			count = ps.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (ps != null) {
+					// When a Statement object is closed,
+					// its current ResultSet object is also closed
+					ps.close();
+				}
+				if (connection != null) {
+					connection.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return count;
+	}
+	
+	@Override
 	public byte[] getImage(int id) {
 		byte[] image = null;
 		String sql = "SELECT shop_image FROM `shop` WHERE shop_id = ?;";
@@ -247,7 +315,53 @@ public class ShopDaoMysqlImpl implements ShopDao {
 		
 		return shop;
 	}
-
+	
+	/**
+	 * getShopAllById is for backside  
+	 * 
+	 * @return all necessary columns for show
+	 */
+	
+	@Override
+	public Shop getShopAllById(int id) {
+		String sql = "SELECT shop_id, shop_email, shop_name, shop_phone, shop_tax, shop_address, shop_area, shop_state, shop_info, shop_jointime FROM `shop` WHERE shop_id = ?;";
+		Connection conn = null;
+		PreparedStatement ps = null;
+		Shop shop = null;
+		try {
+			conn = DriverManager.getConnection(URL, USER, PASSWORD);
+			ps = conn.prepareStatement(sql);
+			ps.setInt(1, id);
+			ResultSet rs = ps.executeQuery();
+			if (rs.next()) {
+				String email = rs.getString(2);
+				String name = rs.getString(3);
+				String phone = rs.getString(4);
+				String tax = rs.getString(5);
+				String address = rs.getString(6);
+				int area = rs.getInt(7);
+				byte state = rs.getByte(8);
+				String info = rs.getString(9);
+				Date jointime = rs.getTimestamp(10);
+				shop = new Shop(id, email, name, phone, tax, address, area, state, info, jointime);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (ps != null) {
+					ps.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return shop;
+	}
+	
 	@Override
 	public int login(String email, String password) {
 		boolean isValid = false;
@@ -269,5 +383,4 @@ public class ShopDaoMysqlImpl implements ShopDao {
 		}
 		return shopId;
 	}
-
 }

@@ -15,6 +15,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
+import tw.dp103g3.shop.Shop;
+
 @WebServlet("/CommentServlet")
 public class CommentServlet extends HttpServlet {
 	
@@ -43,14 +45,16 @@ public class CommentServlet extends HttpServlet {
 		
 		if(action.equals("commentInsert") || action.equals("commentUpdate")) {
 			String commentJson = jsonObject.get("comment").getAsString();
+			String shopJson = jsonObject.get("shop").getAsString();
 			System.out.println("commentJson = " + commentJson);
 			Comment comment = gson.fromJson(commentJson, Comment.class);
+			Shop shop = gson.fromJson(shopJson, Shop.class);
 			
 			int count = 0;
 			if (action.equals("commentInsert")) {
-				count = commentDao.insert(comment);
+				count = commentDao.insert(comment, shop);
 			} else if (action.equals("commentUpdate")) {
-				count = commentDao.update(comment);
+				count = commentDao.update(comment, shop);
 			}
 			writeText(response, String.valueOf(count));
 		} else if (action.equals("findByCommentId")) {

@@ -2,11 +2,13 @@ package tw.dp103g3.comment;
 
 import java.util.List;
 
+import tw.dp103g3.shop.Shop;
+
 public interface CommentDao {
 	
-	int insert(Comment comment);
+	int insert(Comment comment, Shop shop);
 	
-	int update(Comment comment);
+	int update(Comment comment, Shop shop);
 	
 	Comment findByCommentId (int cmt_id);
 	

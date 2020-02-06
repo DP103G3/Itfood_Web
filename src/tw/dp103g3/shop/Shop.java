@@ -60,9 +60,32 @@ public class Shop {
 		this.ttrate = ttrate;
 	}
 	
+	public Shop(int id, String email, String name, String phone, String tax, String address, 
+			 int area, byte state, String info, Date jointime) {
+		super();
+		this.id = id;
+		this.email = email;
+		this.name = name;
+		this.phone = phone;
+		this.tax = tax;
+		this.address = address;
+		this.area = area;
+		this.state = state;
+		this.info = info;
+		this.jointime = jointime;
+
+	}
+	
+	public Shop(int id, byte state) {
+		super();
+		this.id = id;
+		this.state = state;
+	}
+	
 	public Shop(int id, String name) {
 		this(id, name, null, -1, -1, 0, (byte) 0, null, null, 0, 0);
 	}
+
 
 	@Override
 	public int hashCode() {
