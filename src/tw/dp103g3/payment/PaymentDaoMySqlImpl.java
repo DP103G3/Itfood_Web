@@ -98,7 +98,7 @@ public class PaymentDaoMySqlImpl implements PaymentDao {
 	public List<Payment> getByMemberId(int mem_id, int state) {
 		String sql = "SELECT pay_id, pay_name, mem_id, pay_cardnum"
 				+ ", pay_due, pay_holdername, pay_securitycode, pay_phone, pay_state "
-				+ "FROM `payment` WHERE mem_id = ? AND payment_state = ?";
+				+ "FROM `payment` WHERE mem_id = ? AND pay_state = ?";
 		Connection connection = null;
 		PreparedStatement ps = null;
 		List<Payment> paymentList = new ArrayList<Payment>();

@@ -5,14 +5,23 @@ import static tw.dp103g3.main.Common.URL;
 import static tw.dp103g3.main.Common.USER;
 import static tw.dp103g3.main.Common.CLASS_NAME;
 
+import java.lang.reflect.Type;
+import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 
 import tw.dp103g3.order_detail.OrderDetail;
 import tw.dp103g3.order_detail.OrderDetailDao;
@@ -20,7 +29,6 @@ import tw.dp103g3.order_detail.OrderDetailDaoMySqlImpl;
 import tw.dp103g3.shop.Shop;
 
 import java.util.Date;
-
 
 public class OrderDaoMySqlImpl implements OrderDao {
 	private OrderDetailDao orderDetailDao = new OrderDetailDaoMySqlImpl();
@@ -35,7 +43,11 @@ public class OrderDaoMySqlImpl implements OrderDao {
 	}
 
 	@Override
-	public int insert(Order order) {
+	public int insert(Order order, String orderDetailsJson) {
+		List<OrderDetail> orderDetails = new ArrayList<>();
+		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
+		int odCount = 0;
+		int orderCount = 0;
 		int count = 0;
 		String sql = "INSERT INTO `order` (shop_id, mem_id, del_id, pay_id, sp_id, order_ideal, "
 				+ "order_delivery, adrs_id, order_name, order_phone, order_ttprice, order_type, order_state) "
@@ -44,23 +56,82 @@ public class OrderDaoMySqlImpl implements OrderDao {
 		PreparedStatement ps = null;
 		try {
 			connection = DriverManager.getConnection(URL, USER, PASSWORD);
-			ps = connection.prepareStatement(sql);
+			connection.setAutoCommit(false);
+			ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 			ps.setInt(1, order.getShop().getId());
 			ps.setInt(2, order.getMem_id());
-			ps.setInt(3, order.getDel_id() != 0 ? order.getDel_id() : null);
+			if (order.getDel_id() != 0) {
+				ps.setInt(3, order.getDel_id());
+			} else {
+				ps.setNull(3, Types.INTEGER);
+			}
 			ps.setInt(4, order.getPay_id());
-			ps.setInt(5, order.getSp_id() != 0 ? order.getSp_id() : null);
+			if (order.getSp_id() != 0) {
+				ps.setInt(5, order.getSp_id());
+			} else {
+				ps.setNull(5, Types.INTEGER);
+			}
 			ps.setTimestamp(6, new Timestamp(order.getOrder_ideal().getTime()));
-			ps.setTimestamp(7, order.getOrder_delivery() != null ? 
-					new Timestamp(order.getOrder_delivery().getTime()) : null);
-			ps.setInt(8, order.getAdrs_id());
+			ps.setTimestamp(7,
+					order.getOrder_delivery() != null ? new Timestamp(order.getOrder_delivery().getTime()) : null);
+			if (order.getAdrs_id() != 0) {
+				ps.setInt(8, order.getAdrs_id());
+			} else {
+				ps.setNull(8, Types.INTEGER);
+			}
 			ps.setString(9, order.getOrder_name());
 			ps.setString(10, order.getOrder_phone());
 			ps.setInt(11, order.getOrder_ttprice());
 			ps.setInt(12, order.getOrder_type());
 			ps.setInt(13, order.getOrder_state());
+			orderCount = ps.executeUpdate();
+			
+			try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+				if (generatedKeys.next()) {
+					order.setOrder_id(generatedKeys.getInt(1));
+					Type listType = new TypeToken<List<JsonObject>>() {}.getType();
+					List<JsonObject> orderDetailsJsonObject = gson.fromJson(orderDetailsJson, listType);
+					for (JsonObject orderDetailJsonObject : orderDetailsJsonObject) {
+						int dish_id = orderDetailJsonObject.get("dish_id").getAsInt();
+						int order_id =  order.getOrder_id();
+						int od_count =  orderDetailJsonObject.get("od_count").getAsInt();
+						int od_price =  orderDetailJsonObject.get("od_price").getAsInt();
+						String od_message =  orderDetailJsonObject.get("od_message").getAsString();
+						OrderDetail od = new OrderDetail(order_id, dish_id, od_count, od_price, od_message);
+						orderDetails.add(od);
+					}
+					
+					String sqlOd = "INSERT INTO `order_detail` (order_id, dish_id, od_count, od_price, od_message)"
+							+ " VALUES (?, ?, ?, ?, ?);";
+					PreparedStatement psOd = connection.prepareStatement(sqlOd);
+					for (OrderDetail orderDetail : orderDetails) {
+						psOd.setInt(1, orderDetail.getOrder_id());
+						psOd.setInt(2, orderDetail.getDish_id());
+						psOd.setInt(3, orderDetail.getOd_count());
+						psOd.setInt(4, orderDetail.getOd_price());
+						psOd.setString(5, orderDetail.getOd_message());
+						psOd.addBatch();
+					}
+					try {
+						psOd.executeBatch();
+						odCount = 1;
+					} catch (BatchUpdateException e) {
+						e.printStackTrace();
+						odCount = 0;
+					}
 
-			count = ps.executeUpdate();
+				} else {
+					throw new SQLException("Creating order failed, no ID obtained.");
+				}
+			}
+			
+			if (orderCount + odCount == 2) {
+				count = 1;
+				connection.commit();
+			} else {
+				connection.rollback();
+			}
+
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
@@ -69,6 +140,7 @@ public class OrderDaoMySqlImpl implements OrderDao {
 					ps.close();
 				}
 				if (connection != null) {
+					connection.setAutoCommit(true);
 					connection.close();
 				}
 			} catch (SQLException e) {
@@ -91,12 +163,20 @@ public class OrderDaoMySqlImpl implements OrderDao {
 			ps = connection.prepareStatement(sql);
 			ps.setInt(1, order.getShop().getId());
 			ps.setInt(2, order.getMem_id());
-			ps.setInt(3, order.getDel_id() != 0 ? order.getDel_id() : 0);
+			if (order.getDel_id() != 0) {
+				ps.setInt(3, order.getDel_id());
+			} else {
+				ps.setNull(3, Types.INTEGER);
+			}
 			ps.setInt(4, order.getPay_id());
-			ps.setInt(5, order.getSp_id() != 0 ? order.getSp_id() : 0);
+			if (order.getSp_id() != 0) {
+				ps.setInt(5, order.getSp_id());
+			} else {
+				ps.setNull(5, Types.INTEGER);
+			}
 			ps.setTimestamp(6, new Timestamp(order.getOrder_ideal().getTime()));
-			ps.setTimestamp(7, order.getOrder_delivery() != null ? 
-					new Timestamp(order.getOrder_delivery().getTime()) : null);
+			ps.setTimestamp(7,
+					order.getOrder_delivery() != null ? new Timestamp(order.getOrder_delivery().getTime()) : null);
 			ps.setInt(8, order.getAdrs_id());
 			ps.setString(9, order.getOrder_name());
 			ps.setString(10, order.getOrder_phone());
@@ -104,7 +184,6 @@ public class OrderDaoMySqlImpl implements OrderDao {
 			ps.setInt(12, order.getOrder_state());
 			ps.setInt(13, order.getOrder_type());
 			ps.setInt(14, order.getOrder_id());
-			
 
 			count = ps.executeUpdate();
 		} catch (SQLException e) {
@@ -156,9 +235,9 @@ public class OrderDaoMySqlImpl implements OrderDao {
 				int order_area = rs.getInt(16);
 				int order_type = rs.getInt(17);
 				List<OrderDetail> orderDetails = orderDetailDao.findByOrderId(order_id);
-				Order order = new Order(orderId, new Shop(shopId, shopName), memId, delId, payId, spId, orderIdeal, orderTime,
-						orderDelivery, adrsId, order_name, order_phone, order_ttprice, order_area, orderState, 
-						order_type, orderDetails);
+				Order order = new Order(orderId, new Shop(shopId, shopName), memId, delId, payId, spId, orderIdeal,
+						orderTime, orderDelivery, adrsId, order_name, order_phone, order_ttprice, order_area,
+						orderState, order_type, orderDetails);
 				orderList.add(order);
 			}
 			return orderList;
@@ -183,20 +262,20 @@ public class OrderDaoMySqlImpl implements OrderDao {
 	public List<Order> findByCase(int id, String type, int state) {
 		String sqlPart = "";
 		switch (type) {
-			case "member":
-				sqlPart = "mem_id";
-				break;
-			case "shop":
-				sqlPart = "`shop`.shop_id";
-				break;
-			case "delivery":
-				sqlPart = "del_id";
-				break;
+		case "member":
+			sqlPart = "mem_id";
+			break;
+		case "shop":
+			sqlPart = "`shop`.shop_id";
+			break;
+		case "delivery":
+			sqlPart = "del_id";
+			break;
 		}
-		String sql = "SELECT order_id, `shop`.shop_id, shop_name, mem_id, del_id, pay_id, order_state, sp_id, order_time, order_ideal, " + 
-				"order_delivery, adrs_id, order_name, order_phone, order_ttprice, order_area, order_type FROM `order` " + 
-				"LEFT JOIN `shop` ON `order`.shop_id = `shop`.shop_id " + 
-				"WHERE " + sqlPart + " = ? " + (state == -1 ? "" : "AND order_state = ? ") + "ORDER BY order_time DESC;";
+		String sql = "SELECT order_id, `shop`.shop_id, shop_name, mem_id, del_id, pay_id, order_state, sp_id, order_time, order_ideal, "
+				+ "order_delivery, adrs_id, order_name, order_phone, order_ttprice, order_area, order_type FROM `order` "
+				+ "LEFT JOIN `shop` ON `order`.shop_id = `shop`.shop_id " + "WHERE " + sqlPart + " = ? "
+				+ (state == -1 ? "" : "AND order_state = ? ") + "ORDER BY order_time DESC;";
 		Connection connection = null;
 		PreparedStatement ps = null;
 		List<Order> orderList = new ArrayList<Order>();
@@ -227,9 +306,9 @@ public class OrderDaoMySqlImpl implements OrderDao {
 				int order_area = rs.getInt(16);
 				int order_type = rs.getInt(17);
 				List<OrderDetail> orderDetails = orderDetailDao.findByOrderId(orderId);
-				Order order = new Order(orderId, new Shop(shopId, shopName), memId, delId, payId, spId, orderIdeal, orderTime,
-						orderDelivery, adrsId, order_name, order_phone, order_ttprice, order_area, orderStatus, 
-						order_type, orderDetails);
+				Order order = new Order(orderId, new Shop(shopId, shopName), memId, delId, payId, spId, orderIdeal,
+						orderTime, orderDelivery, adrsId, order_name, order_phone, order_ttprice, order_area,
+						orderStatus, order_type, orderDetails);
 				orderList.add(order);
 			}
 			return orderList;
@@ -254,7 +333,7 @@ public class OrderDaoMySqlImpl implements OrderDao {
 	public List<Order> findByCase(int id, String type) {
 		return findByCase(id, type, -1);
 	}
-	
+
 //	@Override
 //	public List<Order> findByCase(int id, String type) {
 //		String sqlPart = "";

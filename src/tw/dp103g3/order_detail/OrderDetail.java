@@ -5,6 +5,7 @@ import tw.dp103g3.dish.Dish;
 public class OrderDetail {
 
 	private int od_id;
+	private int dish_id;
 	private int order_id;
 	private Dish dish;
 	private int od_count;
@@ -19,7 +20,13 @@ public class OrderDetail {
 		this.od_price = od_price;
 		this.od_message = od_message;
 	}
-	
+	public OrderDetail(int order_id, int dish_id, int od_count, int od_price, String od_message) {
+		this.order_id = order_id;
+		this.dish_id = dish_id;
+		this.od_count = od_count;
+		this.od_price = od_price;
+		this.od_message = od_message;
+	}
 	public OrderDetail(Dish dish, int od_count) {
 		this.dish = dish;
 		this.od_count = od_count;
@@ -61,6 +68,12 @@ public class OrderDetail {
 		return od_price;
 	}
 
+	public int getDish_id() {
+		return dish_id;
+	}
+	public void setDish_id(int dish_id) {
+		this.dish_id = dish_id;
+	}
 	public void setOd_price(int od_price) {
 		this.od_price = od_price;
 	}

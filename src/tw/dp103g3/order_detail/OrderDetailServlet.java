@@ -3,6 +3,8 @@ package tw.dp103g3.order_detail;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -14,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 
 
 
@@ -41,14 +44,25 @@ public class OrderDetailServlet extends HttpServlet {
 		String action = jsonObject.get("action").getAsString();
 		
 		if (action.equals("orderDetailInsert") || action.equals("orderDetailUpdate")) {
-			String orderJson = jsonObject.get("orderDetail").getAsString();
-			System.out.println("orderDetailJson = " + orderJson);
-			OrderDetail orderDetail = gson.fromJson(orderJson, OrderDetail.class);
-
 			int count = 0;
 			if (action.equals("orderDetailInsert")) {
-				count = orderDetailDao.insert(orderDetail);
+				List<OrderDetail> orderDetails = new ArrayList<>();
+				String orderDetailsJson = jsonObject.get("orderDetailsJson").getAsString();
+				System.out.println("orderDetailsJson = " + orderDetailsJson);
+				Type listType = new TypeToken<List<JsonObject>>() {}.getType();
+				List<JsonObject> orderDetailsJsonList = gson.fromJson(orderDetailsJson, listType);
+				for (JsonObject orderDetailJsonObject : orderDetailsJsonList) {
+					int dish_id = orderDetailJsonObject.get("dish_id").getAsInt();
+					int order_id =  orderDetailJsonObject.get("order_id").getAsInt();
+					int od_count =  orderDetailJsonObject.get("od_count").getAsInt();
+					int od_price =  orderDetailJsonObject.get("od_price").getAsInt();
+					String od_message =  orderDetailJsonObject.get("od_message").getAsString();
+					OrderDetail od = new OrderDetail(order_id, dish_id, od_count, od_price, od_message);
+					orderDetails.add(od);
+				}
+				count = orderDetailDao.insert(orderDetails);
 			} else if (action.equals("orderDetailUpdate")) {
+				OrderDetail orderDetail = gson.fromJson(jsonObject.get("orderDetail").toString(), OrderDetail.class);
 				count = orderDetailDao.update(orderDetail);
 			}
 			writeText(response, String.valueOf(count));

@@ -54,8 +54,11 @@ public class AddressDaoMysqlImpl implements AddressDao {
 		if (getAll(address.getMem_id()).stream().anyMatch(v -> v.equals(address))) {
 			count = update(address);
 		} else {
-			try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-					PreparedStatement ps = connection.prepareStatement(sql);) {
+			Connection connection = null;
+			PreparedStatement ps = null;
+			try  {
+				connection = DriverManager.getConnection(URL, USER, PASSWORD);
+				ps = connection.prepareStatement(sql);
 				ps.setInt(1, address.getMem_id());
 				ps.setString(2, address.getName());
 				ps.setString(3, address.getInfo());
@@ -63,7 +66,11 @@ public class AddressDaoMysqlImpl implements AddressDao {
 				ps.setDouble(5, address.getLatitude());
 				ps.setDouble(6, address.getLongitude());
 				count = ps.executeUpdate();
+				if (count == 1 ) {
 				connection.commit();
+				} else {
+					connection.rollback();
+				}
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -76,8 +83,11 @@ public class AddressDaoMysqlImpl implements AddressDao {
 		int count = 0;
 		String sql = "UPDATE `address` SET adrs_name = ?, adrs_info = ?, adrs_state = ?, adrs_latitude = ?, "
 				+ "adrs_longitude = ? WHERE adrs_id = ?;";
-		try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-				PreparedStatement ps = connection.prepareStatement(sql);) {
+		Connection connection = null;
+		PreparedStatement ps = null;
+		try  {
+			connection = DriverManager.getConnection(URL, USER, PASSWORD);
+			ps = connection.prepareStatement(sql);
 			ps.setString(1, address.getName());
 			ps.setString(2, address.getInfo());
 			ps.setInt(3, address.getState());
@@ -85,7 +95,11 @@ public class AddressDaoMysqlImpl implements AddressDao {
 			ps.setDouble(5, address.getLongitude());
 			ps.setInt(6, address.getId());
 			count = ps.executeUpdate();
+			if (count == 1 ) {
 			connection.commit();
+			} else {
+				connection.rollback();
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

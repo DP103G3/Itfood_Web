@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
-import java.util.Optional;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -16,6 +15,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+
+
 import static tw.dp103g3.main.Common.CONTENT_TYPE;
 
 @WebServlet("/OrderServlet")
@@ -49,7 +50,8 @@ public class OrderServlet extends HttpServlet {
 
 			int count = 0;
 			if (action.equals("orderInsert")) {
-				count = orderDao.insert(order);
+				String orderDetailsJson = jsonObject.get("orderDetailsJson").getAsString();
+				count = orderDao.insert(order, orderDetailsJson);
 			} else if (action.equals("orderUpdate")) {
 				count = orderDao.update(order);
 			}

@@ -4,11 +4,14 @@ import java.util.List;
 
 public interface OrderDetailDao {
 	
-	int insert(OrderDetail orderDetail);
+	int insert(List<OrderDetail> orderDetails);
 	
 	int update(OrderDetail orderDetail);
 	
 	List<OrderDetail> findByOrderId(int order_id);
 	
-
+	void commit();
+	
+	void rollback();
+	
 }

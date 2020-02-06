@@ -39,7 +39,11 @@ public class FavoriteDaoMySqlImpl implements FavoriteDao {
 			ps.setInt(1, memberId);
 			ps.setInt(2, shopId);
 			count = ps.executeUpdate();
+			if (count == 1) {
 			connection.commit();
+			} else {
+				connection.rollback();
+			}
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -71,7 +75,11 @@ public class FavoriteDaoMySqlImpl implements FavoriteDao {
 			ps.setInt(1, memberId);
 			ps.setInt(2, shopId);
 			count = ps.executeUpdate();
+			if (count == 1) {
 			connection.commit();
+			} else {
+				connection.rollback();
+			}
 			} catch(SQLException e){
 				e.printStackTrace();
 			} finally {

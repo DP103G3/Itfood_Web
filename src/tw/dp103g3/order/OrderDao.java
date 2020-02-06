@@ -3,7 +3,7 @@ package tw.dp103g3.order;
 import java.util.List;
 
 public interface OrderDao {
-	int insert(Order order);
+	int insert(Order order, String orderDetailsJson);
 	
 	int update(Order order);
 	
