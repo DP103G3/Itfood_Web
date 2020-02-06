@@ -19,6 +19,7 @@ import com.google.gson.JsonObject;
 
 import static tw.dp103g3.main.Common.*;
 import tw.dp103g3.main.ImageUtil;
+import tw.dp103g3.member.Member;
 
 @SuppressWarnings("serial")
 @WebServlet("/ShopServlet")
@@ -90,7 +91,25 @@ public class ShopServlet extends HttpServlet {
 			id = jsonObject.get("id").getAsInt();
 			shop = shopDao.getShopById(id);
 			writeText(response, gson.toJson(shop));
-		
+			break;
+		case "getShopAllById":
+			id = jsonObject.get("id").getAsInt();
+			shop = shopDao.getShopAllById(id);
+			writeText(response, gson.toJson(shop));
+			break;
+		case "getAccount":
+			id = jsonObject.get("id").getAsInt();
+			shop = shopDao.getAccount(id);
+			writeText(response, gson.toJson(shop));
+			System.out.println("getAccount: " + shop);
+			break;
+		case "saveAccount":
+			shopJson = jsonObject.get("shop").getAsString();
+			shop = gson.fromJson(shopJson, Shop.class);
+			count = shopDao.saveAccount(shop);
+			writeText(response, String.valueOf(count));
+			System.out.println("saveAccount = " + shopJson);
+			break;
 		default:
 			writeText(response, "");
 			break;
@@ -101,7 +120,7 @@ public class ShopServlet extends HttpServlet {
 		response.setContentType(CONTENT_TYPE);
 		PrintWriter out = response.getWriter();
 		out.print(outText);
-		System.out.println("output: " + outText);
+		System.out.println("outputWT: " + outText);
 	}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)

@@ -6,6 +6,8 @@ public interface ShopDao {
 	int insert(Shop shop, byte[] image);
 
 	int update(Shop shop, byte[] image);
+	
+	int saveAccount(Shop shop);
 
 	List<Shop> getAll();
 
@@ -14,5 +16,9 @@ public interface ShopDao {
 	byte[] getImage(int id);
 	
 	Shop getShopById(int id);
+	
+	Shop getShopAllById(int id);
+	
+	Shop getAccount(int id);
 
 }
