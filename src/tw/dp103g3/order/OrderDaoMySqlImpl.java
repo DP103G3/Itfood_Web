@@ -166,13 +166,13 @@ public class OrderDaoMySqlImpl implements OrderDao {
 			if (order.getDel_id() != 0) {
 				ps.setInt(3, order.getDel_id());
 			} else {
-				ps.setNull(3, Types.INTEGER);
+				ps.setNull(3, java.sql.Types.INTEGER);
 			}
-			ps.setInt(4, order.getPay_id());
+			ps.setInt(4, order.getPay_id());			
 			if (order.getSp_id() != 0) {
 				ps.setInt(5, order.getSp_id());
 			} else {
-				ps.setNull(5, Types.INTEGER);
+				ps.setNull(5, java.sql.Types.INTEGER);
 			}
 			ps.setTimestamp(6, new Timestamp(order.getOrder_ideal().getTime()));
 			ps.setTimestamp(7,
