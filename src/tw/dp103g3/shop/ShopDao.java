@@ -14,4 +14,6 @@ public interface ShopDao {
 	byte[] getImage(int id);
 	
 	Shop getShopById(int id);
+	
+	int login(String email, String password);
 }

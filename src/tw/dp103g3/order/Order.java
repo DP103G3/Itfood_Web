@@ -67,6 +67,28 @@ public class Order {
 		this.orderDetails = orderDetails;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + order_id;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Order other = (Order) obj;
+		if (order_id != other.order_id)
+			return false;
+		return true;
+	}
+
 	public int getOrder_id() {
 		return order_id;
 	}

@@ -248,4 +248,26 @@ public class ShopDaoMysqlImpl implements ShopDao {
 		return shop;
 	}
 
+	@Override
+	public int login(String email, String password) {
+		boolean isValid = false;
+		int shopId = 0;
+		String sql = "SELECT shop_id, shop_password FROM `shop` WHERE shop_email = ?;";
+		try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+				PreparedStatement ps = connection.prepareStatement(sql);) {
+			ps.setString(1, email);
+			ResultSet rs = ps.executeQuery();
+			if (rs.next()) {
+				isValid = rs.getString(2).equals(password);
+			}
+			if (isValid) {
+				shopId = rs.getInt(1);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return shopId;
+	}
+
 }

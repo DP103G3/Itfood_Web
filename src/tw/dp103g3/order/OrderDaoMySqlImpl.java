@@ -91,9 +91,18 @@ public class OrderDaoMySqlImpl implements OrderDao {
 			ps = connection.prepareStatement(sql);
 			ps.setInt(1, order.getShop().getId());
 			ps.setInt(2, order.getMem_id());
-			ps.setInt(3, order.getDel_id() != 0 ? order.getDel_id() : 0);
+			if (order.getDel_id() != 0) {
+				ps.setInt(3, order.getDel_id());
+			} else {
+				ps.setNull(3, java.sql.Types.INTEGER);
+			}
 			ps.setInt(4, order.getPay_id());
-			ps.setInt(5, order.getSp_id() != 0 ? order.getSp_id() : 0);
+			System.out.println(order.getSp_id());
+			if (order.getSp_id() != 0) {
+				ps.setInt(5, order.getSp_id());
+			} else {
+				ps.setNull(5, java.sql.Types.INTEGER);
+			}
 			ps.setTimestamp(6, new Timestamp(order.getOrder_ideal().getTime()));
 			ps.setTimestamp(7, order.getOrder_delivery() != null ? 
 					new Timestamp(order.getOrder_delivery().getTime()) : null);
