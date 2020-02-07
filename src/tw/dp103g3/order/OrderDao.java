@@ -12,4 +12,6 @@ public interface OrderDao {
 	List<Order> findByCase(int id, String type, int State);
 	
 	List<Order> findByCase(int id, String type);
+	
+	Cart getCart(List<Integer> dishIds, int mem_id);
 }

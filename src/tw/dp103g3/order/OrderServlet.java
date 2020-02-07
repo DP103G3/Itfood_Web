@@ -3,6 +3,7 @@ package tw.dp103g3.order;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.Type;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -15,7 +16,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
+import com.google.gson.reflect.TypeToken;
 
 import static tw.dp103g3.main.Common.CONTENT_TYPE;
 
@@ -67,6 +68,13 @@ public class OrderServlet extends HttpServlet {
 			int state = stateJE != null ? stateJE.getAsInt() : -1;
 			List<Order> orders = orderDao.findByCase(id, type, state);
 			writeText(response, gson.toJson(orders));
+		} else if (action.equals("getCart")) {
+			int mem_id = jsonObject.get("mem_id").getAsInt();
+			String dishIdsJson = jsonObject.get("dishIds").getAsString();
+			Type listType = new TypeToken<List<Integer>>() {}.getType();
+			List<Integer> dishIds = gson.fromJson(dishIdsJson, listType);
+			Cart cart = orderDao.getCart(dishIds, mem_id);
+			writeText(response, gson.toJson(cart));
 		}
 //		else if (action.equals("findByCaseWithState")) {
 //			int id = jsonObject.get("id").getAsInt();

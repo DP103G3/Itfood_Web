@@ -23,9 +23,21 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 
+import tw.dp103g3.address.Address;
+import tw.dp103g3.address.AddressDao;
+import tw.dp103g3.address.AddressDaoMysqlImpl;
+import tw.dp103g3.dish.Dish;
+import tw.dp103g3.dish.DishDao;
+import tw.dp103g3.dish.DishDaoMysqlImpl;
+import tw.dp103g3.member.Member;
+import tw.dp103g3.member.MemberDao;
+import tw.dp103g3.member.MemberDaoMySqlImpl;
 import tw.dp103g3.order_detail.OrderDetail;
 import tw.dp103g3.order_detail.OrderDetailDao;
 import tw.dp103g3.order_detail.OrderDetailDaoMySqlImpl;
+import tw.dp103g3.payment.Payment;
+import tw.dp103g3.payment.PaymentDao;
+import tw.dp103g3.payment.PaymentDaoMySqlImpl;
 import tw.dp103g3.shop.Shop;
 
 import java.util.Date;
@@ -333,6 +345,32 @@ public class OrderDaoMySqlImpl implements OrderDao {
 	public List<Order> findByCase(int id, String type) {
 		return findByCase(id, type, -1);
 	}
+
+	@Override
+	public Cart getCart(List<Integer> dishIds, int mem_id) {
+		DishDao dishDao = new DishDaoMysqlImpl();
+		PaymentDao paymentDao = new PaymentDaoMySqlImpl();
+		AddressDao addressDao = new AddressDaoMysqlImpl();
+		MemberDao memberDao = new MemberDaoMySqlImpl();
+		List<Dish> dishes = new ArrayList<>();
+		List<Payment> payments = new ArrayList<>();
+		List<Address> addresses = new ArrayList<>();
+		
+		
+		for (Integer dishId : dishIds) {
+			dishes.add(dishDao.getDishById(dishId));
+		}
+		
+		payments = paymentDao.getByMemberId(mem_id, 1);
+		addresses = addressDao.getAllShow(mem_id);
+		Member member = memberDao.findById(mem_id);
+		
+		Cart cart = new Cart(dishes, member, payments, addresses);
+		
+		return cart;
+	}
+	
+	
 
 //	@Override
 //	public List<Order> findByCase(int id, String type) {
