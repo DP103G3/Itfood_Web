@@ -25,7 +25,6 @@ public class MemberDaoMySqlImpl implements MemberDao {
 		}
 	}
 
-	
 	@Override
 	public int insert(Member member) {
 		int count = 0;
@@ -94,7 +93,7 @@ public class MemberDaoMySqlImpl implements MemberDao {
 		}
 		return count;
 	}
-	
+
 	@Override
 	public Member getAccount(int mem_id) {
 		String sql = "SELECT mem_id, mem_state FROM `member` WHERE mem_id = ?;";
@@ -107,8 +106,8 @@ public class MemberDaoMySqlImpl implements MemberDao {
 			ps.setInt(1, mem_id);
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
-			int mem_state = rs.getInt(2);
-			member = new Member(mem_id, mem_state);
+				int mem_state = rs.getInt(2);
+				member = new Member(mem_id, mem_state);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -159,8 +158,7 @@ public class MemberDaoMySqlImpl implements MemberDao {
 		}
 		return count;
 	}
-	
-	
+
 	@Override
 	public Member findById(int mem_id) {
 		String sql = "SELECT mem_id, mem_name, mem_password, mem_email, mem_phone, mem_joindate, mem_state FROM `member` WHERE mem_id = ?;";
@@ -218,10 +216,11 @@ public class MemberDaoMySqlImpl implements MemberDao {
 				Date mem_joindate = rs.getTimestamp(6);
 				Date mem_suspendtime = rs.getTimestamp(7);
 				int mem_state = rs.getInt(8);
-				Member member = new Member(mem_id, mem_name, mem_password, mem_email,mem_phone,mem_joindate,mem_suspendtime,mem_state);
-				memberList.add(member);	
+				Member member = new Member(mem_id, mem_name, mem_password, mem_email, mem_phone, mem_joindate,
+						mem_suspendtime, mem_state);
+				memberList.add(member);
 			}
-			//System.out.println("output add sql:" + memberList);
+			// System.out.println("output add sql:" + memberList);
 			return memberList;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -238,8 +237,49 @@ public class MemberDaoMySqlImpl implements MemberDao {
 			}
 		}
 		System.out.println("output getAll return sql:" + memberList);
-		//System.out.println("output getAll return sql:" + memberList);
+		// System.out.println("output getAll return sql:" + memberList);
 		return memberList;
+	}
+
+	@Override
+	public Member findByEmail(String email) {
+		Member member = new Member();
+		String sql = "SELECT mem_id, mem_email, mem_password, mem_name, mem_phone, mem_joindate, mem_suspendtime, mem_state "
+				+ " FROM `member` WHERE mem_email = ?;";
+		Connection connection = null;
+		PreparedStatement ps = null;
+		try {
+			connection = DriverManager.getConnection(URL, USER, PASSWORD);
+			ps = connection.prepareStatement(sql);
+			ps.setString(1, email);
+			ResultSet rs = ps.executeQuery();
+			while (rs.next()) {
+				int mem_id = rs.getInt(1);
+				String mem_email = rs.getString(2);
+				String mem_password = rs.getString(3);
+				String mem_name = rs.getString(4);
+				String mem_phone = rs.getString(5);
+				Date mem_joindate = rs.getTimestamp(6);
+				Date mem_suspendtime = rs.getTimestamp(7);
+				int mem_state = rs.getInt(8);
+				member = new Member(mem_id, mem_name, mem_password, mem_email, mem_phone, mem_joindate, mem_suspendtime,
+						mem_state);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (ps != null) {
+					ps.close();
+				}
+				if (connection != null) {
+					connection.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return member;
 	}
 
 }

@@ -84,6 +84,12 @@ public class MemberServlet extends HttpServlet {
 			writeText(response, String.valueOf(count));
 			System.out.println("saveAccount = " + memberJson);
 			break;
+		case "findByEmail":
+			String email = jsonObject.get("mem_email").getAsString();
+			member = memberDao.findByEmail(email);
+			writeText(response, gson.toJson(member, Member.class));
+			System.out.println("findByEmail : " + member);
+			break;
 		default:
 			writeText(response, "not fun");
 			break;

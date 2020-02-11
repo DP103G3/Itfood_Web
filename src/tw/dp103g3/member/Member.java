@@ -43,6 +43,9 @@ public class Member {
 		this.mem_state = mem_state;
 	}
 	
+	public Member() {
+	}
+	
 
 	public int getMemId() {
 		return mem_id;
