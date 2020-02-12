@@ -26,9 +26,12 @@ public class AddressDaoMysqlImpl implements AddressDao {
 	public List<Address> getAllShow(int mem_id) {
 		List<Address> addresses = new ArrayList<Address>();
 		String sql = "SELECT adrs_id, adrs_name, adrs_info, adrs_latitude, adrs_longitude "
-				+ "FROM `address` WHERE adrs_state = 1 & mem_id = ?;";
-		try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-				PreparedStatement ps = connection.prepareStatement(sql);) {
+				+ "FROM `address` WHERE mem_id = ? and adrs_state = 1;";
+		Connection connection = null;
+		PreparedStatement ps = null;
+		try {
+			connection = DriverManager.getConnection(URL, USER, PASSWORD);
+			ps = connection.prepareStatement(sql);
 			ps.setInt(1, mem_id);
 			ResultSet rs = ps.executeQuery();
 			while (rs.next()) {
@@ -40,8 +43,20 @@ public class AddressDaoMysqlImpl implements AddressDao {
 				Address address = new Address(id, name, info, latitude, longitude);
 				addresses.add(address);
 			}
+			return addresses;
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} finally {
+			try {
+				if (ps != null) {
+					ps.close();
+				}
+				if (connection != null) {
+					connection.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 		return addresses;
 	}
@@ -51,9 +66,9 @@ public class AddressDaoMysqlImpl implements AddressDao {
 		int count = 0;
 		String sql = "INSERT INTO `address` (mem_id, adrs_name, adrs_info, adrs_state, "
 				+ "adrs_latitude, adrs_longitude) VALUES (?, ?, ?, ?, ?, ?);";
-		if (getAll(address.getMem_id()).stream().anyMatch(v -> v.equals(address))) {
-			count = update(address);
-		} else {
+//		if (getAll(address.getMem_id()).stream().anyMatch(v -> v.equals(address))) {
+//			count = update(address);
+//		} else {
 			Connection connection = null;
 			PreparedStatement ps = null;
 			try  {
@@ -66,15 +81,21 @@ public class AddressDaoMysqlImpl implements AddressDao {
 				ps.setDouble(5, address.getLatitude());
 				ps.setDouble(6, address.getLongitude());
 				count = ps.executeUpdate();
-				if (count == 1 ) {
-				connection.commit();
-				} else {
-					connection.rollback();
-				}
 			} catch (SQLException e) {
 				e.printStackTrace();
+			} finally {
+				try {
+					if (ps != null) {
+						ps.close();
+					}
+					if (connection != null) {
+						connection.close();
+					}
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
 			}
-		}
+//		}
 		return count;
 	}
 
@@ -95,13 +116,19 @@ public class AddressDaoMysqlImpl implements AddressDao {
 			ps.setDouble(5, address.getLongitude());
 			ps.setInt(6, address.getId());
 			count = ps.executeUpdate();
-			if (count == 1 ) {
-			connection.commit();
-			} else {
-				connection.rollback();
-			}
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} finally {
+			try {
+				if (ps != null) {
+					ps.close();
+				}
+				if (connection != null) {
+					connection.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 		return count;
 	}
@@ -127,7 +154,7 @@ public class AddressDaoMysqlImpl implements AddressDao {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-		}
+		} 
 		return addresses;
 	}
 }

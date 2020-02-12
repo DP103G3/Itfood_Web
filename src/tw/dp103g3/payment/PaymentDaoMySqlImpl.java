@@ -44,7 +44,6 @@ public class PaymentDaoMySqlImpl implements PaymentDao {
 			ps.setString(7, payment.getPay_phone());
 			ps.setInt(8, payment.getPay_state());
 			count = ps.executeUpdate();
-			connection.commit();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
