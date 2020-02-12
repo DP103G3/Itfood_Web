@@ -121,7 +121,7 @@ public class ShopDaoMysqlImpl implements ShopDao {
 		List<Shop> shops = new ArrayList<Shop>();
 		String sql = "SELECT shop_id, shop_email, shop_password, shop_name, shop_phone, shop_tax, shop_address, "
 				+ "shop_latitude, shop_longitude, shop_area, shop_state, shop_info, shop_jointime, "
-				+ "shop_suspendtime, shop_ttscore, shop_ttrate FROM `shop`;";
+				+ "shop_suspendtime, shop_ttscore, shop_ttrate FROM `shop` ORDER BY shop_jointime DESC;";
 		try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
 				PreparedStatement ps = connection.prepareStatement(sql);) {
 			ResultSet rs = ps.executeQuery();
