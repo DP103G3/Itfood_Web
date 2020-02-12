@@ -1,6 +1,7 @@
 package tw.dp103g3.member;
 
 import java.util.List;
+import java.util.Map;
 
 public interface MemberDao {
 	int insert(Member member);
@@ -13,7 +14,7 @@ public interface MemberDao {
 
 	Member findById(int mem_id);
 	
-	Member findByEmail(String email);
+	Map<String, Integer> login(String email, String password);
 
 	List<Member> getAll();
 

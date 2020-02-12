@@ -7,12 +7,14 @@ import static tw.dp103g3.main.Common.USER;
 
 import java.sql.Connection;
 import java.util.Date;
+import java.util.HashMap;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class MemberDaoMySqlImpl implements MemberDao {
 
@@ -242,9 +244,15 @@ public class MemberDaoMySqlImpl implements MemberDao {
 	}
 
 	@Override
-	public Member findByEmail(String email) {
-		Member member = new Member();
-		String sql = "SELECT mem_id, mem_email, mem_password, mem_name, mem_phone, mem_joindate, mem_suspendtime, mem_state "
+	public Map<String, Integer> login(String email, String password) {
+		Map<String, Integer> outcome = new HashMap<String, Integer>();
+		int ERROR = 0;
+		int OK = 1;
+		int WRONG_PASSWORD = 2;
+		int SUSPENDED = 3;
+		int NOT_FOUND = 4;
+		outcome.put("result", ERROR);
+		String sql = "SELECT mem_id, mem_password, mem_state "
 				+ " FROM `member` WHERE mem_email = ?;";
 		Connection connection = null;
 		PreparedStatement ps = null;
@@ -253,18 +261,29 @@ public class MemberDaoMySqlImpl implements MemberDao {
 			ps = connection.prepareStatement(sql);
 			ps.setString(1, email);
 			ResultSet rs = ps.executeQuery();
+			if (!rs.next()) {
+				outcome.put("result", NOT_FOUND);
+			} else {
+				rs.beforeFirst();
+			}
+			
 			while (rs.next()) {
 				int mem_id = rs.getInt(1);
-				String mem_email = rs.getString(2);
-				String mem_password = rs.getString(3);
-				String mem_name = rs.getString(4);
-				String mem_phone = rs.getString(5);
-				Date mem_joindate = rs.getTimestamp(6);
-				Date mem_suspendtime = rs.getTimestamp(7);
-				int mem_state = rs.getInt(8);
-				member = new Member(mem_id, mem_name, mem_password, mem_email, mem_phone, mem_joindate, mem_suspendtime,
-						mem_state);
+				String mem_password = rs.getString(2);
+				System.out.println(mem_password);
+				int mem_state = rs.getInt(3);
+				outcome.put("id", mem_id);
+				if (mem_password.equals(password)) {
+					if (mem_state == 1) {
+						outcome.put("result", OK);
+					} else {
+						outcome.put("result", SUSPENDED);
+					}
+				} else {
+					outcome.put("result", WRONG_PASSWORD);
+				}
 			}
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
@@ -279,7 +298,7 @@ public class MemberDaoMySqlImpl implements MemberDao {
 				e.printStackTrace();
 			}
 		}
-		return member;
+		return outcome;
 	}
 
 }
