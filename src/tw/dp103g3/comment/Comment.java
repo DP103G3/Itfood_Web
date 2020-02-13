@@ -11,9 +11,12 @@ public class Comment {
 	private int cmt_state;
 	private String cmt_feedback;
 	private Date cmt_time;
+	private Date cmt_feedback_time;
+	private int cmt_feedback_state;
 	
+	// full constructor
 	public Comment(int cmt_id, int cmt_score, String cmt_detail, int shop_id, int mem_id, int cmt_state,
-			String cmt_feedback, Date cmt_time) {
+			String cmt_feedback, Date cmt_time, Date cmt_feedback_time, int cmt_feedback_state) {
 		super();
 		this.cmt_id = cmt_id;
 		this.cmt_score = cmt_score;
@@ -23,9 +26,27 @@ public class Comment {
 		this.cmt_state = cmt_state;
 		this.cmt_feedback = cmt_feedback;
 		this.cmt_time = cmt_time;
+		this.cmt_feedback_time = cmt_feedback_time;
+		this.cmt_feedback_state = cmt_feedback_state;
 	}
 	
-	//Constructor while inserting.
+	//member updating comment constructor
+	public Comment(int cmt_score, String cmt_detail, int cmt_state) {
+		super();
+		this.cmt_score = cmt_score;
+		this.cmt_detail = cmt_detail;
+		this.cmt_state = cmt_state;
+	}
+	
+	//shop updating comment constructor
+	public Comment(String cmt_feedback, Date cmt_feedback_time, int cmt_feedback_state) {
+		super();
+		this.cmt_feedback = cmt_feedback;
+		this.cmt_feedback_time = cmt_feedback_time;
+		this.cmt_feedback_state = cmt_feedback_state;
+	}
+
+	//Constructor while member inserting.
 	public Comment(int cmt_score, String cmt_detail, int shop_id, int mem_id, int cmt_state) {
 		super();
 		this.cmt_score = cmt_score;
@@ -98,6 +119,22 @@ public class Comment {
 
 	public void setCmt_feedback(String cmt_feedback) {
 		this.cmt_feedback = cmt_feedback;
+	}
+
+	public Date getCmt_feedback_time() {
+		return cmt_feedback_time;
+	}
+
+	public void setCmt_feedback_time(Date cmt_feedback_time) {
+		this.cmt_feedback_time = cmt_feedback_time;
+	}
+
+	public int getCmt_feedback_state() {
+		return cmt_feedback_state;
+	}
+
+	public void setCmt_feedback_state(int cmt_feedback_state) {
+		this.cmt_feedback_state = cmt_feedback_state;
 	}
 	
 	
