@@ -26,7 +26,7 @@ public class FavoriteDaoMySqlImpl implements FavoriteDao {
 	}
 
 	@Override
-	public int insert(int memberId, int shopId) {
+	public int insert(int mem_id, int shop_id) {
 		int count = 0;
 		String sql = "INSERT INTO favorite " + "(mem_id, shop_id) " + "VALUES(?,?);";
 
@@ -36,14 +36,9 @@ public class FavoriteDaoMySqlImpl implements FavoriteDao {
 		try {
 			connection = DriverManager.getConnection(URL, USER, PASSWORD);
 			ps = connection.prepareStatement(sql);
-			ps.setInt(1, memberId);
-			ps.setInt(2, shopId);
+			ps.setInt(1, mem_id);
+			ps.setInt(2, shop_id);
 			count = ps.executeUpdate();
-			if (count == 1) {
-			connection.commit();
-			} else {
-				connection.rollback();
-			}
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -64,7 +59,7 @@ public class FavoriteDaoMySqlImpl implements FavoriteDao {
 	}
 
 	@Override
-	public int delete(int memberId, int shopId) {
+	public int delete(int mem_id, int shop_id) {
 		int count = 0;
 		String sql = "DELETE FROM favorite WHERE mem_id = ? AND shop_id = ?;";
 		Connection connection = null;
@@ -72,14 +67,9 @@ public class FavoriteDaoMySqlImpl implements FavoriteDao {
 		try {
 			connection = DriverManager.getConnection(URL, USER, PASSWORD);
 			ps = connection.prepareStatement(sql);
-			ps.setInt(1, memberId);
-			ps.setInt(2, shopId);
+			ps.setInt(1, mem_id);
+			ps.setInt(2, shop_id);
 			count = ps.executeUpdate();
-			if (count == 1) {
-			connection.commit();
-			} else {
-				connection.rollback();
-			}
 			} catch(SQLException e){
 				e.printStackTrace();
 			} finally {
@@ -98,7 +88,7 @@ public class FavoriteDaoMySqlImpl implements FavoriteDao {
 	}
 
 	@Override
-	public List <Favorite> findByMemberId(int memberId) {
+	public List <Favorite> findByMemberId(int mem_id) {
 		String sql = "SELECT mem_id, shop_id FROM favorite WHERE mem_id = ?;";
 		Connection conn = null;
 		PreparedStatement ps = null;
@@ -106,7 +96,7 @@ public class FavoriteDaoMySqlImpl implements FavoriteDao {
 		try {
 			conn = DriverManager.getConnection(URL, USER, PASSWORD);
 			ps = conn.prepareStatement(sql);
-			ps.setInt(1, memberId);
+			ps.setInt(1, mem_id);
 			ResultSet rs = ps.executeQuery();
 			while(rs.next()) {
 				int memId = rs.getInt(1);

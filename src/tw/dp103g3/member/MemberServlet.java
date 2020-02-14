@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-
+import com.google.gson.reflect.TypeToken;
 
 import tw.dp103g3.member.Member;
 import tw.dp103g3.member.MemberDao;
@@ -18,7 +18,11 @@ import tw.dp103g3.member.MemberDaoMySqlImpl;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import static tw.dp103g3.main.Common.CONTENT_TYPE;
 
 @SuppressWarnings("serial")
@@ -84,11 +88,14 @@ public class MemberServlet extends HttpServlet {
 			writeText(response, String.valueOf(count));
 			System.out.println("saveAccount = " + memberJson);
 			break;
-		case "findByEmail":
+		case "login":
 			String email = jsonObject.get("mem_email").getAsString();
-			member = memberDao.findByEmail(email);
-			writeText(response, gson.toJson(member, Member.class));
-			System.out.println("findByEmail : " + member);
+			String password = jsonObject.get("mem_password").getAsString();
+			Map<String, Integer> outcome = new HashMap<>();
+			outcome = memberDao.login(email, password);
+			Type mapType = new TypeToken<Map<String, Integer>>(){}.getType();
+			writeText(response, gson.toJson(outcome, mapType));
+			System.out.println("login : " + outcome);
 			break;
 		default:
 			writeText(response, "not fun");

@@ -79,7 +79,11 @@ public class OrderDaoMySqlImpl implements OrderDao {
 			} else {
 				ps.setNull(3, Types.INTEGER);
 			}
-			ps.setInt(4, order.getPay_id());
+			if (order.getPay_id() != 0) {
+				ps.setInt(4, order.getPay_id());
+			} else {
+				ps.setNull(4, Types.INTEGER);
+			}
 			if (order.getSp_id() != 0) {
 				ps.setInt(5, order.getSp_id());
 			} else {

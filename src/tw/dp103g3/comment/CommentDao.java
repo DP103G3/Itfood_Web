@@ -16,5 +16,7 @@ public interface CommentDao {
 	
 	List<Comment> findByCase(int id, String type);
 	
+	int reply(Comment comment);
+	
 
 }

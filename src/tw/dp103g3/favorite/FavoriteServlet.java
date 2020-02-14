@@ -55,25 +55,23 @@ public class FavoriteServlet extends HttpServlet {
 
 		String action = jsonObject.get("action").getAsString();
 
-		if (action.equals("favoriteInsert")) {
+		if (action.equals("insert")) {
 			String favoriteJson = jsonObject.get("favorite").getAsString();
 			System.out.println("favoriteJson = " + favoriteJson);
 			Favorite favorite = gson.fromJson(favoriteJson, Favorite.class);
 			int count = 0;
 			count = favoriteDao.insert(favorite.getMemberId(), favorite.getShopId());
-			
 			writeText(response, String.valueOf(count));
-		} else if(action.equals("favoriteDelete")) {
+		} else if(action.equals("delete")) {
 			String favoriteJson = jsonObject.get("favorite").getAsString();
 			System.out.println("favoriteJson = " + favoriteJson);
 			Favorite favorite = gson.fromJson(favoriteJson, Favorite.class);
 			int count = 0;
 			count = favoriteDao.delete(favorite.getMemberId(), favorite.getShopId());
-			
 			writeText(response, String.valueOf(count));
 		} else if (action.equals("findByMemberId")) {
-			int memId = jsonObject.get("memId").getAsInt();
-			List<Favorite> favorites = favoriteDao.findByMemberId(memId);
+			int mem_id = jsonObject.get("mem_id").getAsInt();
+			List<Favorite> favorites = favoriteDao.findByMemberId(mem_id);
 			if (!favorites.isEmpty()) {
 				writeText(response, gson.toJson(favorites));
 			} else {
