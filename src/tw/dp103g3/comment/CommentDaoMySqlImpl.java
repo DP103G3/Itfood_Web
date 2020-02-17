@@ -8,7 +8,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.List;
+
+import com.mysql.cj.xdevapi.Type;
 
 import tw.dp103g3.shop.Shop;
 
@@ -43,6 +46,7 @@ public class CommentDaoMySqlImpl implements CommentDao {
 		PreparedStatement psShop = null;
 		try {
 			connection = DriverManager.getConnection(URL, USER, PASSWORD);
+			connection.setAutoCommit(false);
 			psComment = connection.prepareStatement(sqlComment);
 			psShop = connection.prepareStatement(sqlShop);
 			psComment.setInt(1, comment.getCmt_score());
@@ -78,6 +82,7 @@ public class CommentDaoMySqlImpl implements CommentDao {
 					psShop.close();
 				}
 				if (connection != null) {
+					connection.setAutoCommit(true);
 					connection.close();
 				}
 			} catch (SQLException e) {
@@ -132,6 +137,7 @@ public class CommentDaoMySqlImpl implements CommentDao {
 					psShop.close();
 				}
 				if (connection != null) {
+					connection.setAutoCommit(true);
 					connection.close();
 				}
 			} catch (SQLException e) {
@@ -314,16 +320,17 @@ public class CommentDaoMySqlImpl implements CommentDao {
 			connection = DriverManager.getConnection(URL, USER, PASSWORD);
 			ps = connection.prepareStatement(sql);
 			ps.setString(1, comment.getCmt_feedback());
-			ps.setTimestamp(2, new Timestamp(comment.getCmt_feedback_time().getTime()));
+			if (comment.getCmt_feedback_time() == null) {
+				ps.setNull(2, Types.TIMESTAMP);
+			} else {
+				ps.setTimestamp(2, new Timestamp(comment.getCmt_feedback_time().getTime()));
+			}
+			
 			ps.setInt(3, comment.getCmt_feedback_state());
+			ps.setInt(4, comment.getCmt_id());
 			count = ps.executeUpdate();
 			
 		} catch (SQLException e) {
-			try {
-				connection.rollback();
-			} catch (SQLException exception) {
-				exception.printStackTrace();
-			}
 			e.printStackTrace();
 		} finally {
 			try {

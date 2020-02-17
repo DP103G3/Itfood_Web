@@ -32,9 +32,9 @@ public class FavoriteDaoMySqlImpl implements FavoriteDao {
 
 		Connection connection = null;
 		PreparedStatement ps = null;
-
 		try {
 			connection = DriverManager.getConnection(URL, USER, PASSWORD);
+			connection.setAutoCommit(true);
 			ps = connection.prepareStatement(sql);
 			ps.setInt(1, mem_id);
 			ps.setInt(2, shop_id);
@@ -66,6 +66,7 @@ public class FavoriteDaoMySqlImpl implements FavoriteDao {
 		PreparedStatement ps = null;
 		try {
 			connection = DriverManager.getConnection(URL, USER, PASSWORD);
+			connection.setAutoCommit(true);
 			ps = connection.prepareStatement(sql);
 			ps.setInt(1, mem_id);
 			ps.setInt(2, shop_id);

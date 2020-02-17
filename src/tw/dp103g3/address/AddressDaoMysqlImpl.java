@@ -25,7 +25,7 @@ public class AddressDaoMysqlImpl implements AddressDao {
 	@Override
 	public List<Address> getAllShow(int mem_id) {
 		List<Address> addresses = new ArrayList<Address>();
-		String sql = "SELECT adrs_id, adrs_name, adrs_info, adrs_latitude, adrs_longitude "
+		String sql = "SELECT adrs_id, adrs_name, adrs_info, adrs_latitude, adrs_longitude, adrs_state "
 				+ "FROM `address` WHERE mem_id = ? and adrs_state = 1;";
 		Connection connection = null;
 		PreparedStatement ps = null;
@@ -40,7 +40,8 @@ public class AddressDaoMysqlImpl implements AddressDao {
 				String info = rs.getString(3);
 				double latitude = rs.getDouble(4);
 				double longitude = rs.getDouble(5);
-				Address address = new Address(id, name, info, latitude, longitude);
+				int state = rs.getInt(6);
+				Address address = new Address(id, mem_id, name, info,  state, latitude, longitude);
 				addresses.add(address);
 			}
 			return addresses;
@@ -73,6 +74,7 @@ public class AddressDaoMysqlImpl implements AddressDao {
 			PreparedStatement ps = null;
 			try  {
 				connection = DriverManager.getConnection(URL, USER, PASSWORD);
+				connection.setAutoCommit(true);
 				ps = connection.prepareStatement(sql);
 				ps.setInt(1, address.getMem_id());
 				ps.setString(2, address.getName());
@@ -107,7 +109,9 @@ public class AddressDaoMysqlImpl implements AddressDao {
 		Connection connection = null;
 		PreparedStatement ps = null;
 		try  {
+			
 			connection = DriverManager.getConnection(URL, USER, PASSWORD);
+			connection.setAutoCommit(true);
 			ps = connection.prepareStatement(sql);
 			ps.setString(1, address.getName());
 			ps.setString(2, address.getInfo());
