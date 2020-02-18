@@ -72,6 +72,11 @@ public class CommentServlet extends HttpServlet {
 			int state = jsonObject.get("state").getAsInt();
 			List<Comment> comments = commentDao.findByCase(id, type, state);
 			writeText(response, gson.toJson(comments));
+		} else if (action.equals("reply")) {
+			String commentJson = jsonObject.get("comment").getAsString();
+			Comment comment = gson.fromJson(commentJson, Comment.class);
+			int count = commentDao.reply(comment);
+			writeText(response, String.valueOf(count));
 		}
 	}
    

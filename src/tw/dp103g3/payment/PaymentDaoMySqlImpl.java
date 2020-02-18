@@ -34,6 +34,7 @@ public class PaymentDaoMySqlImpl implements PaymentDao {
 		PreparedStatement ps = null;
 		try {
 			connection = DriverManager.getConnection(URL, USER, PASSWORD);
+			connection.setAutoCommit(true);
 			ps = connection.prepareStatement(sql);
 			ps.setString(1, payment.getPay_name());
 			ps.setInt(2, payment.getMember_id());
