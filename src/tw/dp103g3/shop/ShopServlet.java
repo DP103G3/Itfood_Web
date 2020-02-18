@@ -72,7 +72,8 @@ public class ShopServlet extends HttpServlet {
 			writeText(response, gson.toJson(shops));
 			break;
 		case "getAllShow":
-			shops = shopDao.getAllShow();
+			id = jsonObject.get("id").getAsInt();
+			shops = shopDao.getAllShow(id);
 			writeText(response, gson.toJson(shops));
 			break;
 		case "getImage":
@@ -134,7 +135,7 @@ public class ShopServlet extends HttpServlet {
 		if (shopDao == null) {
 			shopDao = new ShopDaoMysqlImpl();
 		}
-		List<Shop> shops = shopDao.getAllShow();
+		List<Shop> shops = shopDao.getAllShow(1);
 		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 		String outText = gson.toJson(shops);
 		writeText(response, outText);

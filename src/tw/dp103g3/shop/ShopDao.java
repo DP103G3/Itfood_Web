@@ -11,7 +11,7 @@ public interface ShopDao {
 
 	List<Shop> getAll();
 
-	List<Shop> getAllShow();
+	List<Shop> getAllShow(int memId);
 
 	byte[] getImage(int id);
 	

@@ -159,14 +159,15 @@ public class ShopDaoMysqlImpl implements ShopDao {
 	 * @return all necessary columns for show
 	 */
 	@Override
-	public List<Shop> getAllShow() { // for user
+	public List<Shop> getAllShow(int memId) { // for user
 		List<Shop> shops = new ArrayList<Shop>();
 		List<String> types = new ArrayList<String>();
-		String sql = "SELECT `shop`.shop_id, shop_name, shop_address, shop_latitude, shop_longitude, shop_area, shop_state, " + 
-				"shop_info, shop_jointime, shop_ttscore, shop_ttrate, type_name FROM `shop` " + 
-				"LEFT JOIN `shop_type` ON `shop_type`.shop_id = `shop`.shop_id " + 
-				"LEFT JOIN `type` ON `type`.type_id = `shop_type`.type_id " + 
-				"WHERE shop_state != 0 ORDER BY `shop`.shop_id;";
+		String sql = "SELECT `shop`.shop_id, shop_name, shop_address, shop_latitude, shop_longitude, shop_area, "
+				+ "shop_state, shop_info, shop_jointime, shop_ttscore, shop_ttrate, type_name, mem_id FROM `shop` "
+				+ "LEFT JOIN `shop_type` ON `shop_type`.shop_id = `shop`.shop_id "
+				+ "LEFT JOIN `type` ON `type`.type_id = `shop_type`.type_id "
+				+ "LEFT JOIN `favorite` ON `favorite`.shop_id = `shop`.shop_id WHERE shop_state != 0 "
+				+ "ORDER BY `shop`.shop_id;";
 		try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
 				PreparedStatement ps = connection.prepareStatement(sql);) {
 			ResultSet rs = ps.executeQuery();
@@ -189,6 +190,7 @@ public class ShopDaoMysqlImpl implements ShopDao {
 				}
 				types.add(type);
 				shop.setTypes(types);
+				shop.setFavorite(memId != 0 ? rs.getInt(13) == memId : false);
 				shops.add(shop);
 			}
 		} catch (SQLException e) {
