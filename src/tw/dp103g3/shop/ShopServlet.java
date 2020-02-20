@@ -19,7 +19,6 @@ import com.google.gson.JsonObject;
 
 import static tw.dp103g3.main.Common.*;
 import tw.dp103g3.main.ImageUtil;
-import tw.dp103g3.member.Member;
 
 @SuppressWarnings("serial")
 @WebServlet("/ShopServlet")
