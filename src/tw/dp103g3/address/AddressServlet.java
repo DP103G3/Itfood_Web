@@ -3,6 +3,8 @@ package tw.dp103g3.address;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -14,6 +16,8 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
+
 import static tw.dp103g3.main.Common.CONTENT_TYPE;
 
 @SuppressWarnings("serial")
@@ -50,7 +54,8 @@ public class AddressServlet extends HttpServlet {
 				} else {
 					addresses = addressDao.getAll(mem_id);
 				}
-				writeText(response, gson.toJson(addresses));
+				Type listType = new TypeToken<List<Address>>() {}.getType();
+				writeText(response, gson.toJson(addresses, listType));
 				break;
 			case "insert":
 			case "update":

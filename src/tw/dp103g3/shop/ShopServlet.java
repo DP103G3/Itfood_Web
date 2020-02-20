@@ -90,6 +90,7 @@ public class ShopServlet extends HttpServlet {
 			id = jsonObject.get("id").getAsInt();
 			shop = shopDao.getShopById(id);
 			writeText(response, gson.toJson(shop));
+			break;
 		case "login":
 			String email = jsonObject.get("email").getAsString();
 			String password = jsonObject.get("password").getAsString();

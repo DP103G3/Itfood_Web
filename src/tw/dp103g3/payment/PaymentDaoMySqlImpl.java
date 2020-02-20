@@ -34,6 +34,7 @@ public class PaymentDaoMySqlImpl implements PaymentDao {
 		PreparedStatement ps = null;
 		try {
 			connection = DriverManager.getConnection(URL, USER, PASSWORD);
+			connection.setAutoCommit(true);
 			ps = connection.prepareStatement(sql);
 			ps.setString(1, payment.getPay_name());
 			ps.setInt(2, payment.getMember_id());
@@ -43,9 +44,7 @@ public class PaymentDaoMySqlImpl implements PaymentDao {
 			ps.setString(6, payment.getPay_securitycode());
 			ps.setString(7, payment.getPay_phone());
 			ps.setInt(8, payment.getPay_state());
-			
 			count = ps.executeUpdate();
-			connection.commit();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
@@ -66,17 +65,16 @@ public class PaymentDaoMySqlImpl implements PaymentDao {
 	@Override
 	public int update(Payment payment) {
 		int count = 0;
-		String sql = "UPDATE `payment` pay_state = ? WHERE pay_id = ?;";
+		String sql = "UPDATE `payment` SET pay_state = ? WHERE pay_id = ?;";
 		Connection connection = null;
 		PreparedStatement ps = null;
 		try {
 			connection = DriverManager.getConnection(URL, USER, PASSWORD);
+			connection.setAutoCommit(true);
 			ps = connection.prepareStatement(sql);
 			ps.setInt(1, payment.getPay_state());
 			ps.setInt(2, payment.getPay_id());
-			
 			count = ps.executeUpdate();
-			connection.commit();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {

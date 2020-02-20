@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -66,7 +67,12 @@ public class OrderServlet extends HttpServlet {
 			String type = jsonObject.get("type").getAsString();
 			JsonElement stateJE = jsonObject.get("state");
 			int state = stateJE != null ? stateJE.getAsInt() : -1;
-			List<Order> orders = orderDao.findByCase(id, type, state);
+			JsonElement dateMiliJE = jsonObject.get("dateMili");
+			Calendar date = dateMiliJE == null ? 
+					null : new Calendar.Builder().setInstant(dateMiliJE.getAsLong()).build();
+			JsonElement containDayJE = jsonObject.get("containDay");
+			boolean containDay = containDayJE == null ? false : containDayJE.getAsBoolean();
+			List<Order> orders = orderDao.findByCase(id, type, state, date, containDay);
 			writeText(response, gson.toJson(orders));
 		} else if (action.equals("getCart")) {
 			int mem_id = jsonObject.get("mem_id").getAsInt();
@@ -91,7 +97,9 @@ public class OrderServlet extends HttpServlet {
 	
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		orderDao = new OrderDaoMySqlImpl();
-		List<Order> orders = orderDao.findByCase(1, "member");
+		Calendar date = new Calendar.Builder().setDate(2020, 1, 1).build();
+		System.out.println(date.getTimeInMillis());
+		List<Order> orders = orderDao.findByCase(3, "shop", -1, date, false);
 		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 		writeText(response, gson.toJson(orders));
 	}

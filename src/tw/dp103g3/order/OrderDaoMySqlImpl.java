@@ -15,7 +15,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import com.google.gson.Gson;
@@ -77,7 +79,11 @@ public class OrderDaoMySqlImpl implements OrderDao {
 			} else {
 				ps.setNull(3, Types.INTEGER);
 			}
-			ps.setInt(4, order.getPay_id());
+			if (order.getPay_id() != 0) {
+				ps.setInt(4, order.getPay_id());
+			} else {
+				ps.setNull(4, Types.INTEGER);
+			}
 			if (order.getSp_id() != 0) {
 				ps.setInt(5, order.getSp_id());
 			} else {
@@ -271,7 +277,7 @@ public class OrderDaoMySqlImpl implements OrderDao {
 	}
 
 	@Override
-	public List<Order> findByCase(int id, String type, int state) {
+	public List<Order> findByCase(int id, String type, int state, Calendar date, boolean containDay) {
 		String sqlPart = "";
 		switch (type) {
 		case "member":
@@ -287,7 +293,10 @@ public class OrderDaoMySqlImpl implements OrderDao {
 		String sql = "SELECT order_id, `shop`.shop_id, shop_name, mem_id, del_id, pay_id, order_state, sp_id, order_time, order_ideal, "
 				+ "order_delivery, adrs_id, order_name, order_phone, order_ttprice, order_area, order_type FROM `order` "
 				+ "LEFT JOIN `shop` ON `order`.shop_id = `shop`.shop_id " + "WHERE " + sqlPart + " = ? "
-				+ (state == -1 ? "" : "AND order_state = ? ") + "ORDER BY order_time DESC;";
+				+ (state == -1 ? "" : "AND order_state = ? ") 
+				+ (date == null ? "" : "AND order_delivery >= ? "
+						+ "AND order_delivery < ? ") 
+				+ "ORDER BY order_time DESC;";
 		Connection connection = null;
 		PreparedStatement ps = null;
 		List<Order> orderList = new ArrayList<Order>();
@@ -297,7 +306,19 @@ public class OrderDaoMySqlImpl implements OrderDao {
 			ps.setInt(1, id);
 			if (state != -1) {
 				ps.setInt(2, state);
+				if (date != null) {
+					ps.setTimestamp(3, new Timestamp(date.getTimeInMillis()));
+					date.add(containDay ? Calendar.DAY_OF_MONTH : Calendar.MONTH, 1);
+					ps.setTimestamp(4, new Timestamp(date.getTimeInMillis()));
+				}
+			} else {
+				if (date != null) {
+					ps.setTimestamp(2, new Timestamp(date.getTimeInMillis()));
+					date.add(containDay ? Calendar.DAY_OF_MONTH : Calendar.MONTH, 1);
+					ps.setTimestamp(3, new Timestamp(date.getTimeInMillis()));
+				}
 			}
+			System.out.println(ps.toString());
 			ResultSet rs = ps.executeQuery();
 			while (rs.next()) {
 				int orderId = rs.getInt(1);
@@ -343,7 +364,7 @@ public class OrderDaoMySqlImpl implements OrderDao {
 
 	@Override
 	public List<Order> findByCase(int id, String type) {
-		return findByCase(id, type, -1);
+		return findByCase(id, type, -1, null, false);
 	}
 
 	@Override
