@@ -81,6 +81,12 @@ public class OrderServlet extends HttpServlet {
 			List<Integer> dishIds = gson.fromJson(dishIdsJson, listType);
 			Cart cart = orderDao.getCart(dishIds, mem_id);
 			writeText(response, gson.toJson(cart));
+		} else if (action.equals("findByDeliveryId")) {
+			int del_id = jsonObject.get("del_id").getAsInt();
+			List<Order> orders = orderDao.findByDeliveryId(del_id);
+			Type listType = new TypeToken<List<Order>>() {}.getType();
+			writeText(response, gson.toJson(orders, listType));
+			
 		}
 //		else if (action.equals("findByCaseWithState")) {
 //			int id = jsonObject.get("id").getAsInt();

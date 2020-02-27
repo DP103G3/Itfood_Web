@@ -3,6 +3,7 @@ package tw.dp103g3.order;
 import java.util.Date;
 import java.util.List;
 
+import tw.dp103g3.address.Address;
 import tw.dp103g3.order_detail.OrderDetail;
 import tw.dp103g3.shop.Shop;
 
@@ -24,6 +25,7 @@ public class Order {
 	private int order_area;
 	private int order_type;
 	private List<OrderDetail> orderDetails;
+	private Address address;
 	
 	public Order(Shop shop, int mem_id, int del_id, int pay_id, int sp_id, Date order_ideal, Date order_delivery, 
 			int adrs_id, String order_name, String order_phone, int order_ttprice, int order_type, 
@@ -44,6 +46,7 @@ public class Order {
 		this.orderDetails = orderDetails;
 	}
 	
+	
 	public Order(int order_id, Shop shop, int mem_id,int del_id, int pay_id, int sp_id, Date order_ideal,
 			Date order_time, Date order_delivery, int adrs_id, String order_name, String order_phone, int order_ttprice, 
 			int order_area, int order_state, int order_type, List<OrderDetail> orderDetails) {
@@ -58,6 +61,29 @@ public class Order {
 		this.order_time = order_time;
 		this.order_delivery = order_delivery;
 		this.adrs_id = adrs_id;
+		this.order_name = order_name;
+		this.order_phone = order_phone;
+		this.order_ttprice = order_ttprice;
+		this.order_area = order_area;
+		this.order_state = order_state;
+		this.order_type = order_type;
+		this.orderDetails = orderDetails;
+	}
+	
+	public Order(int order_id, Shop shop, int mem_id,int del_id, int pay_id, int sp_id, Date order_ideal,
+			Date order_time, Date order_delivery, Address address, String order_name, String order_phone, int order_ttprice, 
+			int order_area, int order_state, int order_type, List<OrderDetail> orderDetails) {
+		super();
+		this.order_id = order_id;
+		this.del_id = del_id;
+		this.shop = shop;
+		this.mem_id = mem_id;
+		this.pay_id = pay_id;
+		this.sp_id = sp_id;
+		this.order_ideal = order_ideal;
+		this.order_time = order_time;
+		this.order_delivery = order_delivery;
+		this.address = address;
 		this.order_name = order_name;
 		this.order_phone = order_phone;
 		this.order_ttprice = order_ttprice;

@@ -22,4 +22,6 @@ public interface ShopDao {
 	Shop getShopAllById(int id);
 	
 	Shop getAccount(int id);
+	
+	Shop getShopByIdDelivery(int id);
 }
