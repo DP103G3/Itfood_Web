@@ -57,15 +57,19 @@ public class MemberServlet extends HttpServlet {
 		String action = jsonObject.get("action").getAsString();
 
 		switch (action) {
-		case "insert":
 		case "getAll":
 			members = memberDao.getAll();
 			writeText(response, gson.toJson(members));
 			break;
+		case "insert":
 		case "update":
 			memberJson = jsonObject.get("member").getAsString();
 			member = gson.fromJson(memberJson, Member.class);
-			count = memberDao.update(member);
+			if (action.equals("insert")) {
+				count = memberDao.insert(member);
+			} else {
+				count = memberDao.update(member);
+			}
 			writeText(response, String.valueOf(count));
 			System.out.println("update = " + memberJson);
 			break;

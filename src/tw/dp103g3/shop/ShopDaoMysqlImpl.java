@@ -30,38 +30,74 @@ public class ShopDaoMysqlImpl implements ShopDao {
 	@Override
 	public int insert(Shop shop, byte[] image) {
 		int count = 0;
-		String sql = "";
+		String selectEmailSql = "SELECT * FROM `shop` WHERE shop_email = ?;";
+		String sql = null;
 		if (image != null) {
 			sql = "INSERT INTO `shop` (shop_email, shop_password, shop_name, shop_phone, shop_tax, "
 					+ "shop_address, shop_latitude, shop_longitude, shop_area, shop_state, "
 					+ "shop_info, shop_ttscore, shop_ttrate, shop_image) "
-					+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+					+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 		} else {
 			sql = "INSERT INTO `shop` (shop_email, shop_password, shop_name, shop_phone, shop_tax, "
 					+ "shop_address, shop_latitude, shop_longitude, shop_area, shop_state, "
-					+ "shop_info, shop_ttscore, shop_ttrate) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+					+ "shop_info, shop_ttscore, shop_ttrate) "
+					+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 		}
-		try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-				PreparedStatement ps = connection.prepareStatement(sql);) {
-			ps.setString(1, shop.getEmail());
-			ps.setString(2, shop.getPassword());
-			ps.setString(3, shop.getName());
-			ps.setString(4, shop.getPhone());
-			ps.setString(5, shop.getTax());
-			ps.setString(6, shop.getAddress());
-			ps.setDouble(7, shop.getLatitude());
-			ps.setDouble(8, shop.getLongitude());
-			ps.setInt(9, shop.getArea());
-			ps.setInt(10, shop.getState());
-			ps.setString(11, shop.getInfo());
-			ps.setInt(12, shop.getTtscore());
-			ps.setInt(13, shop.getTtrate());
-			if (image != null) {
-				ps.setBytes(14, image);
+		Connection connection = null;
+		PreparedStatement selectEmailPs = null;
+		PreparedStatement ps = null;
+		try {
+			connection = DriverManager.getConnection(URL, USER, PASSWORD);
+			connection.setAutoCommit(false);
+			selectEmailPs = connection.prepareStatement(selectEmailSql);
+			ps = connection.prepareStatement(sql);
+			
+			selectEmailPs.setString(1, shop.getEmail());
+			ResultSet selectEmailRs = selectEmailPs.executeQuery();
+			if (!selectEmailRs.next()) {
+				ps.setString(1, shop.getEmail());
+				ps.setString(2, shop.getPassword());
+				ps.setString(3, shop.getName());
+				ps.setString(4, shop.getPhone());
+				ps.setString(5, shop.getTax());
+				ps.setString(6, shop.getAddress());
+				ps.setDouble(7, shop.getLatitude());
+				ps.setDouble(8, shop.getLongitude());
+				ps.setInt(9, shop.getArea());
+				ps.setInt(10, shop.getState());
+				ps.setString(11, shop.getInfo());
+				ps.setInt(12, shop.getTtscore());
+				ps.setInt(13, shop.getTtrate());
+				if (image != null) {
+					ps.setBytes(14, image);
+				}
+				count = ps.executeUpdate();
+				if (count != 0) {
+					connection.commit();
+				} else {
+					connection.rollback();
+				}
+			} else {
+				count = -1;
 			}
-			count = ps.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
+			try {
+				connection.rollback();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+		} finally {
+			try {
+				if (ps != null) {
+					ps.close();
+				}
+				if (connection != null) {
+					connection.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 		}
 		return count;
 	}

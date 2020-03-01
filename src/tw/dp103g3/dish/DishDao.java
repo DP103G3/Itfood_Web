@@ -7,6 +7,8 @@ public interface DishDao {
 	
 	List<Dish> getAllShow(int shop_id);
 	
+	List<Dish> getAllByShopId(int shop_id);
+	
 	int insert(Dish dish, byte[] image);
 	
 	int update(Dish dish, byte[] image);

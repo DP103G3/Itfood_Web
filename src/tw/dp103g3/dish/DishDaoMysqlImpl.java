@@ -66,6 +66,29 @@ public class DishDaoMysqlImpl implements DishDao {
 	}
 
 	@Override
+	public List<Dish> getAllByShopId(int shop_id) {
+		List<Dish> dishes = new ArrayList<Dish>();
+		String sql = "SELECT dish_id, dish_name, dish_info, dish_price FROM `dish` "
+				+ "WHERE shop_id = ?;";
+		try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+				PreparedStatement ps = connection.prepareStatement(sql);) {
+			ps.setInt(1, shop_id);
+			ResultSet rs = ps.executeQuery();
+			while (rs.next()) {
+				int id = rs.getInt(1);
+				String name = rs.getString(2);
+				String info = rs.getString(3);
+				int price = rs.getInt(4);
+				Dish dish = new Dish(id, name, info, shop_id, price);
+				dishes.add(dish);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return dishes;
+	}
+
+	@Override
 	public int insert(Dish dish, byte[] image) {
 		int count = 0;
 		String sql = null;

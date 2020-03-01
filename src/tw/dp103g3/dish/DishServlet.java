@@ -54,8 +54,13 @@ public class DishServlet extends HttpServlet {
 				writeText(response, gson.toJson(dishes));
 				break;
 			case "getAllShow":
+			case "getAllByShopId":
 				int shop_id = jsonObject.get("shop_id").getAsInt();
-				dishes = dishDao.getAllShow(shop_id);
+				if (action.equals("getAllShow")) {
+					dishes = dishDao.getAllShow(shop_id);
+				} else {
+					dishes = dishDao.getAllByShopId(shop_id);
+				}
 				writeText(response, gson.toJson(dishes));
 				break;
 			case "insert":
