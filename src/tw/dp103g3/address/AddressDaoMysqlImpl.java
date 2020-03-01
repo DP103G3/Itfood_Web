@@ -161,4 +161,50 @@ public class AddressDaoMysqlImpl implements AddressDao {
 		} 
 		return addresses;
 	}
+
+	@Override
+	public Address findById(int adrs_id) {
+		Address address = null;
+		String sql = "SELECT adrs_id, adrs_name, mem_id, adrs_info, adrs_state, adrs_latitude, adrs_longitude "
+				+ "FROM `address` WHERE adrs_id = ?;";
+		Connection connection = null;
+		PreparedStatement ps = null;
+		try {
+			connection = DriverManager.getConnection(URL, USER, PASSWORD);
+			ps = connection.prepareStatement(sql);
+			ps.setInt(1, adrs_id);
+			ResultSet rs = ps.executeQuery();
+			while(rs.next()) {
+				int id = rs.getInt(1);
+				String name = rs.getString(2);
+				int mem_id = rs.getInt(3);
+				String info = rs.getString(4);
+				int state = rs.getInt(5);
+				double latitude = rs.getDouble(6);
+				double longitude = rs.getDouble(7);
+				address = new Address(id, mem_id, name, info, state, latitude, longitude);
+				
+			}
+		} catch (SQLException e ) {
+			e.printStackTrace();
+		} finally {
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			if (ps != null) {
+				try {
+					ps.close();
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		return address;
+	}
 }

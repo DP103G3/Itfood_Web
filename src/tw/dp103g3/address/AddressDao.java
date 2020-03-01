@@ -10,4 +10,6 @@ public interface AddressDao {
 	int update(Address address);
 	
 	List<Address> getAll(int mem_id);
+	
+	Address findById(int adrs_id);
 }

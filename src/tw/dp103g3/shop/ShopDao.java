@@ -24,4 +24,6 @@ public interface ShopDao {
 	Shop setShopUpDateById(int id);
 	
 	Shop getAccount(int id);
+	
+	Shop getShopByIdDelivery(int id);
 }
