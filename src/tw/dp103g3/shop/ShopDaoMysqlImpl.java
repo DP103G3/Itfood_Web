@@ -401,6 +401,46 @@ public class ShopDaoMysqlImpl implements ShopDao {
 	}
 	
 	@Override
+	public Shop setShopUpDateById(int id) {
+		String sql = "SELECT shop_id, shop_email, shop_password, shop_name, shop_phone, shop_tax, shop_address, shop_area, shop_state, shop_info FROM `shop` WHERE shop_id = ?;";
+		Connection conn = null;
+		PreparedStatement ps = null;
+		Shop shop = null;
+		try {
+			conn = DriverManager.getConnection(URL, USER, PASSWORD);
+			ps = conn.prepareStatement(sql);
+			ps.setInt(1, id);
+			ResultSet rs = ps.executeQuery();
+			if (rs.next()) {
+				String email = rs.getString(2);
+				String password = rs.getString(3);
+				String name = rs.getString(4);
+				String phone = rs.getString(5);
+				String tax = rs.getString(6);
+				String address = rs.getString(7);
+				int area = rs.getInt(8);
+				byte state = rs.getByte(9);
+				String info = rs.getString(10);
+				shop = new Shop(id, email, password, name, phone, tax, address, area, state, info);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (ps != null) {
+					ps.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return shop;
+	}
+	
+	@Override
 	public int login(String email, String password) {
 		boolean isValid = false;
 		int shopId = 0;
