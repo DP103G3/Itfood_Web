@@ -60,6 +60,15 @@ public class DishServlet extends HttpServlet {
 				writeText(response, gson.toJson(dishes));
 				break;
 			case "insert":
+				String dishInsertJson = jsonObject.get("dish").getAsString();
+				dish = gson.fromJson(dishInsertJson, Dish.class);
+				if (jsonObject.get("imageBase64") != null) {
+					String imageBase64 = jsonObject.get("imageBase64").getAsString();
+					image = Base64.getMimeDecoder().decode(imageBase64);
+				}
+				count = dishDao.insert(dish, image);
+				writeText(response, String.valueOf(count));
+				break;
 			case "update":
 				String dishJson = jsonObject.get("dish").getAsString();
 				dish = gson.fromJson(dishJson, Dish.class);

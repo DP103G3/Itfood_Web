@@ -22,6 +22,21 @@ public class Shop {
 	private int ttrate;
 	private List<String> types;
 
+	public Shop(int id, String email, String password, String name, String phone, String tax, String address, 
+			 int area, byte state, String info) {
+		
+		this.id = id;
+		this.email = email;
+		this.password = password;
+		this.name = name;
+		this.phone = phone;
+		this.tax = tax;
+		this.address = address;
+		this.area = area;
+		this.state = state;
+		this.info = info;
+	}
+	
 	public Shop(int id, String email, String password, String name, String phone, String tax, String address, double latitude,
 			double longitude, int area, byte state, String info, Date jointime, Date suspendtime, int ttscore,
 			int ttrate) {
@@ -73,8 +88,9 @@ public class Shop {
 		this.state = state;
 		this.info = info;
 		this.jointime = jointime;
-
 	}
+	
+
 	
 	public Shop(int id, byte state) {
 		super();

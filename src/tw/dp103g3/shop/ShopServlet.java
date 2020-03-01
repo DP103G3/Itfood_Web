@@ -102,6 +102,11 @@ public class ShopServlet extends HttpServlet {
 			shop = shopDao.getShopAllById(id);
 			writeText(response, gson.toJson(shop));
 			break;
+		case "setShopUpDateById":
+			id = jsonObject.get("id").getAsInt();
+			shop = shopDao.setShopUpDateById(id);
+			writeText(response, gson.toJson(shop));
+			break;
 		case "getAccount":
 			id = jsonObject.get("id").getAsInt();
 			shop = shopDao.getAccount(id);
