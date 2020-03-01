@@ -17,12 +17,27 @@ public class Dish {
 		this.price = price;
 	}
 	
+	public Dish(int id, String name, String info, int shop_id, byte state, int price) {
+		this.id = id;
+		this.name = name;
+		this.info = info;
+		this.shop_id = shop_id;
+		this.state = state;
+		this.price = price;
+	}
+	
 	public Dish(int id, String name, String info, int shop_id, int price) {
 		this.id = id;
 		this.name = name;
 		this.info = info;
 		this.shop_id = shop_id;
 		this.price = price;
+	}
+	
+	public Dish(int id, byte state) {
+		super();
+		this.id = id;
+		this.state = state;
 	}
 	
 	public Dish(int id, String name, String info) {

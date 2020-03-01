@@ -421,4 +421,42 @@ public class ShopDaoMysqlImpl implements ShopDao {
 		}
 		return shopId;
 	}
+
+	@Override
+	public Shop getShopByIdDelivery(int id) {
+		String sql = "SELECT shop_name, shop_phone, shop_address, shop_area, shop_info, shop_longitude, shop_latitude FROM `shop` WHERE shop_id = ?;";
+		Connection conn = null;
+		PreparedStatement ps = null;
+		Shop shop = null;
+		try {
+			conn = DriverManager.getConnection(URL, USER, PASSWORD);
+			ps = conn.prepareStatement(sql);
+			ps.setInt(1, id);
+			ResultSet rs = ps.executeQuery();
+			if (rs.next()) {
+				String name = rs.getString(1);
+				String phone = rs.getString(2);
+				String address = rs.getString(3);
+				int area = rs.getInt(4);
+				String info = rs.getString(5);
+				Double longtitude = rs.getDouble(6);
+				Double latitude = rs.getDouble(7);
+				shop = new Shop(id, name, phone, address, latitude, longtitude, area, info);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (ps != null) {
+					ps.close();
+				}
+				if (conn != null) {
+					conn.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return shop;
+	}
 }

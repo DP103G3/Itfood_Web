@@ -7,6 +7,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import tw.dp103g3.shop.Shop;
+
 import static tw.dp103g3.main.Common.*;
 
 public class DishDaoMysqlImpl implements DishDao {
@@ -168,6 +171,94 @@ public class DishDaoMysqlImpl implements DishDao {
 		return dish;
 	}
 
+	@Override
+	public List<Dish> getDishByShopId(int shop_id) {
+		List<Dish> dishes = new ArrayList<Dish>();
+		String sql = "SELECT dish_id, dish_name, dish_info, dish_state, dish_price FROM `dish` WHERE shop_id = ?;";
+		try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+				PreparedStatement ps = connection.prepareStatement(sql);) {
+			ps.setInt(1, shop_id);
+			ResultSet rs = ps.executeQuery();
+			while (rs.next()) {
+				int id = rs.getInt(1);
+				String name = rs.getString(2);
+				String info = rs.getString(3);
+				byte state = rs.getByte(4);
+				int price = rs.getInt(5);
+				Dish dish = new Dish(id, name, info, shop_id,state, price);
+				dishes.add(dish);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return dishes;
+	}
+	
+	@Override
+	public Dish getAccount(int id) {
+		String sql = "SELECT dish_id, dish_state FROM `dish` WHERE dish_id = ?;";
+		Connection connection = null;
+		PreparedStatement ps = null;
+		Dish dish = null;
+		try {
+			connection = DriverManager.getConnection(URL, USER, PASSWORD);
+			ps = connection.prepareStatement(sql);
+			ps.setInt(1, id);
+			ResultSet rs = ps.executeQuery();
+			if (rs.next()) {
+			byte state = rs.getByte(2);
+			dish = new Dish(id, state);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (ps != null) {
+					// When a Statement object is closed,
+					// its current ResultSet object is also closed
+					ps.close();
+				}
+				if (connection != null) {
+					connection.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return dish;
+	}
+	
+	@Override
+	public int saveAccount(Dish dish) {
+		int count = 0;
+		String sql = "UPDATE `dish` SET dish_state = ?  WHERE dish_id = ?;";
+		Connection connection = null;
+		PreparedStatement ps = null;
+		try {
+			connection = DriverManager.getConnection(URL, USER, PASSWORD);
+			ps = connection.prepareStatement(sql);
+			ps.setByte(1, dish.getState());
+			ps.setInt(2, dish.getId());
+			count = ps.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (ps != null) {
+					// When a Statement object is closed,
+					// its current ResultSet object is also closed
+					ps.close();
+				}
+				if (connection != null) {
+					connection.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return count;
+	}
+	
 	@Override
 	public byte[] getImage(int id) {
 		byte[] image = null;

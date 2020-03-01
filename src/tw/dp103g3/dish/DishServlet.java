@@ -20,6 +20,7 @@ import com.google.gson.JsonObject;
 
 import static tw.dp103g3.main.Common.CONTENT_TYPE;
 import tw.dp103g3.main.ImageUtil;
+import tw.dp103g3.shop.Shop;
 
 @SuppressWarnings("serial")
 @WebServlet("/DishServlet")
@@ -82,6 +83,24 @@ public class DishServlet extends HttpServlet {
 				id = jsonObject.get("id").getAsInt();
 				dish = dishDao.getDishById(id);
 				writeText(response, gson.toJson(dish, Dish.class));
+				break;
+			case "getDishByShopId":
+				int shopid = jsonObject.get("shop_id").getAsInt();
+				dishes = dishDao.getDishByShopId(shopid);
+				writeText(response, gson.toJson(dishes));
+				break;
+			case "getAccount":
+				id = jsonObject.get("id").getAsInt();
+				dish = dishDao.getAccount(id);
+				writeText(response, gson.toJson(dish));
+				System.out.println("getAccount: " + dish);
+				break;
+			case "saveAccount":
+				dishJson = jsonObject.get("dish").getAsString();
+				dish = gson.fromJson(dishJson, Dish.class);
+				count = dishDao.saveAccount(dish);
+				writeText(response, String.valueOf(count));
+				System.out.println("saveAccount = " + dishJson);
 				break;
 			case "getImage":
 				id = jsonObject.get("id").getAsInt();

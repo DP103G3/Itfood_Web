@@ -41,6 +41,8 @@ import tw.dp103g3.payment.Payment;
 import tw.dp103g3.payment.PaymentDao;
 import tw.dp103g3.payment.PaymentDaoMySqlImpl;
 import tw.dp103g3.shop.Shop;
+import tw.dp103g3.shop.ShopDao;
+import tw.dp103g3.shop.ShopDaoMysqlImpl;
 
 public class OrderDaoMySqlImpl implements OrderDao {
 	private OrderDetailDao orderDetailDao = new OrderDetailDaoMySqlImpl();
@@ -407,6 +409,69 @@ public class OrderDaoMySqlImpl implements OrderDao {
 		Cart cart = new Cart(dishes, member, payments, addresses);
 		
 		return cart;
+	}
+
+	@Override
+	public List<Order> findByDeliveryId(int id) {
+		// TODO Auto-generated method stub
+		ShopDao shopDao = new ShopDaoMysqlImpl();
+		AddressDao addressDao = new AddressDaoMysqlImpl();
+		String sql = "SELECT  order_id, shop_id, mem_id, del_id, pay_id, order_state, sp_id, order_time, order_ideal, order_delivery, "
+				+ "adrs_id, order_name, order_phone, order_ttprice, order_area, order_type  "
+				+ "FROM `order`  WHERE del_id = ? ORDER BY order_time DESC;";
+		Connection connection = null;
+		PreparedStatement ps = null;
+		List<Order> orderList = new ArrayList<>();
+		
+		try {
+			connection = DriverManager.getConnection(URL, USER, PASSWORD);
+			ps = connection.prepareStatement(sql);
+			ps.setInt(1, id);
+			
+//			System.out.println(ps.toString());
+			ResultSet rs = ps.executeQuery();
+			while (rs.next()) {
+				int orderId = rs.getInt(1);
+				int shopId = rs.getInt(2);
+				
+				int memId = rs.getInt(3);
+				int delId = rs.getInt(4);
+				int payId = rs.getInt(5);
+				int orderStatus = rs.getInt(6);
+				int spId = rs.getInt(7);
+				Date orderTime = rs.getTimestamp(8);
+				Date orderIdeal = rs.getTimestamp(9);
+				Date orderDelivery = rs.getTimestamp(10);
+				int adrsId = rs.getInt(11);
+				String order_name = rs.getString(12);
+				String order_phone = rs.getString(13);
+				int order_ttprice = rs.getInt(14);
+				int order_area = rs.getInt(15);
+				int order_type = rs.getInt(16);
+				List<OrderDetail> orderDetails = orderDetailDao.findByOrderId(orderId);
+				Shop shop = shopDao.getShopByIdDelivery(shopId);
+				Address address = addressDao.findById(adrsId);
+				Order order = new Order(orderId, shop, memId, delId, payId, spId, orderIdeal,
+						orderTime, orderDelivery, address, order_name, order_phone, order_ttprice, order_area,
+						orderStatus, order_type, orderDetails);
+				orderList.add(order);
+			}
+			return orderList;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (ps != null) {
+					ps.close();
+				}
+				if (connection != null) {
+					connection.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return orderList;
 	}
 	
 	
