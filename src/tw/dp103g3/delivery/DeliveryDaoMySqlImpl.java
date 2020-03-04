@@ -163,7 +163,7 @@ public class DeliveryDaoMySqlImpl implements DeliveryDao {
 
 	@Override
 	public Delivery findById(int del_id) {
-		String sql = "SELECT del_id, del_name, del_password, del_email, del_phone, del_jointime, del_state FROM `delivery` WHERE del_id = ?;";
+		String sql = "SELECT del_id, del_name, del_password, del_email, del_identityid, del_phone, del_area, del_jointime, del_leavetime, del_state FROM `delivery` WHERE del_id = ?;";
 		Connection conn = null;
 		PreparedStatement ps = null;
 		Delivery delivery = null;
@@ -176,10 +176,13 @@ public class DeliveryDaoMySqlImpl implements DeliveryDao {
 				String del_name = rs.getString(2);
 				String del_password = rs.getString(3);
 				String del_email = rs.getString(4);
-				String del_phone = rs.getString(5);
-				Date del_jointime = rs.getTimestamp(6);
-				int del_state = rs.getInt(7);
-				delivery = new Delivery(del_id, del_name, del_password, del_email, del_phone, del_jointime, del_state);
+				String del_identityid = rs.getString(5);
+				String del_phone = rs.getString(6);
+				int del_area = rs.getInt(7);
+				Date del_jointime = rs.getTimestamp(8);
+				Date del_leavetime = rs.getTimestamp(9);
+				int del_state = rs.getInt(10);
+				delivery = new Delivery(del_id, del_name, del_password, del_email, del_identityid, del_phone, del_area, del_jointime, del_leavetime, del_state);
 
 			}
 		} catch (SQLException e) {
@@ -216,7 +219,7 @@ public class DeliveryDaoMySqlImpl implements DeliveryDao {
 				String del_email = rs.getString(4);
 				String del_identityid = rs.getString(5);
 				String del_phone = rs.getString(6);
-				String del_area = rs.getString(7);
+				int del_area = rs.getInt(7);
 				Date del_jointime = rs.getTimestamp(8);
 				Date del_leavetime = rs.getTimestamp(9);
 				Date del_suspendtime = rs.getTimestamp(10);

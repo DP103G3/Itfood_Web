@@ -18,6 +18,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
 import static tw.dp103g3.main.Common.*;
+
+import tw.dp103g3.delivery.Delivery;
 import tw.dp103g3.main.ImageUtil;
 
 @SuppressWarnings("serial")
@@ -119,6 +121,13 @@ public class ShopServlet extends HttpServlet {
 			count = shopDao.saveAccount(shop);
 			writeText(response, String.valueOf(count));
 			System.out.println("saveAccount = " + shopJson);
+			break;
+		case "updatePassword":
+			shopJson = jsonObject.get("shop").getAsString();
+			shop = gson.fromJson(shopJson, Shop.class);
+			count = shopDao.updatePassword(shop);
+			writeText(response, String.valueOf(count));
+			System.out.println("update = " + shopJson);
 			break;
 		default:
 			writeText(response, "");
