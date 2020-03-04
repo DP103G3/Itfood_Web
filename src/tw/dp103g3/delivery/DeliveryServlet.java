@@ -80,7 +80,7 @@ public class DeliveryServlet extends HttpServlet {
 			System.out.println("findById: " + delivery);
 			break;
 		case "getAccount":
-			del_id = jsonObject.get("mem_id").getAsInt();
+			del_id = jsonObject.get("del_id").getAsInt();
 			delivery = deliveryDao.getAccount(del_id);
 			writeText(response, gson.toJson(delivery));
 			System.out.println("getAccount: " + delivery);

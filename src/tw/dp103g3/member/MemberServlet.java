@@ -14,6 +14,7 @@ import com.google.gson.reflect.TypeToken;
 import tw.dp103g3.member.Member;
 import tw.dp103g3.member.MemberDao;
 import tw.dp103g3.member.MemberDaoMySqlImpl;
+import tw.dp103g3.shop.Shop;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -100,6 +101,13 @@ public class MemberServlet extends HttpServlet {
 			Type mapType = new TypeToken<Map<String, Integer>>(){}.getType();
 			writeText(response, gson.toJson(outcome, mapType));
 			System.out.println("login : " + outcome);
+			break;
+		case "updatePassword":
+			memberJson = jsonObject.get("shop").getAsString();
+			member = gson.fromJson(memberJson, Member.class);
+			count = memberDao.updatePassword(member);
+			writeText(response, String.valueOf(count));
+			System.out.println("update = " + memberJson);
 			break;
 		default:
 			writeText(response, "not fun");

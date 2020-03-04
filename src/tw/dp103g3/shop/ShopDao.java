@@ -8,6 +8,8 @@ public interface ShopDao {
 	int update(Shop shop, byte[] image);
 	
 	int saveAccount(Shop shop);
+	
+	int updatePassword(Shop shop);
 
 	List<Shop> getAll();
 

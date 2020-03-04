@@ -302,6 +302,38 @@ public class ShopDaoMysqlImpl implements ShopDao {
 	}
 	
 	@Override
+	public int updatePassword(Shop shop) {
+		int count = 0;
+		String sql = "UPDATE `shop` SET shop_password = ?  WHERE shop_id = ?;";
+		Connection connection = null;
+		PreparedStatement ps = null;
+		try {
+			connection = DriverManager.getConnection(URL, USER, PASSWORD);
+			ps = connection.prepareStatement(sql);
+			ps.setString(1, shop.getPassword());
+			ps.setInt(2, shop.getId());
+			count = ps.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (ps != null) {
+					// When a Statement object is closed,
+					// its current ResultSet object is also closed
+					ps.close();
+				}
+				if (connection != null) {
+					connection.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return count;
+	}
+	
+	
+	@Override
 	public byte[] getImage(int id) {
 		byte[] image = null;
 		String sql = "SELECT shop_image FROM `shop` WHERE shop_id = ?;";
