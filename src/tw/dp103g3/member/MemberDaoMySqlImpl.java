@@ -239,7 +239,6 @@ public class MemberDaoMySqlImpl implements MemberDao {
 			}
 		}
 		System.out.println("output getAll return sql:" + memberList);
-		// System.out.println("output getAll return sql:" + memberList);
 		return memberList;
 	}
 
