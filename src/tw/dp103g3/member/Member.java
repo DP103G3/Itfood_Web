@@ -37,6 +37,18 @@ public class Member {
 		this.mem_state = mem_state;
 	}
 	
+	public Member(int mem_id, String mem_name, String mem_password, String mem_email, String mem_phone, int mem_state
+			 ) {
+		super();
+		this.mem_id = mem_id;
+		this.mem_name = mem_name;
+		this.mem_password = mem_password;
+		this.mem_email = mem_email;
+		this.mem_phone = mem_phone;
+	
+		this.mem_state = mem_state;
+	}
+	
 	public  Member(int mem_id, int mem_state) {
 		super();
 		this.mem_id = mem_id;
