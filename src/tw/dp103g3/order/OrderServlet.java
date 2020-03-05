@@ -105,7 +105,7 @@ public class OrderServlet extends HttpServlet {
 		orderDao = new OrderDaoMySqlImpl();
 		Calendar date = new Calendar.Builder().setDate(2020, 1, 1).build();
 		System.out.println(date.getTimeInMillis());
-		List<Order> orders = orderDao.findByCase(3, "shop", -1, date, false);
+		List<Order> orders = orderDao.findByCase(1, "delivery", 4, date, false);
 		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 		writeText(response, gson.toJson(orders));
 	}

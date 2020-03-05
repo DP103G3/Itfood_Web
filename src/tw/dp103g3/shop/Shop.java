@@ -102,7 +102,7 @@ public class Shop {
 	}
 	
 	public Shop(int id, String name) {
-		this(id, name, null, -1, -1, 0, (byte) 0, null, null, 0, 0);
+		this(id, name, "", "", -1, -1, 0, "");
 	}
 
 	/* 提供外送員所需資料的建構式 */

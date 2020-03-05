@@ -52,7 +52,7 @@ public class Address {
 	}
 
 	public Address(int id) {
-		this(id, null, null, -1, -1);
+		this(id, null, "", -1, -1);
 	}
 
 	public Address(double latitude, double longitude) {
