@@ -434,7 +434,7 @@ public class ShopDaoMysqlImpl implements ShopDao {
 	
 	@Override
 	public Shop setShopUpDateById(int id) {
-		String sql = "SELECT shop_id, shop_email, shop_password, shop_name, shop_phone, shop_tax, shop_address, shop_area, shop_state, shop_info FROM `shop` WHERE shop_id = ?;";
+		String sql = "SELECT shop_id, shop_email, shop_password, shop_name, shop_phone, shop_tax, shop_address, shop_area, shop_state, shop_info, shop_ttscore, shop_ttrate FROM `shop` WHERE shop_id = ?;";
 		Connection conn = null;
 		PreparedStatement ps = null;
 		Shop shop = null;
@@ -453,7 +453,9 @@ public class ShopDaoMysqlImpl implements ShopDao {
 				int area = rs.getInt(8);
 				byte state = rs.getByte(9);
 				String info = rs.getString(10);
-				shop = new Shop(id, email, password, name, phone, tax, address, area, state, info);
+				int ttscore = rs.getInt(11);
+				int ttrate = rs.getInt(12);
+				shop = new Shop(id, email, password, name, phone, tax, address, area, state, info, ttscore, ttrate);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
