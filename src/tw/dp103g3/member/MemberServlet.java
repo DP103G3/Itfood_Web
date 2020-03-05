@@ -103,7 +103,7 @@ public class MemberServlet extends HttpServlet {
 			System.out.println("login : " + outcome);
 			break;
 		case "updatePassword":
-			memberJson = jsonObject.get("shop").getAsString();
+			memberJson = jsonObject.get("member").getAsString();
 			member = gson.fromJson(memberJson, Member.class);
 			count = memberDao.updatePassword(member);
 			writeText(response, String.valueOf(count));
