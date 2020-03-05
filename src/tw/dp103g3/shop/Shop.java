@@ -24,8 +24,8 @@ public class Shop {
 	private boolean favorite;
 
 	public Shop(int id, String email, String password, String name, String phone, String tax, String address, 
-			 int area, byte state, String info) {
-		
+			 int area, byte state, String info, int ttscore,int ttrate) {
+		super();
 		this.id = id;
 		this.email = email;
 		this.password = password;
@@ -36,6 +36,8 @@ public class Shop {
 		this.area = area;
 		this.state = state;
 		this.info = info;
+		this.ttscore = ttscore;
+		this.ttrate = ttrate;
 	}
 	
 	public Shop(int id, String email, String password, String name, String phone, String tax, String address, double latitude,
