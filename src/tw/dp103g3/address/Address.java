@@ -51,7 +51,17 @@ public class Address {
 		this.longitude = longitude;
 	}
 
+	public Address(int id) {
+		this(id, null, null, -1, -1);
+	}
 
+	public Address(double latitude, double longitude) {
+		this.name = "現在位置";
+		this.info = "";
+		this.latitude = latitude;
+		this.longitude = longitude;
+		this.id = 0;
+	}
 
 	public int getId() {
 		return id;
@@ -108,6 +118,10 @@ public class Address {
 	public void setLongitude(double longitude) {
 		this.longitude = longitude;
 	}
+	
+//	public LatLng getLatLng() {
+//		return new LatLng(latitude, longitude);
+//	}
 	
 	
 }

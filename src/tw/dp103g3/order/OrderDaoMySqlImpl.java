@@ -92,8 +92,8 @@ public class OrderDaoMySqlImpl implements OrderDao {
 			ps.setTimestamp(6, new Timestamp(order.getOrder_ideal().getTime()));
 			ps.setTimestamp(7,
 					order.getOrder_delivery() != null ? new Timestamp(order.getOrder_delivery().getTime()) : null);
-			if (order.getAdrs_id() != 0) {
-				ps.setInt(8, order.getAdrs_id());
+			if (order.getAddress().getId() != 0) {
+				ps.setInt(8, order.getAddress().getId());
 			} else {
 				ps.setNull(8, Types.INTEGER);
 			}
@@ -209,8 +209,8 @@ public class OrderDaoMySqlImpl implements OrderDao {
 			ps.setTimestamp(6, new Timestamp(order.getOrder_ideal().getTime()));
 			ps.setTimestamp(7,
 					order.getOrder_delivery() != null ? new Timestamp(order.getOrder_delivery().getTime()) : null);
-			if (order.getAdrs_id() != 0) {
-				ps.setInt(8, order.getAdrs_id());
+			if (order.getAddress().getId() != 0) {
+				ps.setInt(8, order.getAddress().getId());
 			} else {
 				ps.setNull(8, java.sql.Types.INTEGER);
 			}
@@ -275,7 +275,7 @@ public class OrderDaoMySqlImpl implements OrderDao {
 				int order_type = rs.getInt(17);
 				List<OrderDetail> orderDetails = orderDetailDao.findByOrderId(order_id);
 				order = new Order(orderId, new Shop(shopId, shopName), memId, delId, payId, spId, orderIdeal,
-						orderTime, orderDelivery, adrsId, order_name, order_phone, order_ttprice, order_area,
+						orderTime, orderDelivery, new Address(adrsId), order_name, order_phone, order_ttprice, order_area,
 						orderState, order_type, orderDetails);
 				return order;
 			}
@@ -360,7 +360,7 @@ public class OrderDaoMySqlImpl implements OrderDao {
 				int order_type = rs.getInt(17);
 				List<OrderDetail> orderDetails = orderDetailDao.findByOrderId(orderId);
 				Order order = new Order(orderId, new Shop(shopId, shopName), memId, delId, payId, spId, orderIdeal,
-						orderTime, orderDelivery, adrsId, order_name, order_phone, order_ttprice, order_area,
+						orderTime, orderDelivery, new Address(adrsId), order_name, order_phone, order_ttprice, order_area,
 						orderStatus, order_type, orderDetails);
 				orderList.add(order);
 			}
