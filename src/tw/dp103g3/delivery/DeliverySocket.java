@@ -1,12 +1,11 @@
 package tw.dp103g3.delivery;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiConsumer;
 
 import javax.websocket.CloseReason;
 import javax.websocket.OnClose;
@@ -19,16 +18,9 @@ import javax.websocket.server.ServerEndpoint;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
-import tw.dp103g3.address.Address;
-import tw.dp103g3.address.AddressDao;
-import tw.dp103g3.address.AddressDaoMysqlImpl;
 import tw.dp103g3.order.Order;
-import tw.dp103g3.order.OrderDao;
-import tw.dp103g3.order.OrderDaoMySqlImpl;
-import tw.dp103g3.shop.Shop;
-import tw.dp103g3.shop.ShopDao;
-import tw.dp103g3.shop.ShopDaoMysqlImpl;
 
 @ServerEndpoint(value = "/DeliverySocket/{user}")
 public class DeliverySocket {
@@ -52,18 +44,22 @@ public class DeliverySocket {
 		int areaCode = deliveryMessage.getAreaCode();
 		String action = deliveryMessage.getAction().trim();
 		System.out.println(TAG + "DelvieryMessage: " + action + " AREA CODE" + areaCode);
-
 		String sender = deliveryMessage.getSender().trim();
+		Type orderSetType = new TypeToken<Set<Order>>(){}.getType();
 
 		// MARK: 店家接單向Socket server 發送訊息
 		if (action.equalsIgnoreCase("shopPublishOrder")) {
-			Order order = deliveryMessage.getOrder();
 			if (!areaOrdersMap.containsKey(areaCode)) {
 				addNewArea(areaCode);
 			}
+			Order order = deliveryMessage.getOrder();
 			AreaOrders areaOrders = areaOrdersMap.get(areaCode);
 			Set<String> shopUserStrings = areaOrders.getShopUserStrings();
 			Set<Order> orders = areaOrders.getOrders();
+			
+			//將外送員id 設為-1 , 代表無人接單
+			order.setDel_id(-1);
+			
 			orders.add(order);
 			shopUserStrings.add(sender);
 			areaOrders.setOrders(orders);
@@ -86,18 +82,43 @@ public class DeliverySocket {
 
 				}
 			}
-			Set<Order> delOrders = new HashSet<>();
-			for (Order element : areaOrders.getOrders()) {
-				delOrders.add(convertOrderToDeliveryType(element));
-			}
-			areaOrders.setOrders(delOrders);
+			
+			AreaOrders newAreaOrders = areaOrdersMap.get(areaCode);
+			Set<Order> newOrders = newAreaOrders.getOrders();
 			// 向外送員送 areaOrders
 			for (Session session : sessions) {
-				session.getAsyncRemote().sendText(gson.toJson(areaOrders).toString());
+				session.getAsyncRemote().sendText(gson.toJson(newOrders, orderSetType).toString());
 			}
 			System.out.println(TAG + "PUBLISHED ORDERS: " + gson.toJson(areaOrders).toString());
-
 		}
+		else if (action.equalsIgnoreCase("shopDishDone")) {
+			AreaOrders areaOrders = areaOrdersMap.get(areaCode);
+			Order order = deliveryMessage.getOrder();
+			String receiver = deliveryMessage.getReceiver().trim();
+			Set<Order> orders = areaOrders.getOrders();
+			
+			//replace old order
+			for (Order e : orders) {
+				if (e.getOrder_id() == order.getOrder_id()) {
+					orders.remove(e);
+					orders.add(order);
+				}
+			}
+			//update server data
+			areaOrders.setOrders(orders);
+			areaOrdersMap.put(areaCode, areaOrders);
+			
+			//send message to delivery
+			Session delSession = sessionsMap.get(receiver);
+			if (delSession.isOpen()) {
+				String ordersJson = gson.toJson(orders, orderSetType);
+				delSession.getAsyncRemote().sendText(ordersJson);
+			} else {
+				sessionsMap.remove(receiver);
+			}
+			
+		}
+		
 		// MARK: 外送員提取 areaOrders
 		else if (action.equalsIgnoreCase("deliveryFetchOrders")) {
 			if (!areaOrdersMap.containsKey(areaCode)) {
@@ -111,51 +132,28 @@ public class DeliverySocket {
 				areaOrdersMap.put(areaCode, areaOrders);
 			}
 
-			// 將訂單轉為包含外送員所需資訊的類型
 			Set<Order> orders = areaOrders.getOrders();
-			Set<Order> convertedOrders = new HashSet<>();
-			for (Order order : orders) {
-				convertedOrders.add(convertOrderToDeliveryType(order));
-			}
-			AreaOrders delAreaOrders = areaOrdersMap.get(areaCode);
-			delAreaOrders.setOrders(convertedOrders);
+			
 			Session session = sessionsMap.get(sender);
-			session.getAsyncRemote().sendText(gson.toJson(delAreaOrders).toString());
+			session.getAsyncRemote().sendText(gson.toJson(orders, orderSetType).toString());
 
-			System.out.println(TAG + "FETCH ORDERS " + gson.toJson(areaOrders).toString());
+			System.out.println(TAG + "FETCH ORDERS " + gson.toJson(orders).toString());
 		}
 		// MARK: 外送員接單
 		else if (action.equalsIgnoreCase("deliveryAcceptOrder")) {
 			System.out.println(TAG + "DELIVERY ACCEPT ORDER START");
-			String receiver = deliveryMessage.getReceiver();
-			System.out.println(TAG + areaOrdersMap.toString());
-			sessionsMap.forEach(new BiConsumer<String, Session>() {
-
-				@Override
-				public void accept(String k, Session v) {
-					// TODO Auto-generated method stub
-					System.out.println(TAG + k + " : " + v.getId());
-				}
-				
-			});
 			Order order = deliveryMessage.getOrder();
-			OrderDao orderDao= new OrderDaoMySqlImpl();
-			// 將訂單轉為正常型態
-			order = convertOrderToNormalType(order);
+			String receiver = deliveryMessage.getReceiver().trim();
+			
 			AreaOrders areaOrders = areaOrdersMap.get(areaCode);
-			// 將訂單狀態改為外送中
-			order.setOrder_state(3);
-			System.out.println(TAG + "BREAKPOINT1" );
+			
 			String[] splitedSender = sender.split("del");
 
 			// 將訂單外送員id填入
 			int del_id = Integer.valueOf(splitedSender[1]);
 			order.setDel_id(del_id);
 			
-			orderDao.update(order);
-			
 			Set<Order> orders = areaOrders.getOrders();
-			System.out.println(TAG + "BREAKPOINT2" );
 			// 將舊訂單移除，加入更新後的訂單
 			for (Order element : orders) {
 				if (element.getOrder_id() == order.getOrder_id()) {
@@ -165,35 +163,25 @@ public class DeliverySocket {
 			}
 			
 			areaOrders.setOrders(orders);
-
 			// 將areaOrdersMap更新
 			areaOrdersMap.put(areaCode, areaOrders);
-			System.out.println(TAG + "BREAKPOINT3" );
-			String areaOrdersJson = gson.toJson(areaOrders, AreaOrders.class);
+			String ordersJson = gson.toJson(orders, orderSetType);
 
 			// 向店家傳送接單消息
 			Session shopSession = sessionsMap.get(receiver);
 			if (shopSession.isOpen()) {
-				shopSession.getAsyncRemote().sendText(areaOrdersJson);
+				shopSession.getAsyncRemote().sendText(ordersJson);
 			} else {
 				sessionsMap.remove(receiver);
 			}
-			System.out.println(TAG + "BREAKPOINT4" );
 			// 向外送員傳送接單成功
 			Session delSession = sessionsMap.get(sender);
 			if (delSession.isOpen()) {
 				AreaOrders delAreaOrders = areaOrdersMap.get(areaCode);
-				System.out.println(TAG + "BREAKPOINT5" );
-				Set<Order> oldOrderSet = delAreaOrders.getOrders();
-				Set<Order> newOrderSet = new HashSet<>();
-				for (Order e : oldOrderSet) {
-					newOrderSet.add(convertOrderToDeliveryType(e));
-				}
-				System.out.println(TAG + "BREAKPOINT5" );
-				delAreaOrders.setOrders(newOrderSet);
-				String delAreaOrdersJson = gson.toJson(delAreaOrders, AreaOrders.class);
-				delSession.getAsyncRemote().sendText(delAreaOrdersJson);
-				System.out.println(TAG + "BREAKPOINT6" );
+				Set<Order> orderSet = delAreaOrders.getOrders();
+				String delOrdersJson = gson.toJson(orderSet, orderSetType);
+				delSession.getAsyncRemote().sendText(delOrdersJson);
+				System.out.println("DELIVERY ACCEPT ORDER: " + delOrdersJson);
 			} else {
 				sessionsMap.remove(sender);
 			}
@@ -236,38 +224,40 @@ public class DeliverySocket {
 		areaOrdersMap.put(areaCode, areaOrders);
 	}
 
-	private Order convertOrderToDeliveryType(Order order) {
-		ShopDao shopDao = new ShopDaoMysqlImpl();
-		AddressDao addressDao = new AddressDaoMysqlImpl();
+//	private Order convertOrderToDeliveryType(Order order) {
+//		ShopDao shopDao = new ShopDaoMysqlImpl();
+//		AddressDao addressDao = new AddressDaoMysqlImpl();
+//
+//		// 如果 order 已經轉換為外送員類型的order, 就回傳原值
+//		Address address = null;
+//		address = order.getAddress();
+//		if (address != null) {
+//			return order;
+//		}
+//
+//		int adrs_id = order.getAddress().getId();
+//		
+//		Shop shop = order.getShop();
+//		int shop_id = shop.getId();
+//		Shop delShop = shopDao.getShopByIdDelivery(shop_id);
+//		address = addressDao.findById(adrs_id);
+//		Order delOrder = new Order(order.getOrder_id(), delShop, order.getMem_id(), order.getDel_id(),
+//				order.getPay_id(), order.getSp_id(), order.getOrder_ideal(), order.getOrder_time(),
+//				order.getOrder_delivery(), address, order.getOrder_name(), order.getOrder_phone(),
+//				order.getOrder_ttprice(), order.getOrder_area(), order.getOrder_state(), order.getOrder_type(),
+//				order.getOrderDetails());
+//		return delOrder;
+//	}
 
-		// 如果 order 已經轉換為外送員類型的order, 就回傳原值
-		Address address = null;
-		address = order.getAddress();
-		if (address != null) {
-			return order;
-		}
-
-		int adrs_id = order.getAdrs_id();
-		Shop shop = order.getShop();
-		int shop_id = shop.getId();
-		Shop delShop = shopDao.getShopByIdDelivery(shop_id);
-		address = addressDao.findById(adrs_id);
-		Order delOrder = new Order(order.getOrder_id(), delShop, order.getMem_id(), order.getDel_id(),
-				order.getPay_id(), order.getSp_id(), order.getOrder_ideal(), order.getOrder_time(),
-				order.getOrder_delivery(), address, order.getOrder_name(), order.getOrder_phone(),
-				order.getOrder_ttprice(), order.getOrder_area(), order.getOrder_state(), order.getOrder_type(),
-				order.getOrderDetails());
-		return delOrder;
-	}
-
-	private Order convertOrderToNormalType(Order order) {
-		int adrs_id = order.getAddress().getId();
-		Order newOrder = new Order(order.getOrder_id(), order.getShop(), order.getMem_id(), order.getDel_id(),
-				order.getPay_id(), order.getSp_id(), order.getOrder_ideal(), order.getOrder_time(),
-				order.getOrder_delivery(), adrs_id, order.getOrder_name(), order.getOrder_phone(),
-				order.getOrder_ttprice(), order.getOrder_area(), order.getOrder_state(), order.getOrder_type(),
-				order.getOrderDetails());
-		return newOrder;
-	}
+//	private Order convertOrderToNormalType(Order order) {
+//		int adrs_id = order.getAddress().getId();
+//		Order newOrder = new Order(order.getOrder_id(), order.getShop(), order.getMem_id(), order.getDel_id(),
+//				order.getPay_id(), order.getSp_id(), order.getOrder_ideal(), order.getOrder_time(),
+//				order.getOrder_delivery(), adrs_id, order.getOrder_name(), order.getOrder_phone(),
+//				order.getOrder_ttprice(), order.getOrder_area(), order.getOrder_state(), order.getOrder_type(),
+//				order.getOrderDetails());
+//		return newOrder;
+//	}
+	
 
 }
