@@ -38,7 +38,7 @@ public class OrderSocket {
 		if (receiverSession != null && receiverSession.isOpen()) {
 			receiverSession.getAsyncRemote().sendText(message);
 		} else {
-			sessionsMap.remove("receiver");
+			sessionsMap.remove(receiver);
 		}
 		System.out.println(TAG + "receiver: " + receiver);
 		System.out.println(TAG + "Message received: " + message);
