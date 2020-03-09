@@ -97,11 +97,18 @@ public class MemberServlet extends HttpServlet {
 			writeText(response, gson.toJson(outcome, mapType));
 			System.out.println("login : " + outcome);
 			break;
+		case "updatePassword":
+			memberJson = jsonObject.get("member").getAsString();
+			member = gson.fromJson(memberJson, Member.class);
+			count = memberDao.updatePassword(member);
+			writeText(response, String.valueOf(count));
+			System.out.println("update = " + memberJson);
+			break;
 		default:
 			writeText(response, "not fun");
 			break;
-			
-			
+
+
 		}
 	}
 
@@ -112,7 +119,7 @@ public class MemberServlet extends HttpServlet {
 		// 將輸出資料列印出來除錯用
 		System.out.println("output:" + outText);
 	}
-	
+
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if (memberDao == null) {
 			memberDao = new MemberDaoMySqlImpl();
