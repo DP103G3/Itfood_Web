@@ -30,37 +30,18 @@ public class DeliveryDaoMySqlImpl implements DeliveryDao {
 	@Override
 	public int insert(Delivery delivery) {
 		int count = 0;
-		String sql = "INSERT INTO `delivery` (del_name, del_password, del_email, del_phone, del_identityid, del_state) VALUES(?, ?, ?, ?, ?, ?);";
-		String selectEmailSql = "SELECT * FROM `delivery` WHERE del_email = ?;";
-		String selectIdentityIdSql = "SELECT * FROM `delivery` WHERE del_identityid = ?;";
+		String sql = "INSERT INTO `delivery` (del_name, del_password, del_email, del_phone, del_state) VALUES(?, ?, ?, ?, ?);";
 		Connection connection = null;
 		PreparedStatement ps = null;
-		PreparedStatement selectEmailPs = null;
-		PreparedStatement selectIdentityIdPs = null;
 		try {
 			connection = DriverManager.getConnection(URL, USER, PASSWORD);
 			ps = connection.prepareStatement(sql);
-			selectEmailPs = connection.prepareStatement(selectEmailSql);
-			selectIdentityIdPs = connection.prepareStatement(selectIdentityIdSql);
-			
-			selectEmailPs.setString(1, delivery.getDelEmail());
-			ResultSet selectEmailRs = selectEmailPs.executeQuery();
-			if (selectEmailRs.next()) {
-				return -1;
-			}
-			selectIdentityIdPs.setString(1, delivery.getDelIdentityid());
-			ResultSet selectIdentityIdRs = selectIdentityIdPs.executeQuery();
-			if (selectIdentityIdRs.next()) {
-				return -2;
-			} else {
-				ps.setString(1, delivery.getDelName());
-				ps.setString(2, delivery.getDelPassword());
-				ps.setString(3, delivery.getDelEmail());
-				ps.setString(4, delivery.getDelPhone());
-				ps.setString(5, delivery.getDelIdentityid());
-				ps.setInt(6, delivery.getDelState());
-				count = ps.executeUpdate();
-			}
+			ps.setString(1, delivery.getDelName());
+			ps.setString(2, delivery.getDelPassword());
+			ps.setString(3, delivery.getDelEmail());
+			ps.setString(4, delivery.getDelPhone());
+			ps.setInt(5, delivery.getDelState());
+			count = ps.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {

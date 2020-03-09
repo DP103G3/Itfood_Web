@@ -8,7 +8,7 @@ public class Address {
 	private int state;
 	private double latitude;
 	private double longitude;
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -41,7 +41,7 @@ public class Address {
 		this.latitude = latitude;
 		this.longitude = longitude;
 	}
-	
+
 	public Address(int id, String name, String info, double latitude, double longitude) {
 		super();
 		this.id = id;
@@ -55,13 +55,6 @@ public class Address {
 		this(id, null, "", -1, -1);
 	}
 
-	public Address(double latitude, double longitude) {
-		this.name = "現在位置";
-		this.info = "";
-		this.latitude = latitude;
-		this.longitude = longitude;
-		this.id = 0;
-	}
 
 	public int getId() {
 		return id;
@@ -118,10 +111,6 @@ public class Address {
 	public void setLongitude(double longitude) {
 		this.longitude = longitude;
 	}
-	
-//	public LatLng getLatLng() {
-//		return new LatLng(latitude, longitude);
-//	}
-	
-	
+
+
 }

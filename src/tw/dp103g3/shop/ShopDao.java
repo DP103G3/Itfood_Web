@@ -13,7 +13,7 @@ public interface ShopDao {
 
 	List<Shop> getAll();
 
-	List<Shop> getAllShow(int memId);
+	List<Shop> getAllShow();
 
 	byte[] getImage(int id);
 	

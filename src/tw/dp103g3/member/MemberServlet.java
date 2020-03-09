@@ -14,7 +14,6 @@ import com.google.gson.reflect.TypeToken;
 import tw.dp103g3.member.Member;
 import tw.dp103g3.member.MemberDao;
 import tw.dp103g3.member.MemberDaoMySqlImpl;
-import tw.dp103g3.shop.Shop;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -58,19 +57,15 @@ public class MemberServlet extends HttpServlet {
 		String action = jsonObject.get("action").getAsString();
 
 		switch (action) {
+		case "insert":
 		case "getAll":
 			members = memberDao.getAll();
 			writeText(response, gson.toJson(members));
 			break;
-		case "insert":
 		case "update":
 			memberJson = jsonObject.get("member").getAsString();
 			member = gson.fromJson(memberJson, Member.class);
-			if (action.equals("insert")) {
-				count = memberDao.insert(member);
-			} else {
-				count = memberDao.update(member);
-			}
+			count = memberDao.update(member);
 			writeText(response, String.valueOf(count));
 			System.out.println("update = " + memberJson);
 			break;
@@ -112,8 +107,8 @@ public class MemberServlet extends HttpServlet {
 		default:
 			writeText(response, "not fun");
 			break;
-			
-			
+
+
 		}
 	}
 
@@ -124,7 +119,7 @@ public class MemberServlet extends HttpServlet {
 		// 將輸出資料列印出來除錯用
 		System.out.println("output:" + outText);
 	}
-	
+
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		if (memberDao == null) {
 			memberDao = new MemberDaoMySqlImpl();

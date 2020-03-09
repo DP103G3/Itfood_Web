@@ -1,7 +1,5 @@
 package tw.dp103g3.favorite;
 
-import static tw.dp103g3.main.Common.CONTENT_TYPE;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -17,7 +15,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
-import tw.dp103g3.shop.Shop;
+
+import static tw.dp103g3.main.Common.*;
 
 @WebServlet("/FavoriteServlet")
 public class FavoriteServlet extends HttpServlet {
@@ -31,15 +30,15 @@ public class FavoriteServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		favoriteDao = new FavoriteDaoMySqlImpl();
-		List<Shop> Shops = favoriteDao.findByMemberId(1);
+		List<Favorite> favorites = favoriteDao.findByMemberId(1);
 		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
-		writeText(response, gson.toJson(Shops));
+		writeText(response, gson.toJson(favorites));
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		request.setCharacterEncoding("utf-8");
-		Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
+		Gson gson = new Gson();
 		BufferedReader br = request.getReader();
 		StringBuilder jsonIn = new StringBuilder();
 		String line = null;
@@ -72,9 +71,9 @@ public class FavoriteServlet extends HttpServlet {
 			writeText(response, String.valueOf(count));
 		} else if (action.equals("findByMemberId")) {
 			int mem_id = jsonObject.get("mem_id").getAsInt();
-			List<Shop> Shops = favoriteDao.findByMemberId(mem_id);
-			if (!Shops.isEmpty()) {
-				writeText(response, gson.toJson(Shops));
+			List<Favorite> favorites = favoriteDao.findByMemberId(mem_id);
+			if (!favorites.isEmpty()) {
+				writeText(response, gson.toJson(favorites));
 			} else {
 				writeText(response, null);
 			}

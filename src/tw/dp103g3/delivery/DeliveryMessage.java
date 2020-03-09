@@ -1,6 +1,5 @@
 package tw.dp103g3.delivery;
 
-//import org.eclipse.jdt.annotation.Nullable;
 
 import tw.dp103g3.order.Order;
 
@@ -40,6 +39,11 @@ public class DeliveryMessage {
 		this.action = action;
 		this.areaCode = areaCode;
 		this.sender = sender;
+	}
+	
+	public DeliveryMessage(String action) {
+		super();
+		this.action = action;
 	}
 
 

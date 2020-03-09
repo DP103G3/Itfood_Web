@@ -8,7 +8,7 @@ public interface OrderDao {
 	
 	int update(Order order);
 	
-	Order findByOrderId (int order_id);
+	List<Order> findByOrderId (int order_id);
 	
 //	List<Order> findByCase(int id, String type, int State);
 	
