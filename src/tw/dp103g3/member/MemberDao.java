@@ -10,7 +10,7 @@ public interface MemberDao {
 	
 	int saveAccount(Member member);
 	
-    int updatePassword(Member member);
+	int updatePassword(Member member);
 	
 	Member getAccount(int mem_id);
 
@@ -19,5 +19,5 @@ public interface MemberDao {
 	Map<String, Integer> login(String email, String password);
 
 	List<Member> getAll();
-
+	
 }

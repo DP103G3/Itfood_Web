@@ -57,15 +57,19 @@ public class DeliveryServlet extends HttpServlet {
 		String action = jsonObject.get("action").getAsString();
 
 		switch (action) {
-		case "insert":
 		case "getAll":
 			deliverys = deliveryDao.getAll();
 			writeText(response, gson.toJson(deliverys));
 			break;
+		case "insert":
 		case "update":
 			deliveryJson = jsonObject.get("delivery").getAsString();
 			delivery = gson.fromJson(deliveryJson, Delivery.class);
-			count = deliveryDao.update(delivery);
+			if (action.equals("insert")) {
+				count = deliveryDao.insert(delivery);
+			} else {
+				count = deliveryDao.update(delivery);
+			}
 			writeText(response, String.valueOf(count));
 			System.out.println("update = " + deliveryJson);
 			break;

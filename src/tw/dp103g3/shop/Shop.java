@@ -21,10 +21,11 @@ public class Shop {
 	private int ttscore;
 	private int ttrate;
 	private List<String> types;
+	private boolean favorite;
 
 	public Shop(int id, String email, String password, String name, String phone, String tax, String address, 
-			 int area, byte state, String info) {
-		
+			 int area, byte state, String info, int ttscore,int ttrate) {
+		super();
 		this.id = id;
 		this.email = email;
 		this.password = password;
@@ -35,6 +36,8 @@ public class Shop {
 		this.area = area;
 		this.state = state;
 		this.info = info;
+		this.ttscore = ttscore;
+		this.ttrate = ttrate;
 	}
 	
 	public Shop(int id, String email, String password, String name, String phone, String tax, String address, double latitude,
@@ -268,6 +271,14 @@ public class Shop {
 
 	public void setTypes(List<String> types) {
 		this.types = types;
+	}
+
+	public void setFavorite(boolean favorite) {
+		this.favorite = favorite;
+	}
+
+	public boolean getFavorite() {
+		return favorite;
 	}
 
 }

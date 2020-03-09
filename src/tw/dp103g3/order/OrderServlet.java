@@ -60,8 +60,8 @@ public class OrderServlet extends HttpServlet {
 			writeText(response, String.valueOf(count));
 		} else if (action.equals("findByOrderId")) {
 			int order_id = jsonObject.get("order_id").getAsInt();
-			List<Order> orders = orderDao.findByOrderId(order_id);
-			writeText(response, gson.toJson(orders));
+			Order order = orderDao.findByOrderId(order_id);
+			writeText(response, gson.toJson(order));
 		} else if (action.equals("findByCase")) {
 			int id = jsonObject.get("id").getAsInt();
 			String type = jsonObject.get("type").getAsString();
