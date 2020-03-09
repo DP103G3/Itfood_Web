@@ -95,10 +95,41 @@ public class MemberDaoMySqlImpl implements MemberDao {
 		}
 		return count;
 	}
+	
+	@Override
+	public int updatePassword(Member member) {
+		int count = 0;
+		String sql = "UPDATE `member` SET mem_password = ?  WHERE mem_id = ?;";
+		Connection connection = null;
+		PreparedStatement ps = null;
+		try {
+			connection = DriverManager.getConnection(URL, USER, PASSWORD);
+			ps = connection.prepareStatement(sql);
+			ps.setString(1, member.getMemPassword());
+			ps.setInt(2, member.getMemId());
+			count = ps.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (ps != null) {
+					// When a Statement object is closed,
+					// its current ResultSet object is also closed
+					ps.close();
+				}
+				if (connection != null) {
+					connection.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return count;
+	}
 
 	@Override
 	public Member getAccount(int mem_id) {
-		String sql = "SELECT mem_id, mem_state FROM `member` WHERE mem_id = ?;";
+		String sql = "SELECT mem_id, mem_name, mem_password, mem_email, mem_phone, mem_state FROM `member` WHERE mem_id = ?;";
 		Connection connection = null;
 		PreparedStatement ps = null;
 		Member member = null;
@@ -108,8 +139,13 @@ public class MemberDaoMySqlImpl implements MemberDao {
 			ps.setInt(1, mem_id);
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
-				int mem_state = rs.getInt(2);
-				member = new Member(mem_id, mem_state);
+				String mem_name = rs.getString(2);
+				String mem_password = rs.getString(3);
+				String mem_email = rs.getString(4);
+				String mem_phone = rs.getString(5);
+				int mem_state = rs.getInt(6);
+				member = new Member(mem_id, mem_name, mem_password, mem_email, mem_phone, mem_state);
+
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

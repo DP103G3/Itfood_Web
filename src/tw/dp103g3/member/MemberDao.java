@@ -10,6 +10,8 @@ public interface MemberDao {
 	
 	int saveAccount(Member member);
 	
+    int updatePassword(Member member);
+	
 	Member getAccount(int mem_id);
 
 	Member findById(int mem_id);
