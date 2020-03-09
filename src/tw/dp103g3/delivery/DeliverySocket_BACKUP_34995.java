@@ -21,15 +21,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
-import tw.dp103g3.address.Address;
-import tw.dp103g3.address.AddressDao;
-import tw.dp103g3.address.AddressDaoMysqlImpl;
 import tw.dp103g3.order.Order;
-import tw.dp103g3.order.OrderDao;
-import tw.dp103g3.order.OrderDaoMySqlImpl;
-import tw.dp103g3.shop.Shop;
-import tw.dp103g3.shop.ShopDao;
-import tw.dp103g3.shop.ShopDaoMysqlImpl;
 
 @ServerEndpoint(value = "/DeliverySocket/{user}")
 public class DeliverySocket {
@@ -69,6 +61,8 @@ public class DeliverySocket {
 			//將外送員id 設為-1 , 代表無人接單
 			order.setDel_id(-1);
 			
+<<<<<<< HEAD
+=======
 			ShopDao shopDao = new ShopDaoMysqlImpl();
 			AddressDao addressDao = new AddressDaoMysqlImpl();
 			OrderDao orderDao = new OrderDaoMySqlImpl();
@@ -77,6 +71,7 @@ public class DeliverySocket {
 			order.setShop(shop);
 			order.setAddress(address);
 			
+>>>>>>> 4ce53f5a292c94c0662d09f6367ad34a96aac45b
 			orders.add(order);
 			orderDao.update(order);
 			
@@ -101,6 +96,45 @@ public class DeliverySocket {
 				}
 			}
 			
+<<<<<<< HEAD
+			AreaOrders newAreaOrders = areaOrdersMap.get(areaCode);
+			Set<Order> newOrders = newAreaOrders.getOrders();
+			// 向外送員送 areaOrders
+			for (Session session : sessions) {
+				session.getAsyncRemote().sendText(gson.toJson(newOrders, orderSetType).toString());
+			}
+			System.out.println(TAG + "PUBLISHED ORDERS: " + gson.toJson(areaOrders).toString());
+		}
+		else if (action.equalsIgnoreCase("shopDishDone")) {
+			AreaOrders areaOrders = areaOrdersMap.get(areaCode);
+			Order order = deliveryMessage.getOrder();
+			String receiver = deliveryMessage.getReceiver().trim();
+			Set<Order> orders = areaOrders.getOrders();
+			
+			//replace old order
+			for (Order e : orders) {
+				if (e.getOrder_id() == order.getOrder_id()) {
+					orders.remove(e);
+					orders.add(order);
+				}
+			}
+			//update server data
+			areaOrders.setOrders(orders);
+			areaOrdersMap.put(areaCode, areaOrders);
+			
+			//send message to delivery
+			Session delSession = sessionsMap.get(receiver);
+			if (delSession.isOpen()) {
+				String ordersJson = gson.toJson(orders, orderSetType);
+				delSession.getAsyncRemote().sendText(ordersJson);
+			} else {
+				sessionsMap.remove(receiver);
+			}
+			
+		}
+		
+		// MARK: 外送員提取 areaOrders
+=======
 			Session shopSession = sessionsMap.get(sender);
 			if (shopSession.isOpen()) {
 				shopSession.getAsyncRemote().sendText(gson.toJson(orders));
@@ -188,6 +222,7 @@ public class DeliverySocket {
 			}
 		}
 		// MARK: 外送員提取 orders
+>>>>>>> 4ce53f5a292c94c0662d09f6367ad34a96aac45b
 		else if (action.equalsIgnoreCase("deliveryFetchOrders")) {
 			if (!areaOrdersMap.containsKey(areaCode)) {
 				addNewArea(areaCode);
@@ -221,10 +256,15 @@ public class DeliverySocket {
 			// 將訂單外送員id填入
 			int del_id = Integer.valueOf(splitedSender[1]);
 			order.setDel_id(del_id);
+<<<<<<< HEAD
+			
+			Set<Order> orders = areaOrders.getOrders();
+=======
 			orderDao.update(order);
 			
 			Set<Order> orders = areaOrders.getOrders();
 			Set<Order> newOrders = new HashSet<>();
+>>>>>>> 4ce53f5a292c94c0662d09f6367ad34a96aac45b
 			// 將舊訂單移除，加入更新後的訂單
 			for (Order element : orders) {
 				if (element.getOrder_id() != order.getOrder_id()) {
@@ -233,10 +273,17 @@ public class DeliverySocket {
 			}
 			newOrders.add(order);
 			
+<<<<<<< HEAD
+			areaOrders.setOrders(orders);
+			// 將areaOrdersMap更新
+			areaOrdersMap.put(areaCode, areaOrders);
+			String ordersJson = gson.toJson(orders, orderSetType);
+=======
 			areaOrders.setOrders(newOrders);
 			// 將areaOrdersMap更新
 			areaOrdersMap.put(areaCode, areaOrders);
 			String ordersJson = gson.toJson(newOrders, orderSetType);
+>>>>>>> 4ce53f5a292c94c0662d09f6367ad34a96aac45b
 
 			// 向店家傳送接單消息
 			Session shopSession = sessionsMap.get(receiver);
