@@ -12,4 +12,6 @@ public interface AddressDao {
 	List<Address> getAll(int mem_id);
 	
 	Address findById(int adrs_id);
+	
+	int insertAnonymousAddress(Address address);
 }

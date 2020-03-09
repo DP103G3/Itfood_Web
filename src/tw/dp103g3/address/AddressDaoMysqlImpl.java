@@ -207,4 +207,50 @@ public class AddressDaoMysqlImpl implements AddressDao {
 		}
 		return address;
 	}
+
+	@Override
+	public int insertAnonymousAddress(Address address) {
+		int adrs_id = 0;
+		String sql = "INSERT INTO `address` (mem_id, adrs_name, adrs_info, adrs_state, "
+				+ "adrs_latitude, adrs_longitude) VALUES (?, ?, ?, ?, ?, ?);";
+//		if (getAll(address.getMem_id()).stream().anyMatch(v -> v.equals(address))) {
+//			count = update(address);
+//		} else {
+			Connection connection = null;
+			PreparedStatement ps = null;
+			try  {
+				connection = DriverManager.getConnection(URL, USER, PASSWORD);
+				connection.setAutoCommit(true);
+				ps = connection.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS);
+				ps.setInt(1, address.getMem_id());
+				ps.setString(2, "n");
+				ps.setString(3, address.getInfo());
+				ps.setInt(4, 0);
+				ps.setDouble(5, address.getLatitude());
+				ps.setDouble(6, address.getLongitude());
+				int result = ps.executeUpdate();
+				if (result != 0) {
+					try (ResultSet generatedKeys = ps.getGeneratedKeys()){
+						if (generatedKeys.next()) {
+							adrs_id = generatedKeys.getInt(1);
+						}
+					}
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} finally {
+				try {
+					if (ps != null) {
+						ps.close();
+					}
+					if (connection != null) {
+						connection.close();
+					}
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+//		}
+		return adrs_id;
+	}
 }

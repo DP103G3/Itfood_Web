@@ -413,7 +413,6 @@ public class OrderDaoMySqlImpl implements OrderDao {
 
 	@Override
 	public List<Order> findByDeliveryId(int id) {
-		// TODO Auto-generated method stub
 		ShopDao shopDao = new ShopDaoMysqlImpl();
 		AddressDao addressDao = new AddressDaoMysqlImpl();
 		String sql = "SELECT  order_id, shop_id, mem_id, del_id, pay_id, order_state, sp_id, order_time, order_ideal, order_delivery, "
