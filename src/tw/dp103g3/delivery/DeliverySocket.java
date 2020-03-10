@@ -3,6 +3,7 @@ package tw.dp103g3.delivery;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -69,11 +70,12 @@ public class DeliverySocket {
 			if (!areaOrdersMap.containsKey(areaCode)) {
 				addNewArea(areaCode);
 			}
+			System.out.println(TAG + "PUBLISH ORDERS BREAKPOINT1");
 			Order order = deliveryMessage.getOrder();
 			AreaOrders areaOrders = areaOrdersMap.get(areaCode);
 			Set<String> shopUserStrings = areaOrders.getShopUserStrings();
 			Set<Order> orders = areaOrders.getOrders();
-
+			System.out.println(TAG + "PUBLISH ORDERS BREAKPOINT2");
 			// 將外送員id 設為-1 , 代表無人接單
 			order.setDel_id(-1);
 
@@ -84,18 +86,25 @@ public class DeliverySocket {
 			Address address = addressDao.findById(order.getAddress().getId());
 			order.setShop(shop);
 			order.setAddress(address);
+			System.out.println(TAG + "PUBLISH ORDERS BREAKPOINT3");
 
 			orders.add(order);
 			orderDao.update(order);
-
+			System.out.println(TAG + "PUBLISH ORDERS BREAKPOINT4");
+			
+			if (shopUserStrings == null) {
+				shopUserStrings = new HashSet<String>();
+			}
 			shopUserStrings.add(sender);
 			areaOrders.setOrders(orders);
 			areaOrders.setShopUserStrings(shopUserStrings);
 			areaOrdersMap.put(areaCode, areaOrders);
+			System.out.println(TAG + "PUBLISH ORDERS BREAKPOINT5");
 
 			Set<String> deliveryUserStrings = areaOrders.getDeliveryUserStrings();
 			Set<String> users = sessionsMap.keySet();
 			Set<Session> sessions = new HashSet<>();
+			System.out.println(TAG + "PUBLISH ORDERS BREAKPOINT6");
 
 			// 將 外送員Session 從 sessionsMap 中過濾出來
 			for (String deliveryUserString : deliveryUserStrings) {
@@ -108,7 +117,7 @@ public class DeliverySocket {
 					}
 				}
 			}
-
+			System.out.println(TAG + "PUBLISH ORDERS BREAKPOINT7");
 			Session shopSession = sessionsMap.get(sender);
 			if (shopSession != null && shopSession.isOpen()) {
 				shopSession.getAsyncRemote().sendText(gson.toJson(orders));
@@ -119,10 +128,11 @@ public class DeliverySocket {
 					e.printStackTrace();
 				}
 			}
+			System.out.println(TAG + "PUBLISH ORDERS BREAKPOINT8");
 
 			AreaOrders newAreaOrders = areaOrdersMap.get(areaCode);
 			Set<Order> newOrders = newAreaOrders.getOrders();
-
+			System.out.println(TAG + "PUBLISH ORDERS BREAKPOINT9");
 			// 向外送員送 orders
 			for (Session session : sessions) {
 				if (session.isOpen()) {
@@ -139,10 +149,13 @@ public class DeliverySocket {
 			AreaOrders areaOrders = areaOrdersMap.get(areaCode);
 			Set<String> deliveryUserStrings = areaOrders.getDeliveryUserStrings();
 			if (!deliveryUserStrings.contains(sender)) {
+				if (deliveryUserStrings == null) {
+					deliveryUserStrings = new HashSet<String>();
+				}
 				deliveryUserStrings.add(sender);
 				areaOrders.setDeliveryUserStrings(deliveryUserStrings);
 				areaOrdersMap.put(areaCode, areaOrders);
-			}
+			} 
 
 			Set<Order> orders = areaOrders.getOrders();
 
@@ -319,7 +332,9 @@ public class DeliverySocket {
 			System.out.println(TAG + "LOGIC ERROR");
 		}
 		System.out.println(TAG + "CURRENT AreaOrdersMap: "
-				+ gson.toJson("Ared Code: " + areaCode + "," + "Area Map: " + areaOrdersMap.get(areaCode)).toString());
+				+ gson.toJson("Ared Code: " + areaCode ));
+		System.out.println("DELIVERYS: " +  gson.toJson(areaOrdersMap.get(areaCode).getDeliveryUserStrings()).toString());
+		System.out.println("SHOPS: " +  gson.toJson(areaOrdersMap.get(areaCode).getShopUserStrings()).toString());
 
 	}
 
@@ -383,6 +398,7 @@ public class DeliverySocket {
 			}
 			
 		});
+		System.out.println("FETCHED FROM DATABASE: " + areaOrdersMap.toString());
 	}
 
 //	private Order convertOrderToDeliveryType(Order order) {
