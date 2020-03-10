@@ -54,7 +54,8 @@ public class DeliverySocket {
 		String action = deliveryMessage.getAction().trim();
 		System.out.println(TAG + "DelvieryMessage: " + action + " AREA CODE" + areaCode);
 		String sender = deliveryMessage.getSender().trim();
-		Type orderSetType = new TypeToken<Set<Order>>(){}.getType();
+		Type orderSetType = new TypeToken<Set<Order>>() {
+		}.getType();
 
 		// MARK: 店家接單向Socket server 發送訊息
 		if (action.equalsIgnoreCase("shopPublishOrder")) {
@@ -65,10 +66,10 @@ public class DeliverySocket {
 			AreaOrders areaOrders = areaOrdersMap.get(areaCode);
 			Set<String> shopUserStrings = areaOrders.getShopUserStrings();
 			Set<Order> orders = areaOrders.getOrders();
-			
-			//將外送員id 設為-1 , 代表無人接單
+
+			// 將外送員id 設為-1 , 代表無人接單
 			order.setDel_id(-1);
-			
+
 			ShopDao shopDao = new ShopDaoMysqlImpl();
 			AddressDao addressDao = new AddressDaoMysqlImpl();
 			OrderDao orderDao = new OrderDaoMySqlImpl();
@@ -76,10 +77,10 @@ public class DeliverySocket {
 			Address address = addressDao.findById(order.getAddress().getId());
 			order.setShop(shop);
 			order.setAddress(address);
-			
+
 			orders.add(order);
 			orderDao.update(order);
-			
+
 			shopUserStrings.add(sender);
 			areaOrders.setOrders(orders);
 			areaOrders.setShopUserStrings(shopUserStrings);
@@ -100,7 +101,7 @@ public class DeliverySocket {
 					}
 				}
 			}
-			
+
 			Session shopSession = sessionsMap.get(sender);
 			if (shopSession.isOpen()) {
 				shopSession.getAsyncRemote().sendText(gson.toJson(orders));
@@ -111,81 +112,15 @@ public class DeliverySocket {
 					e.printStackTrace();
 				}
 			}
-			
+
 			AreaOrders newAreaOrders = areaOrdersMap.get(areaCode);
 			Set<Order> newOrders = newAreaOrders.getOrders();
-			
+
 			// 向外送員送 orders
 			for (Session session : sessions) {
 				session.getAsyncRemote().sendText(gson.toJson(newOrders, orderSetType).toString());
 			}
 			System.out.println(TAG + "PUBLISHED ORDERS: " + gson.toJson(newOrders).toString());
-		}
-		else if (action.equalsIgnoreCase("shopDishDone")) {
-			System.out.println("BREAK POINT 1");
-			AreaOrders areaOrders = areaOrdersMap.get(areaCode);
-			Order order = deliveryMessage.getOrder();
-			String receiver = deliveryMessage.getReceiver().trim();
-			Set<Order> orders = areaOrders.getOrders();
-			Set<Order> newOrders = new HashSet<>();
-			System.out.println("BREAK POINT 2");
-
-			//replace old order
-			for (Order e : orders) {
-				if (e.getOrder_id() != order.getOrder_id()) {
-					newOrders.add(e);
-				}
-			}
-			newOrders.add(order);
-			
-			System.out.println("BREAK POINT 3");
-
-			//update server data
-			areaOrders.setOrders(newOrders);
-			areaOrdersMap.put(areaCode, areaOrders);
-			System.out.println("BREAK POINT 4");
-
-			//send message to delivery
-			Set<Order> delOrders = areaOrdersMap.get(areaCode).getOrders();
-			Session delSession = sessionsMap.get(receiver);
-			if (delSession.isOpen() && delSession != null) {
-				String ordersJson = gson.toJson(delOrders, orderSetType);
-				delSession.getAsyncRemote().sendText(ordersJson);
-			} else {
-				sessionsMap.remove(receiver);
-			}
-			System.out.println("BREAK POINT 5");
-
-			
-		} 
-		//MARK: 店家確認取餐	
-		else if (action.equalsIgnoreCase("shopConfirmOrder")) {
-			AreaOrders areaOrders = areaOrdersMap.get(areaCode);
-			Order order = deliveryMessage.getOrder();
-			String receiver = deliveryMessage.getReceiver().trim();
-			Set<Order> orders = areaOrders.getOrders();
-			Set<Order> newOrders = new HashSet<>();
-			
-			//replace old order
-			for (Order e : orders) {
-				if (e.getOrder_id() != order.getOrder_id()) {
-					newOrders.add(e);
-				}
-			}
-			newOrders.add(order);
-			//update server data
-			areaOrders.setOrders(newOrders);
-			areaOrdersMap.put(areaCode, areaOrders);
-			
-			//send message to delivery
-			Session delSession = sessionsMap.get(receiver);
-			if (delSession.isOpen()) {
-				DeliveryMessage dm = new DeliveryMessage("confirmOrder", order, order.getOrder_area(), "", "");
-				String dmJson = gson.toJson(dm, DeliveryMessage.class).toString();
-				delSession.getAsyncRemote().sendText(dmJson);
-			} else {
-				sessionsMap.remove(receiver);
-			}
 		}
 		// MARK: 外送員提取 orders
 		else if (action.equalsIgnoreCase("deliveryFetchOrders")) {
@@ -201,7 +136,7 @@ public class DeliverySocket {
 			}
 
 			Set<Order> orders = areaOrders.getOrders();
-			
+
 			Session session = sessionsMap.get(sender);
 			session.getAsyncRemote().sendText(gson.toJson(orders, orderSetType).toString());
 
@@ -213,16 +148,16 @@ public class DeliverySocket {
 			System.out.println(TAG + "DELIVERY ACCEPT ORDER START");
 			Order order = deliveryMessage.getOrder();
 			String receiver = deliveryMessage.getReceiver().trim();
-			
+
 			AreaOrders areaOrders = areaOrdersMap.get(areaCode);
-			
+
 			String[] splitedSender = sender.split("del");
 
 			// 將訂單外送員id填入
 			int del_id = Integer.valueOf(splitedSender[1]);
 			order.setDel_id(del_id);
 			orderDao.update(order);
-			
+
 			Set<Order> orders = areaOrders.getOrders();
 			Set<Order> newOrders = new HashSet<>();
 			// 將舊訂單移除，加入更新後的訂單
@@ -232,7 +167,7 @@ public class DeliverySocket {
 				}
 			}
 			newOrders.add(order);
-			
+
 			areaOrders.setOrders(newOrders);
 			// 將areaOrdersMap更新
 			areaOrdersMap.put(areaCode, areaOrders);
@@ -256,18 +191,87 @@ public class DeliverySocket {
 			} else {
 				sessionsMap.remove(sender);
 			}
-			
+
 			System.out.println(TAG + "DELIVERY ACCEPT ORDER SUCCESS");
 		}
+		// MARK: 店家餐點製作完成
+		else if (action.equalsIgnoreCase("shopDishDone")) {
+			System.out.println("BREAK POINT 1");
+			AreaOrders areaOrders = areaOrdersMap.get(areaCode);
+			Order order = deliveryMessage.getOrder();
+			String receiver = deliveryMessage.getReceiver().trim();
+			Set<Order> orders = areaOrders.getOrders();
+			Set<Order> newOrders = new HashSet<>();
+			System.out.println("BREAK POINT 2");
+
+			// replace old order
+			for (Order e : orders) {
+				if (e.getOrder_id() != order.getOrder_id()) {
+					newOrders.add(e);
+				}
+			}
+			newOrders.add(order);
+
+			System.out.println("BREAK POINT 3");
+
+			// update server data
+			areaOrders.setOrders(newOrders);
+			areaOrdersMap.put(areaCode, areaOrders);
+			System.out.println("BREAK POINT 4");
+
+			// send message to delivery
+			Set<Order> delOrders = areaOrdersMap.get(areaCode).getOrders();
+			Session delSession = sessionsMap.get(receiver);
+			if (delSession.isOpen() && delSession != null) {
+				String ordersJson = gson.toJson(delOrders, orderSetType);
+				delSession.getAsyncRemote().sendText(ordersJson);
+			} else {
+				sessionsMap.remove(receiver);
+			}
+			System.out.println("BREAK POINT 5");
+
+		}
+
+		// MARK: 店家確認取餐
+		else if (action.equalsIgnoreCase("shopConfirmOrder")) {
+			AreaOrders areaOrders = areaOrdersMap.get(areaCode);
+			Order order = deliveryMessage.getOrder();
+			String receiver = deliveryMessage.getReceiver().trim();
+			Set<Order> orders = areaOrders.getOrders();
+			Set<Order> newOrders = new HashSet<>();
+
+			// replace old order
+			for (Order e : orders) {
+				if (e.getOrder_id() != order.getOrder_id()) {
+					newOrders.add(e);
+				}
+			}
+			newOrders.add(order);
+			// update server data
+			areaOrders.setOrders(newOrders);
+			areaOrdersMap.put(areaCode, areaOrders);
+
+			// send message to delivery
+			Session delSession = sessionsMap.get(receiver);
+			if (delSession.isOpen()) {
+				DeliveryMessage dm = new DeliveryMessage("confirmOrder", order, order.getOrder_area(), "", "");
+				String dmJson = gson.toJson(dm, DeliveryMessage.class).toString();
+				delSession.getAsyncRemote().sendText(dmJson);
+			} else {
+				sessionsMap.remove(receiver);
+			}
+		}
+
 		else if (action.equalsIgnoreCase("deliveryCompleteOrder")) {
+			System.out.println("DELIVERY COMPLETE ORDER");
 			OrderDao orderDao = new OrderDaoMySqlImpl();
 			System.out.println(TAG + "DELIVERY COMPLETE ORDER START");
 			Order order = deliveryMessage.getOrder();
 			String receiver = deliveryMessage.getReceiver().trim();
-			
+
 			order.setOrder_state(4);
 			orderDao.update(order);
-			
+
 			AreaOrders areaOrders = areaOrdersMap.get(areaCode);
 			Set<Order> orders = areaOrders.getOrders();
 			for (Order o : orders) {
@@ -277,7 +281,7 @@ public class DeliverySocket {
 			}
 			areaOrders.setOrders(orders);
 			areaOrdersMap.put(areaCode, areaOrders);
-			
+
 			Session delSession = sessionsMap.get(sender);
 			if (delSession.isOpen()) {
 				AreaOrders ao = areaOrdersMap.get(areaCode);
@@ -287,12 +291,22 @@ public class DeliverySocket {
 			} else {
 				sessionsMap.remove(sender);
 			}
+			
+			Session memberSession = sessionsMap.get(receiver);
+			if (memberSession.isOpen()) {
+				DeliveryMessage dm = new DeliveryMessage("deliveryCompleteOrder", order, order.getOrder_area(), sender, receiver);
+				String dmString = gson.toJson(dm, DeliveryMessage.class);
+				memberSession.getAsyncRemote().sendText(dmString);
+			} else {
+				sessionsMap.remove(receiver);
+			}
 		}
 
 		else {
 			System.out.println(TAG + "LOGIC ERROR");
 		}
-		System.out.println(TAG + "CURRENT AreaOrdersMap: " + gson.toJson("Ared Code: " + areaCode + "," + "Area Map: " + areaOrdersMap.get(areaCode)).toString());
+		System.out.println(TAG + "CURRENT AreaOrdersMap: "
+				+ gson.toJson("Ared Code: " + areaCode + "," + "Area Map: " + areaOrdersMap.get(areaCode)).toString());
 
 	}
 
@@ -360,6 +374,5 @@ public class DeliverySocket {
 //				order.getOrderDetails());
 //		return newOrder;
 //	}
-	
 
 }

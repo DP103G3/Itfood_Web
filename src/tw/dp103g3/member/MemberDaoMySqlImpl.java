@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import tw.dp103g3.shop.Shop;
+
 public class MemberDaoMySqlImpl implements MemberDao {
 
 	public MemberDaoMySqlImpl() {
@@ -30,25 +32,52 @@ public class MemberDaoMySqlImpl implements MemberDao {
 	@Override
 	public int insert(Member member) {
 		int count = 0;
+		String selectEmailSql = "SELECT * FROM `member` WHERE mem_email = ?;";
 		String sql = "INSERT INTO `member` (mem_name, mem_password, mem_email, mem_phone, mem_state) VALUES(?, ?, ?, ?, ?);";
+		String getIdSql = "SELECT last_insert_id();";
 		Connection connection = null;
+		PreparedStatement selectEmailPs = null;
 		PreparedStatement ps = null;
+		PreparedStatement getIdPs = null;
 		try {
 			connection = DriverManager.getConnection(URL, USER, PASSWORD);
+			connection.setAutoCommit(false);
+			selectEmailPs = connection.prepareStatement(selectEmailSql);
 			ps = connection.prepareStatement(sql);
-			ps.setString(1, member.getMemName());
-			ps.setString(2, member.getMemPassword());
-			ps.setString(3, member.getMemEmail());
-			ps.setString(4, member.getMemPhone());
-			ps.setInt(5, member.getMemState());
-			count = ps.executeUpdate();
+			getIdPs = connection.prepareStatement(getIdSql);
+			selectEmailPs.setString(1, member.getMemEmail());
+			ResultSet selectEmailRs = selectEmailPs.executeQuery();
+			if (!selectEmailRs.next()) {
+				ps.setString(1, member.getMemName());
+				ps.setString(2, member.getMemPassword());
+				ps.setString(3, member.getMemEmail());
+				ps.setString(4, member.getMemPhone());
+				ps.setInt(5, member.getMemState());
+				count = ps.executeUpdate();
+				if (count != 0) {
+					ResultSet getIdRs = getIdPs.executeQuery();
+					if (getIdRs.next()) {
+						count = getIdRs.getInt(1);
+						connection.commit();
+					} else {
+						count = 0;
+						connection.rollback();
+					}
+				}
+			} else {
+				count = -1;
+			}
 		} catch (SQLException e) {
+			count = 0;
+			try {
+				connection.rollback();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
 			e.printStackTrace();
 		} finally {
 			try {
 				if (ps != null) {
-					// When a Statement object is closed,
-					// its current ResultSet object is also closed
 					ps.close();
 				}
 				if (connection != null) {
@@ -95,7 +124,7 @@ public class MemberDaoMySqlImpl implements MemberDao {
 		}
 		return count;
 	}
-	
+
 	@Override
 	public int updatePassword(Member member) {
 		int count = 0;
@@ -126,7 +155,8 @@ public class MemberDaoMySqlImpl implements MemberDao {
 		}
 		return count;
 	}
-
+	
+	
 	@Override
 	public Member getAccount(int mem_id) {
 		String sql = "SELECT mem_id, mem_name, mem_password, mem_email, mem_phone, mem_state FROM `member` WHERE mem_id = ?;";
@@ -145,7 +175,6 @@ public class MemberDaoMySqlImpl implements MemberDao {
 				String mem_phone = rs.getString(5);
 				int mem_state = rs.getInt(6);
 				member = new Member(mem_id, mem_name, mem_password, mem_email, mem_phone, mem_state);
-
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

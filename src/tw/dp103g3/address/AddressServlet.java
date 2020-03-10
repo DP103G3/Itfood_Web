@@ -58,13 +58,16 @@ public class AddressServlet extends HttpServlet {
 				writeText(response, gson.toJson(addresses, listType));
 				break;
 			case "insert":
+			case "insertAnonymousAddress":
 			case "update":
 				String jsonAdrs = jsonObject.get("address").getAsString();
 				address = gson.fromJson(jsonAdrs, Address.class);
 				if (action.equals("insert")) {
 					count = addressDao.insert(address);
-				} else {
+				} else if (action.equals("update")) {
 					count = addressDao.update(address);
+				} else if (action.equals("insertAnonymousAddress")) {
+					count = addressDao.insertAnonymousAddress(address);
 				}
 				writeText(response, String.valueOf(count));
 				break;

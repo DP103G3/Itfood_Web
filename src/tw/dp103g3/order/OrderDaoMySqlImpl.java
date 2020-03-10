@@ -1,9 +1,10 @@
+  
 package tw.dp103g3.order;
 
+import static tw.dp103g3.main.Common.CLASS_NAME;
 import static tw.dp103g3.main.Common.PASSWORD;
 import static tw.dp103g3.main.Common.URL;
 import static tw.dp103g3.main.Common.USER;
-import static tw.dp103g3.main.Common.CLASS_NAME;
 
 import java.lang.reflect.Type;
 import java.sql.BatchUpdateException;
@@ -15,9 +16,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import com.google.gson.Gson;
@@ -44,8 +45,6 @@ import tw.dp103g3.shop.Shop;
 import tw.dp103g3.shop.ShopDao;
 import tw.dp103g3.shop.ShopDaoMysqlImpl;
 
-import java.util.Date;
-
 public class OrderDaoMySqlImpl implements OrderDao {
 	private OrderDetailDao orderDetailDao = new OrderDetailDaoMySqlImpl();
 
@@ -66,8 +65,8 @@ public class OrderDaoMySqlImpl implements OrderDao {
 		int orderCount = 0;
 		int count = 0;
 		String sql = "INSERT INTO `order` (shop_id, mem_id, del_id, pay_id, sp_id, order_ideal, "
-				+ "order_delivery, adrs_id, order_name, order_phone, order_ttprice, order_type, order_state) "
-				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+				+ "order_delivery, adrs_id, order_name, order_phone, order_ttprice, order_type, order_state, order_area) "
+				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
 		Connection connection = null;
 		PreparedStatement ps = null;
 		try {
@@ -94,8 +93,8 @@ public class OrderDaoMySqlImpl implements OrderDao {
 			ps.setTimestamp(6, new Timestamp(order.getOrder_ideal().getTime()));
 			ps.setTimestamp(7,
 					order.getOrder_delivery() != null ? new Timestamp(order.getOrder_delivery().getTime()) : null);
-			if (order.getAdrs_id() != 0) {
-				ps.setInt(8, order.getAdrs_id());
+			if (order.getAddress().getId() != 0) {
+				ps.setInt(8, order.getAddress().getId());
 			} else {
 				ps.setNull(8, Types.INTEGER);
 			}
@@ -104,7 +103,18 @@ public class OrderDaoMySqlImpl implements OrderDao {
 			ps.setInt(11, order.getOrder_ttprice());
 			ps.setInt(12, order.getOrder_type());
 			ps.setInt(13, order.getOrder_state());
+			ps.setInt(14, order.getOrder_area());
 			orderCount = ps.executeUpdate();
+			
+			String getIdSql = "SELECT LAST_INSERT_ID();";
+			try (PreparedStatement psGetId = connection.prepareStatement(getIdSql);) {
+				ResultSet rs = psGetId.executeQuery();
+				if (rs.next()) {
+					count = rs.getInt(1);
+				} else {
+					connection.rollback();
+				}
+			}
 			
 			try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
 				if (generatedKeys.next()) {
@@ -146,7 +156,6 @@ public class OrderDaoMySqlImpl implements OrderDao {
 			}
 			
 			if (orderCount + odCount == 2) {
-				count = 1;
 				connection.commit();
 			} else {
 				connection.rollback();
@@ -188,7 +197,11 @@ public class OrderDaoMySqlImpl implements OrderDao {
 			} else {
 				ps.setNull(3, java.sql.Types.INTEGER);
 			}
-			ps.setInt(4, order.getPay_id());			
+			if (order.getPay_id() != 0) {
+				ps.setInt(4, order.getPay_id());
+			} else {
+				ps.setNull(4, java.sql.Types.INTEGER);
+			}
 			if (order.getSp_id() != 0) {
 				ps.setInt(5, order.getSp_id());
 			} else {
@@ -197,7 +210,11 @@ public class OrderDaoMySqlImpl implements OrderDao {
 			ps.setTimestamp(6, new Timestamp(order.getOrder_ideal().getTime()));
 			ps.setTimestamp(7,
 					order.getOrder_delivery() != null ? new Timestamp(order.getOrder_delivery().getTime()) : null);
-			ps.setInt(8, order.getAdrs_id());
+			if (order.getAddress().getId() != 0) {
+				ps.setInt(8, order.getAddress().getId());
+			} else {
+				ps.setNull(8, java.sql.Types.INTEGER);
+			}
 			ps.setString(9, order.getOrder_name());
 			ps.setString(10, order.getOrder_phone());
 			ps.setInt(11, order.getOrder_ttprice());
@@ -224,19 +241,22 @@ public class OrderDaoMySqlImpl implements OrderDao {
 	}
 
 	@Override
-	public List<Order> findByOrderId(int order_id) {
-		String sql = "SELECT  order_id, `shop`.shop_id, shop_name, mem_id, del_id, pay_id, order_state, sp_id, order_time, order_ideal, order_delivery, "
+	public Order findByOrderId(int order_id) {
+		String sql = "SELECT  order_id, `order`.shop_id, shop_name, mem_id, del_id, pay_id, order_state, sp_id, order_time, order_ideal, order_delivery, "
 				+ "adrs_id, order_name, order_phone, order_ttprice, order_area, order_type  "
-				+ "FROM `order` LEFT JOIN `shop` ON `order`.shop_id = `shop`.shop_id  WHERE order_id = ? ORDER BY order_time DESC;";
+				+ "FROM `order` "
+				+ "JOIN `shop` ON `shop`.shop_id = `order`.shop_id "
+				+ "WHERE order_id = ? "
+				+ "ORDER BY order_time DESC;";
 		Connection connection = null;
 		PreparedStatement ps = null;
-		List<Order> orderList = new ArrayList<Order>();
+		Order order;
 		try {
 			connection = DriverManager.getConnection(URL, USER, PASSWORD);
 			ps = connection.prepareStatement(sql);
 			ps.setInt(1, order_id);
 			ResultSet rs = ps.executeQuery();
-			while (rs.next()) {
+			if (rs.next()) {
 				int orderId = rs.getInt(1);
 				int shopId = rs.getInt(2);
 				String shopName = rs.getString(3);
@@ -255,12 +275,11 @@ public class OrderDaoMySqlImpl implements OrderDao {
 				int order_area = rs.getInt(16);
 				int order_type = rs.getInt(17);
 				List<OrderDetail> orderDetails = orderDetailDao.findByOrderId(order_id);
-				Order order = new Order(orderId, new Shop(shopId, shopName), memId, delId, payId, spId, orderIdeal,
-						orderTime, orderDelivery, adrsId, order_name, order_phone, order_ttprice, order_area,
+				order = new Order(orderId, new Shop(shopId, shopName), memId, delId, payId, spId, orderIdeal,
+						orderTime, orderDelivery, new Address(adrsId), order_name, order_phone, order_ttprice, order_area,
 						orderState, order_type, orderDetails);
-				orderList.add(order);
+				return order;
 			}
-			return orderList;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
@@ -275,7 +294,7 @@ public class OrderDaoMySqlImpl implements OrderDao {
 				e.printStackTrace();
 			}
 		}
-		return orderList;
+		return null;
 	}
 
 	@Override
@@ -342,7 +361,7 @@ public class OrderDaoMySqlImpl implements OrderDao {
 				int order_type = rs.getInt(17);
 				List<OrderDetail> orderDetails = orderDetailDao.findByOrderId(orderId);
 				Order order = new Order(orderId, new Shop(shopId, shopName), memId, delId, payId, spId, orderIdeal,
-						orderTime, orderDelivery, adrsId, order_name, order_phone, order_ttprice, order_area,
+						orderTime, orderDelivery, new Address(adrsId), order_name, order_phone, order_ttprice, order_area,
 						orderStatus, order_type, orderDetails);
 				orderList.add(order);
 			}
