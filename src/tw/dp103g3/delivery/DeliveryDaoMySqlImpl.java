@@ -314,8 +314,8 @@ public class DeliveryDaoMySqlImpl implements DeliveryDao {
 		int SUSPENDED = 3;
 		int NOT_FOUND = 4;
 		outcome.put("result", ERROR);
-		String sql = "SELECT del_id, del_password, del_state "
-				+ " FROM `member` WHERE del_email = ?;";
+		String sql = "SELECT del_id, del_area, del_state, del_password "
+				+ " FROM `delivery` WHERE del_email = ?;";
 		Connection connection = null;
 		PreparedStatement ps = null;
 		try {
@@ -331,10 +331,11 @@ public class DeliveryDaoMySqlImpl implements DeliveryDao {
 			
 			while (rs.next()) {
 				int del_id = rs.getInt(1);
-				String del_password = rs.getString(2);
-				System.out.println(del_password);
+				int del_area = rs.getInt(2);
 				int del_state = rs.getInt(3);
-				outcome.put("id", del_id);
+				String del_password = rs.getString(4);
+				outcome.put("del_id", del_id);
+				outcome.put("del_area", del_area);
 				if (del_password.equals(password)) {
 					if (del_state == 1) {
 						outcome.put("result", OK);

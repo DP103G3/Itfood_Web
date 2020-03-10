@@ -49,9 +49,7 @@ public class DeliverySocket {
 		sessionsMap.put(user, userSession);
 
 		System.out.println(TAG + "Socket open connection: " + user + " Session ID: " + userSession.getId());
-		if (areaOrdersMap.isEmpty()) {
 			fetchOrdersFromDataBase();
-		}
 	}
 
 	@OnMessage
@@ -135,7 +133,7 @@ public class DeliverySocket {
 			System.out.println(TAG + "PUBLISH ORDERS BREAKPOINT9");
 			// 向外送員送 orders
 			for (Session session : sessions) {
-				if (session.isOpen()) {
+				if (session != null && session.isOpen()) {
 				session.getAsyncRemote().sendText(gson.toJson(newOrders, orderSetType).toString());
 				} 
 			}
@@ -204,7 +202,7 @@ public class DeliverySocket {
 			}
 			// 向外送員傳送接單成功
 			Session delSession = sessionsMap.get(sender);
-			if (delSession.isOpen()) {
+			if (delSession != null && delSession.isOpen()) {
 				AreaOrders delAreaOrders = areaOrdersMap.get(areaCode);
 				Set<Order> orderSet = delAreaOrders.getOrders();
 				String delOrdersJson = gson.toJson(orderSet, orderSetType);
@@ -244,7 +242,7 @@ public class DeliverySocket {
 			// send message to delivery
 			Set<Order> delOrders = areaOrdersMap.get(areaCode).getOrders();
 			Session delSession = sessionsMap.get(receiver);
-			if (delSession.isOpen() && delSession != null) {
+			if (delSession != null && delSession.isOpen()) {
 				String ordersJson = gson.toJson(delOrders, orderSetType);
 				delSession.getAsyncRemote().sendText(ordersJson);
 			} else {
@@ -394,7 +392,13 @@ public class DeliverySocket {
 					areaOrders.setDeliveryUserStrings(delUsers);
 					areaOrders.setDeliveryUserStrings(shopUsers);
 					areaOrdersMap.put(t, areaOrders);
-				}
+				} 
+//				else {
+//					AreaOrders areaOrders = areaOrdersMap.get(t);
+//					Set<Order> orders = new HashSet<>();
+//					orders.addAll(u);
+//					areaOrders.setOrders(orders);
+//				}
 			}
 			
 		});
