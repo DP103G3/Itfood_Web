@@ -95,6 +95,44 @@ public class DeliveryDaoMySqlImpl implements DeliveryDao {
 		}
 		return count;
 	}
+	
+	@Override
+	public Delivery getDataById(int del_id) {
+		String sql = "SELECT del_id, del_name, del_password, del_email, del_identityid, del_phone FROM `delivery` WHERE del_id = ?;";
+		Connection connection = null;
+		PreparedStatement ps = null;
+		Delivery delivery = null;
+		try {
+			connection = DriverManager.getConnection(URL, USER, PASSWORD);
+			ps = connection.prepareStatement(sql);
+			ps.setInt(1, del_id);
+			ResultSet rs = ps.executeQuery();
+			if (rs.next()) {
+				String del_name = rs.getString(2);
+				String del_password = rs.getString(3);
+				String del_email = rs.getString(4);
+				String del_identityid = rs.getString(5);
+				String del_phone = rs.getString(6);
+				delivery = new Delivery(del_id, del_name, del_password, del_email, del_identityid, del_phone);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (ps != null) {
+					// When a Statement object is closed,
+					// its current ResultSet object is also closed
+					ps.close();
+				}
+				if (connection != null) {
+					connection.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return delivery;
+	}
 
 	@Override
 	public Delivery getAccount(int del_id) {

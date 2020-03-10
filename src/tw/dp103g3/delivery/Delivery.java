@@ -46,6 +46,16 @@ public class Delivery {
 		this.del_state = del_state;
 	}
 	
+	public Delivery(int del_id, String del_name, String del_password, String del_email, String del_identityid, String del_phone) {
+		super();
+		this.del_id = del_id;
+		this.del_name = del_name;
+		this.del_password = del_password;
+		this.del_email = del_email;
+		this.del_identityid = del_identityid;
+		this.del_phone = del_phone;
+	}
+	
 	public  Delivery(int del_id, int del_state) {
 		super();
 		this.del_id = del_id;

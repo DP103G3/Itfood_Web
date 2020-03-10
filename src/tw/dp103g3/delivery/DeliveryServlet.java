@@ -14,6 +14,7 @@ import com.google.gson.reflect.TypeToken;
 import tw.dp103g3.delivery.Delivery;
 import tw.dp103g3.delivery.DeliveryDao;
 import tw.dp103g3.delivery.DeliveryDaoMySqlImpl;
+import tw.dp103g3.member.Member;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -87,6 +88,12 @@ public class DeliveryServlet extends HttpServlet {
 			count = deliveryDao.saveAccount(delivery);
 			writeText(response, String.valueOf(count));
 			System.out.println("saveAccount = " + deliveryJson);
+			break;
+		case "getDataById":
+			del_id = jsonObject.get("del_id").getAsInt();
+			delivery = deliveryDao.getDataById(del_id);
+			writeText(response, gson.toJson(delivery));
+			System.out.println("getDataById: " + delivery);
 			break;
 		case "login":
 			String email = jsonObject.get("del_email").getAsString();

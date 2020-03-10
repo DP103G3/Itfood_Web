@@ -11,6 +11,8 @@ public interface DeliveryDao {
 	int saveAccount(Delivery delivery);
 	
 	Delivery getAccount(int del_id);
+	
+	Delivery getDataById(int del_id);
 
 	Delivery findById(int del_id);
 	
