@@ -2,10 +2,14 @@ package tw.dp103g3.delivery;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.Calendar;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
 
 import javax.websocket.CloseReason;
 import javax.websocket.OnClose;
@@ -44,6 +48,9 @@ public class DeliverySocket {
 		sessionsMap.put(user, userSession);
 
 		System.out.println(TAG + "Socket open connection: " + user + " Session ID: " + userSession.getId());
+		if (areaOrdersMap.isEmpty()) {
+			fetchOrdersFromDataBase();
+		}
 	}
 
 	@OnMessage
@@ -103,7 +110,7 @@ public class DeliverySocket {
 			}
 
 			Session shopSession = sessionsMap.get(sender);
-			if (shopSession.isOpen()) {
+			if (shopSession != null && shopSession.isOpen()) {
 				shopSession.getAsyncRemote().sendText(gson.toJson(orders));
 			} else {
 				try {
@@ -118,7 +125,9 @@ public class DeliverySocket {
 
 			// 向外送員送 orders
 			for (Session session : sessions) {
+				if (session.isOpen()) {
 				session.getAsyncRemote().sendText(gson.toJson(newOrders, orderSetType).toString());
+				} 
 			}
 			System.out.println(TAG + "PUBLISHED ORDERS: " + gson.toJson(newOrders).toString());
 		}
@@ -175,7 +184,7 @@ public class DeliverySocket {
 
 			// 向店家傳送接單消息
 			Session shopSession = sessionsMap.get(receiver);
-			if (shopSession.isOpen()) {
+			if (shopSession != null && shopSession.isOpen()) {
 				shopSession.getAsyncRemote().sendText(ordersJson);
 			} else {
 				sessionsMap.remove(receiver);
@@ -253,7 +262,7 @@ public class DeliverySocket {
 
 			// send message to delivery
 			Session delSession = sessionsMap.get(receiver);
-			if (delSession.isOpen()) {
+			if (delSession != null && delSession.isOpen()) {
 				DeliveryMessage dm = new DeliveryMessage("confirmOrder", order, order.getOrder_area(), "", "");
 				String dmJson = gson.toJson(dm, DeliveryMessage.class).toString();
 				delSession.getAsyncRemote().sendText(dmJson);
@@ -268,22 +277,26 @@ public class DeliverySocket {
 			System.out.println(TAG + "DELIVERY COMPLETE ORDER START");
 			Order order = deliveryMessage.getOrder();
 			String receiver = deliveryMessage.getReceiver().trim();
-
+			
+			Calendar cal = Calendar.getInstance();
 			order.setOrder_state(4);
+			order.setOrder_delivery(cal.getTime());
 			orderDao.update(order);
 
 			AreaOrders areaOrders = areaOrdersMap.get(areaCode);
 			Set<Order> orders = areaOrders.getOrders();
+			Set<Order> newOrders = new HashSet<>();
 			for (Order o : orders) {
-				if (o.getOrder_id() == order.getOrder_id()) {
-					orders.remove(o);
+				if (o.getOrder_id() != order.getOrder_id()) {
+					newOrders.add(o);
 				}
 			}
-			areaOrders.setOrders(orders);
+			newOrders.add(order);
+			areaOrders.setOrders(newOrders);
 			areaOrdersMap.put(areaCode, areaOrders);
 
 			Session delSession = sessionsMap.get(sender);
-			if (delSession.isOpen()) {
+			if (delSession != null && delSession.isOpen()) {
 				AreaOrders ao = areaOrdersMap.get(areaCode);
 				Set<Order> od = ao.getOrders();
 				String odJson = gson.toJson(od, orderSetType);
@@ -293,7 +306,7 @@ public class DeliverySocket {
 			}
 			
 			Session memberSession = sessionsMap.get(receiver);
-			if (memberSession.isOpen()) {
+			if (memberSession!= null && memberSession.isOpen()) {
 				DeliveryMessage dm = new DeliveryMessage("deliveryCompleteOrder", order, order.getOrder_area(), sender, receiver);
 				String dmString = gson.toJson(dm, DeliveryMessage.class);
 				memberSession.getAsyncRemote().sendText(dmString);
@@ -338,6 +351,38 @@ public class DeliverySocket {
 		areaOrders.setOrders(orders);
 
 		areaOrdersMap.put(areaCode, areaOrders);
+	}
+	
+	private void fetchOrdersFromDataBase() {
+		OrderDao orderDao = new OrderDaoMySqlImpl();
+		Set<Order> orderSet = orderDao.getAllDeliveryingOrder();
+		Map<Integer, Set<Order>> ordersMap = new HashMap<>();
+		for (Order order : orderSet) {
+			int areaCode = order.getOrder_area();
+			if (!ordersMap.containsKey(areaCode)) {
+				Set<Order> areaOrdersSet = new HashSet<>();
+				ordersMap.put(areaCode, areaOrdersSet);
+			} else {
+				Set<Order> areaOrdersSet = ordersMap.get(areaCode);
+				areaOrdersSet.add(order);
+				ordersMap.put(areaCode, areaOrdersSet);
+			}
+		}
+		ordersMap.forEach(new BiConsumer<Integer, Set<Order>>(){
+			@Override
+			public void accept(Integer t, Set<Order> u) {
+				if (!areaOrdersMap.containsKey(t)) {
+					AreaOrders areaOrders = new AreaOrders();
+					Set<String> delUsers = new HashSet<>();
+					Set<String> shopUsers = new HashSet<>();
+					areaOrders.setOrders(u);
+					areaOrders.setDeliveryUserStrings(delUsers);
+					areaOrders.setDeliveryUserStrings(shopUsers);
+					areaOrdersMap.put(t, areaOrders);
+				}
+			}
+			
+		});
 	}
 
 //	private Order convertOrderToDeliveryType(Order order) {

@@ -2,6 +2,7 @@ package tw.dp103g3.order;
 
 import java.util.Calendar;
 import java.util.List;
+import java.util.Set;
 
 public interface OrderDao {
 	int insert(Order order, String orderDetailsJson);
@@ -19,4 +20,6 @@ public interface OrderDao {
 	List<Order> findByCase(int id, String type, int State, Calendar date, boolean containDay);
 	
 	List<Order> findByDeliveryId(int id);
+	
+	Set<Order> getAllDeliveryingOrder();
 }

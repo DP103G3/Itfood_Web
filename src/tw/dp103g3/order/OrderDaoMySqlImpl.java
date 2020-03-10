@@ -19,7 +19,9 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -473,6 +475,66 @@ public class OrderDaoMySqlImpl implements OrderDao {
 			}
 		}
 		return orderList;
+	}
+
+	@Override
+	public Set<Order> getAllDeliveryingOrder() {
+		Set<Order> orderSet = new HashSet<>();
+		ShopDao shopDao = new ShopDaoMysqlImpl();
+		AddressDao addressDao = new AddressDaoMysqlImpl();
+		String sql = "SELECT  order_id, shop_id, mem_id, del_id, pay_id, order_state, sp_id, order_time, order_ideal, order_delivery, "
+				+ "adrs_id, order_name, order_phone, order_ttprice, order_area, order_type  "
+				+ "FROM `order`  WHERE order_state = 0 OR order_state = 1 OR order_state = 2 OR order_state = 3 ORDER BY order_time DESC;";
+		Connection connection = null;
+		PreparedStatement ps = null;
+		
+		try {
+			connection = DriverManager.getConnection(URL, USER, PASSWORD);
+			ps = connection.prepareStatement(sql);
+//			System.out.println(ps.toString());
+			ResultSet rs = ps.executeQuery();
+			while (rs.next()) {
+				int orderId = rs.getInt(1);
+				int shopId = rs.getInt(2);
+				
+				int memId = rs.getInt(3);
+				int delId = rs.getInt(4);
+				int payId = rs.getInt(5);
+				int orderStatus = rs.getInt(6);
+				int spId = rs.getInt(7);
+				Date orderTime = rs.getTimestamp(8);
+				Date orderIdeal = rs.getTimestamp(9);
+				Date orderDelivery = rs.getTimestamp(10);
+				int adrsId = rs.getInt(11);
+				String order_name = rs.getString(12);
+				String order_phone = rs.getString(13);
+				int order_ttprice = rs.getInt(14);
+				int order_area = rs.getInt(15);
+				int order_type = rs.getInt(16);
+				List<OrderDetail> orderDetails = orderDetailDao.findByOrderId(orderId);
+				Shop shop = shopDao.getShopByIdDelivery(shopId);
+				Address address = addressDao.findById(adrsId);
+				Order order = new Order(orderId, shop, memId, delId, payId, spId, orderIdeal,
+						orderTime, orderDelivery, address, order_name, order_phone, order_ttprice, order_area,
+						orderStatus, order_type, orderDetails);
+				orderSet.add(order);
+			}
+			return orderSet;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (ps != null) {
+					ps.close();
+				}
+				if (connection != null) {
+					connection.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return orderSet;
 	}
 	
 	
