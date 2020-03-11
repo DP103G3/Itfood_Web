@@ -224,6 +224,7 @@ public class ShopDaoMysqlImpl implements ShopDao {
 				if (!shops.remove(shop)) {
 					types = new ArrayList<String>();
 				}
+				types.remove(type);
 				types.add(type);
 				shop.setTypes(types);
 				shop.setFavorite(memId != 0 ? rs.getInt(13) == memId : false);
