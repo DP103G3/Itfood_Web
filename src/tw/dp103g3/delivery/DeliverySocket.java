@@ -82,9 +82,11 @@ public class DeliverySocket {
 			System.out.println(TAG + "PUBLISH ORDERS BREAKPOINT2");
 			// 將外送員id 設為-1 , 代表無人接單
 			order.setDel_id(-1);
+			Shop shop = order.getShop();
+			Address address = order.getAddress();
+			shop = shopDao.getShopByIdDelivery(shop.getId());
+			address = addressDao.findById(address.getId());
 			
-			Shop shop = shopDao.getShopByIdDelivery(order.getShop().getId());
-			Address address = addressDao.findById(order.getAddress().getId());
 			order.setShop(shop);
 			order.setAddress(address);
 			System.out.println(TAG + "PUBLISH ORDERS BREAKPOINT3");
@@ -188,8 +190,10 @@ public class DeliverySocket {
 					newOrders.add(element);
 				}
 			}
-			Shop shop = shopDao.getShopByIdDelivery(order.getShop().getId());
-			Address address = addressDao.findById(order.getAddress().getId());
+			Shop shop = order.getShop();
+			Address address = order.getAddress();
+			shop = shopDao.getShopByIdDelivery(shop.getId());
+			address = addressDao.findById(address.getId());
 			order.setShop(shop);
 			order.setAddress(address);
 			newOrders.add(order);
@@ -234,9 +238,11 @@ public class DeliverySocket {
 					newOrders.add(e);
 				}
 			}
-				Address address = addressDao.findById(order.getAddress().getId());
+			Shop shop = order.getShop();
+			Address address = order.getAddress();
+			shop = shopDao.getShopByIdDelivery(shop.getId());
+			address = addressDao.findById(address.getId());
 				order.setAddress(address);
-				Shop shop = shopDao.getShopByIdDelivery(order.getShop().getId());
 				order.setShop(shop);
 			
 			newOrders.add(order);
@@ -272,8 +278,10 @@ public class DeliverySocket {
 					newOrders.add(e);
 				}
 			}
-			Shop shop = shopDao.getShopByIdDelivery(order.getShop().getId());
-			Address address = addressDao.findById(order.getAddress().getId());
+			Shop shop = order.getShop();
+			Address address = order.getAddress();
+			shop = shopDao.getShopByIdDelivery(shop.getId());
+			address = addressDao.findById(address.getId());
 			order.setShop(shop);
 			order.setAddress(address);
 			newOrders.add(order);
