@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
@@ -50,9 +51,8 @@ public class DeliverySocket {
 	@OnOpen
 	public void onOpen(@PathParam("user") String user, Session userSession) throws IOException {
 		sessionsMap.put(user, userSession);
-
 		System.out.println(TAG + "Socket open connection: " + user + " Session ID: " + userSession.getId());
-			fetchOrdersFromDataBase();
+		fetchOrdersFromDataBase();
 	}
 
 	@OnMessage
@@ -86,7 +86,7 @@ public class DeliverySocket {
 			Address address = order.getAddress();
 			shop = shopDao.getShopByIdDelivery(shop.getId());
 			address = addressDao.findById(address.getId());
-			
+
 			order.setShop(shop);
 			order.setAddress(address);
 			System.out.println(TAG + "PUBLISH ORDERS BREAKPOINT3");
@@ -94,7 +94,7 @@ public class DeliverySocket {
 			orders.add(order);
 			orderDao.update(order);
 			System.out.println(TAG + "PUBLISH ORDERS BREAKPOINT4");
-			
+
 			if (shopUserStrings == null) {
 				shopUserStrings = new HashSet<String>();
 			}
@@ -139,8 +139,8 @@ public class DeliverySocket {
 			// 向外送員送 orders
 			for (Session session : sessions) {
 				if (session != null && session.isOpen()) {
-				session.getAsyncRemote().sendText(gson.toJson(newOrders, orderSetType).toString());
-				} 
+					session.getAsyncRemote().sendText(gson.toJson(newOrders, orderSetType).toString());
+				}
 			}
 			System.out.println(TAG + "PUBLISHED ORDERS: " + gson.toJson(newOrders).toString());
 		}
@@ -158,7 +158,7 @@ public class DeliverySocket {
 				deliveryUserStrings.add(sender);
 				areaOrders.setDeliveryUserStrings(deliveryUserStrings);
 				areaOrdersMap.put(areaCode, areaOrders);
-			} 
+			}
 
 			Set<Order> orders = areaOrders.getOrders();
 
@@ -242,11 +242,11 @@ public class DeliverySocket {
 			Address address = order.getAddress();
 			shop = shopDao.getShopByIdDelivery(shop.getId());
 			address = addressDao.findById(address.getId());
-				order.setAddress(address);
-				order.setShop(shop);
-			
+			order.setAddress(address);
+			order.setShop(shop);
+
 			newOrders.add(order);
-			
+
 			// update server data
 			areaOrders.setOrders(newOrders);
 			areaOrdersMap.put(areaCode, areaOrders);
@@ -305,7 +305,7 @@ public class DeliverySocket {
 			System.out.println(TAG + "DELIVERY COMPLETE ORDER START");
 			Order order = deliveryMessage.getOrder();
 			String receiver = deliveryMessage.getReceiver().trim();
-			
+
 			Calendar cal = Calendar.getInstance();
 			order.setOrder_state(4);
 			order.setOrder_delivery(cal.getTime());
@@ -319,7 +319,7 @@ public class DeliverySocket {
 					newOrders.add(o);
 				}
 			}
-			
+
 			newOrders.add(order);
 			areaOrders.setOrders(newOrders);
 			areaOrdersMap.put(areaCode, areaOrders);
@@ -333,24 +333,49 @@ public class DeliverySocket {
 			} else {
 				sessionsMap.remove(sender);
 			}
-			
+
 			Session memberSession = sessionsMap.get(receiver);
-			if (memberSession!= null && memberSession.isOpen()) {
-				DeliveryMessage dm = new DeliveryMessage("deliveryCompleteOrder", order, order.getOrder_area(), sender, receiver);
+			if (memberSession != null && memberSession.isOpen()) {
+				DeliveryMessage dm = new DeliveryMessage("deliveryCompleteOrder", order, order.getOrder_area(), sender,
+						receiver);
 				String dmString = gson.toJson(dm, DeliveryMessage.class);
 				memberSession.getAsyncRemote().sendText(dmString);
 			} else {
 				sessionsMap.remove(receiver);
 			}
 		}
+		else if (action.equalsIgnoreCase("shopConnect")) {
+			if (!areaOrdersMap.containsKey(areaCode)) {
+				addNewArea(areaCode);
+			}
+			AreaOrders areaOrders = areaOrdersMap.get(areaCode);
+			 Set<String> shopStrings = Optional.ofNullable(areaOrders.getShopUserStrings()).orElse(new HashSet<String>());
+			 if (shopStrings.isEmpty()) {
+				 shopStrings.add(sender);
+				 areaOrders.setShopUserStrings(shopStrings);
+				 areaOrdersMap.put(areaCode, areaOrders);
+			 }
+			int count = 0;
+			for(String s : shopStrings) {
+				if (s.equals(sender)) {
+					count += 1;
+				} 
+			}
+			if (count == 0) {
+				shopStrings.add(sender);
+			}
+			areaOrders.setShopUserStrings(shopStrings);
+			areaOrdersMap.put(areaCode, areaOrders);
+		}
 
 		else {
 			System.out.println(TAG + "LOGIC ERROR");
 		}
-		System.out.println(TAG + "CURRENT AreaOrdersMap: "
-				+ gson.toJson("Ared Code: " + areaCode ));
-		System.out.println("DELIVERYS: " +  gson.toJson(areaOrdersMap.get(areaCode).getDeliveryUserStrings()).toString());
-		System.out.println("SHOPS: " +  gson.toJson(areaOrdersMap.get(areaCode).getShopUserStrings()).toString());
+		System.out.println(TAG + "CURRENT AreaOrdersMap: " + gson.toJson("Area Code: " + areaCode));
+		System.out.println("ORDERS: " + gson.toJson(areaOrdersMap.get(areaCode).getOrders().toString()));
+		System.out
+				.println("DELIVERYS: " + gson.toJson(areaOrdersMap.get(areaCode).getDeliveryUserStrings()).toString());
+		System.out.println("SHOPS: " + gson.toJson(areaOrdersMap.get(areaCode).getShopUserStrings()).toString());
 
 	}
 
@@ -383,43 +408,61 @@ public class DeliverySocket {
 
 		areaOrdersMap.put(areaCode, areaOrders);
 	}
-	
+
 	private void fetchOrdersFromDataBase() {
 		Set<Order> orderSet = orderDao.getAllDeliveryingOrder();
 		Map<Integer, Set<Order>> ordersMap = new HashMap<>();
+		if (orderSet.isEmpty()) {
+			areaOrdersMap.forEach(new BiConsumer<Integer, AreaOrders>() {
+				@Override
+				public void accept(Integer t, AreaOrders u) {
+					System.out.println("FETCH RESULT 0, AREA CODE: " + t);
+					Set<Order> orders = new HashSet<>();
+					Set<String> users = areaOrdersMap.get(t).getDeliveryUserStrings();
+					Set<String> shops = areaOrdersMap.get(t).getShopUserStrings();
+					AreaOrders areaOrders = new AreaOrders(orders, shops, users);
+					areaOrdersMap.put(t, areaOrders);
+				}
+			});
+			return;
+		}
 		for (Order order : orderSet) {
 			int areaCode = order.getOrder_area();
 			if (!ordersMap.containsKey(areaCode)) {
 				Set<Order> areaOrdersSet = new HashSet<>();
+				areaOrdersSet.add(order);
 				ordersMap.put(areaCode, areaOrdersSet);
+				System.out.println("FETCH RESULT 1, AREA CODE: " + areaCode);
 			} else {
 				Set<Order> areaOrdersSet = ordersMap.get(areaCode);
 				areaOrdersSet.add(order);
 				ordersMap.put(areaCode, areaOrdersSet);
+				System.out.println("FETCH RESULT 2, AREA CODE: " + areaCode);
 			}
 		}
-		ordersMap.forEach(new BiConsumer<Integer, Set<Order>>(){
-			@Override
-			public void accept(Integer t, Set<Order> u) {
-				if (!areaOrdersMap.containsKey(t)) {
-					AreaOrders areaOrders = new AreaOrders();
-					Set<String> delUsers = new HashSet<>();
-					Set<String> shopUsers = new HashSet<>();
-					areaOrders.setOrders(u);
-					areaOrders.setDeliveryUserStrings(delUsers);
-					areaOrders.setDeliveryUserStrings(shopUsers);
-					areaOrdersMap.put(t, areaOrders);
-				} 
-//				else {
-//					AreaOrders areaOrders = areaOrdersMap.get(t);
-//					Set<Order> orders = new HashSet<>();
-//					orders.addAll(u);
-//					areaOrders.setOrders(orders);
-//				}
+		ordersMap.forEach((k,v) -> {
+			if (!areaOrdersMap.containsKey(k)) {
+				AreaOrders areaOrders = new AreaOrders();
+				Set<String> delUsers = new HashSet<>();
+				Set<String> shopUsers = new HashSet<>();
+				areaOrders.setOrders(v);
+				areaOrders.setDeliveryUserStrings(delUsers);
+				areaOrders.setDeliveryUserStrings(shopUsers);
+				areaOrdersMap.put(k, areaOrders);
+				System.out.println("FETCH RESULT 3, AREA CODE: " + k);
+			} else {
+				AreaOrders areaOrders = areaOrdersMap.get(k);
+				Set<Order> orders = new HashSet<>();
+				for (Order o : v) {
+					orders.add(o);
+					System.out.println(o.getOrder_id());
+				}
+				areaOrders.setOrders(orders);
+				areaOrdersMap.put(k, areaOrders);
+				System.out.println("FETCH RESULT 4, AREA CODE: " + k);
+				System.out.println("FETCHED FROM DATABASE: " + v.toString());
 			}
-			
 		});
-		System.out.println("FETCHED FROM DATABASE: " + areaOrdersMap.toString());
 	}
 
 //	private Order convertOrderToDeliveryType(Order order) {
