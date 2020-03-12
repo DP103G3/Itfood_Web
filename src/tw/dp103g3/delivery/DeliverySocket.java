@@ -41,6 +41,9 @@ public class DeliverySocket {
 	private final String TAG = "TAG_DeliverySocket: ";
 	private static Map<String, Session> sessionsMap = new ConcurrentHashMap<>();
 	private static Map<Integer, AreaOrders> areaOrdersMap = new ConcurrentHashMap<>();
+	private OrderDao orderDao = new OrderDaoMySqlImpl();
+	private ShopDao shopDao = new ShopDaoMysqlImpl();
+	private AddressDao addressDao = new AddressDaoMysqlImpl();
 
 	Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 
@@ -73,15 +76,17 @@ public class DeliverySocket {
 			AreaOrders areaOrders = areaOrdersMap.get(areaCode);
 			Set<String> shopUserStrings = areaOrders.getShopUserStrings();
 			Set<Order> orders = areaOrders.getOrders();
+			if (orders.isEmpty()) {
+				orders = new HashSet<>();
+			}
 			System.out.println(TAG + "PUBLISH ORDERS BREAKPOINT2");
 			// 將外送員id 設為-1 , 代表無人接單
 			order.setDel_id(-1);
-
-			ShopDao shopDao = new ShopDaoMysqlImpl();
-			AddressDao addressDao = new AddressDaoMysqlImpl();
-			OrderDao orderDao = new OrderDaoMySqlImpl();
-			Shop shop = shopDao.getShopByIdDelivery(order.getShop().getId());
-			Address address = addressDao.findById(order.getAddress().getId());
+			Shop shop = order.getShop();
+			Address address = order.getAddress();
+			shop = shopDao.getShopByIdDelivery(shop.getId());
+			address = addressDao.findById(address.getId());
+			
 			order.setShop(shop);
 			order.setAddress(address);
 			System.out.println(TAG + "PUBLISH ORDERS BREAKPOINT3");
@@ -118,7 +123,7 @@ public class DeliverySocket {
 			System.out.println(TAG + "PUBLISH ORDERS BREAKPOINT7");
 			Session shopSession = sessionsMap.get(sender);
 			if (shopSession != null && shopSession.isOpen()) {
-				shopSession.getAsyncRemote().sendText(gson.toJson(orders));
+				shopSession.getAsyncRemote().sendText(gson.toJson(orders).toString());
 			} else {
 				try {
 					shopSession.close();
@@ -164,7 +169,6 @@ public class DeliverySocket {
 		}
 		// MARK: 外送員接單
 		else if (action.equalsIgnoreCase("deliveryAcceptOrder")) {
-			OrderDao orderDao = new OrderDaoMySqlImpl();
 			System.out.println(TAG + "DELIVERY ACCEPT ORDER START");
 			Order order = deliveryMessage.getOrder();
 			String receiver = deliveryMessage.getReceiver().trim();
@@ -186,6 +190,12 @@ public class DeliverySocket {
 					newOrders.add(element);
 				}
 			}
+			Shop shop = order.getShop();
+			Address address = order.getAddress();
+			shop = shopDao.getShopByIdDelivery(shop.getId());
+			address = addressDao.findById(address.getId());
+			order.setShop(shop);
+			order.setAddress(address);
 			newOrders.add(order);
 
 			areaOrders.setOrders(newOrders);
@@ -196,7 +206,7 @@ public class DeliverySocket {
 			// 向店家傳送接單消息
 			Session shopSession = sessionsMap.get(receiver);
 			if (shopSession != null && shopSession.isOpen()) {
-				shopSession.getAsyncRemote().sendText(ordersJson);
+				shopSession.getAsyncRemote().sendText(ordersJson.toString());
 			} else {
 				sessionsMap.remove(receiver);
 			}
@@ -216,13 +226,11 @@ public class DeliverySocket {
 		}
 		// MARK: 店家餐點製作完成
 		else if (action.equalsIgnoreCase("shopDishDone")) {
-			System.out.println("BREAK POINT 1");
 			AreaOrders areaOrders = areaOrdersMap.get(areaCode);
 			Order order = deliveryMessage.getOrder();
 			String receiver = deliveryMessage.getReceiver().trim();
 			Set<Order> orders = areaOrders.getOrders();
 			Set<Order> newOrders = new HashSet<>();
-			System.out.println("BREAK POINT 2");
 
 			// replace old order
 			for (Order e : orders) {
@@ -230,14 +238,18 @@ public class DeliverySocket {
 					newOrders.add(e);
 				}
 			}
+			Shop shop = order.getShop();
+			Address address = order.getAddress();
+			shop = shopDao.getShopByIdDelivery(shop.getId());
+			address = addressDao.findById(address.getId());
+				order.setAddress(address);
+				order.setShop(shop);
+			
 			newOrders.add(order);
-
-			System.out.println("BREAK POINT 3");
-
+			
 			// update server data
 			areaOrders.setOrders(newOrders);
 			areaOrdersMap.put(areaCode, areaOrders);
-			System.out.println("BREAK POINT 4");
 
 			// send message to delivery
 			Set<Order> delOrders = areaOrdersMap.get(areaCode).getOrders();
@@ -245,10 +257,10 @@ public class DeliverySocket {
 			if (delSession != null && delSession.isOpen()) {
 				String ordersJson = gson.toJson(delOrders, orderSetType);
 				delSession.getAsyncRemote().sendText(ordersJson);
+				System.out.println(TAG + "send to: " + receiver + ", " + ordersJson);
 			} else {
 				sessionsMap.remove(receiver);
 			}
-			System.out.println("BREAK POINT 5");
 
 		}
 
@@ -266,6 +278,12 @@ public class DeliverySocket {
 					newOrders.add(e);
 				}
 			}
+			Shop shop = order.getShop();
+			Address address = order.getAddress();
+			shop = shopDao.getShopByIdDelivery(shop.getId());
+			address = addressDao.findById(address.getId());
+			order.setShop(shop);
+			order.setAddress(address);
 			newOrders.add(order);
 			// update server data
 			areaOrders.setOrders(newOrders);
@@ -284,7 +302,6 @@ public class DeliverySocket {
 
 		else if (action.equalsIgnoreCase("deliveryCompleteOrder")) {
 			System.out.println("DELIVERY COMPLETE ORDER");
-			OrderDao orderDao = new OrderDaoMySqlImpl();
 			System.out.println(TAG + "DELIVERY COMPLETE ORDER START");
 			Order order = deliveryMessage.getOrder();
 			String receiver = deliveryMessage.getReceiver().trim();
@@ -302,6 +319,7 @@ public class DeliverySocket {
 					newOrders.add(o);
 				}
 			}
+			
 			newOrders.add(order);
 			areaOrders.setOrders(newOrders);
 			areaOrdersMap.put(areaCode, areaOrders);
@@ -367,7 +385,6 @@ public class DeliverySocket {
 	}
 	
 	private void fetchOrdersFromDataBase() {
-		OrderDao orderDao = new OrderDaoMySqlImpl();
 		Set<Order> orderSet = orderDao.getAllDeliveryingOrder();
 		Map<Integer, Set<Order>> ordersMap = new HashMap<>();
 		for (Order order : orderSet) {
