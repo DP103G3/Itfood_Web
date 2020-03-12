@@ -105,8 +105,8 @@ public class Shop {
 		this(id, name, "", "", -1, -1, 0, "");
 	}
 	
-	public Shop(int id, String name, String address, double latitude, double longitude) {
-		this(id, name, "", address, latitude, longitude, 0, "");
+	public Shop(int id, String name, String address, double latitude, double longitude, int area) {
+		this(id, name, "", address, latitude, longitude, area, "");
 	}
 
 	/* 提供外送員所需資料的建構式 */
