@@ -121,7 +121,7 @@ public class DeliverySocket {
 			System.out.println(TAG + "PUBLISH ORDERS BREAKPOINT7");
 			Session shopSession = sessionsMap.get(sender);
 			if (shopSession != null && shopSession.isOpen()) {
-				shopSession.getAsyncRemote().sendText(gson.toJson(orders));
+				shopSession.getAsyncRemote().sendText(gson.toJson(orders).toString());
 			} else {
 				try {
 					shopSession.close();
@@ -202,7 +202,7 @@ public class DeliverySocket {
 			// 向店家傳送接單消息
 			Session shopSession = sessionsMap.get(receiver);
 			if (shopSession != null && shopSession.isOpen()) {
-				shopSession.getAsyncRemote().sendText(ordersJson);
+				shopSession.getAsyncRemote().sendText(ordersJson.toString());
 			} else {
 				sessionsMap.remove(receiver);
 			}
@@ -251,6 +251,7 @@ public class DeliverySocket {
 			if (delSession != null && delSession.isOpen()) {
 				String ordersJson = gson.toJson(delOrders, orderSetType);
 				delSession.getAsyncRemote().sendText(ordersJson);
+				System.out.println(TAG + "send to: " + receiver + ", " + ordersJson);
 			} else {
 				sessionsMap.remove(receiver);
 			}
