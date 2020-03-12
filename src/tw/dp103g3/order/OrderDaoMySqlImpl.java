@@ -314,7 +314,7 @@ public class OrderDaoMySqlImpl implements OrderDao {
 			break;
 		}
 		String sql = "SELECT order_id, `shop`.shop_id, shop_name, mem_id, del_id, pay_id, order_state, sp_id, order_time, order_ideal, "
-				+ "order_delivery, adrs_id, order_name, order_phone, order_ttprice, order_area, order_type FROM `order` "
+				+ "order_delivery, adrs_id, order_name, order_phone, order_ttprice, order_area, order_type, shop_address, shop_latitude, shop_longitude FROM `order` "
 				+ "LEFT JOIN `shop` ON `order`.shop_id = `shop`.shop_id " + "WHERE " + sqlPart + " = ? "
 				+ (state == -1 ? "" : "AND order_state = ? ") 
 				+ (date == null ? "" : "AND order_delivery >= ? "
@@ -361,8 +361,11 @@ public class OrderDaoMySqlImpl implements OrderDao {
 				int order_ttprice = rs.getInt(15);
 				int order_area = rs.getInt(16);
 				int order_type = rs.getInt(17);
+				String shop_address = rs.getString(18);
+				double shop_latitude = rs.getDouble(19);
+				double shop_longitude = rs.getDouble(20);
 				List<OrderDetail> orderDetails = orderDetailDao.findByOrderId(orderId);
-				Order order = new Order(orderId, new Shop(shopId, shopName), memId, delId, payId, spId, orderIdeal,
+				Order order = new Order(orderId, new Shop(shopId, shopName, shop_address, shop_latitude, shop_longitude), memId, delId, payId, spId, orderIdeal,
 						orderTime, orderDelivery, new Address(adrsId), order_name, order_phone, order_ttprice, order_area,
 						orderStatus, order_type, orderDetails);
 				orderList.add(order);
