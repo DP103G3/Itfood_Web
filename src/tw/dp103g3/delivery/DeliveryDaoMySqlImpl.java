@@ -30,7 +30,7 @@ public class DeliveryDaoMySqlImpl implements DeliveryDao {
 	@Override
 	public int insert(Delivery delivery) {
 		int count = 0;
-		String sql = "INSERT INTO `delivery` (del_name, del_password, del_email, del_phone, del_identityid, del_state) VALUES(?, ?, ?, ?, ?, ?);";
+		String sql = "INSERT INTO `delivery` (del_name, del_password, del_email, del_phone, del_identityid, del_state, del_area) VALUES(?, ?, ?, ?, ?, ?, ?);";
 		String selectEmailSql = "SELECT * FROM `delivery` WHERE del_email = ?;";
 		String selectIdentityIdSql = "SELECT * FROM `delivery` WHERE del_identityid = ?;";
 		Connection connection = null;
@@ -59,6 +59,7 @@ public class DeliveryDaoMySqlImpl implements DeliveryDao {
 				ps.setString(4, delivery.getDelPhone());
 				ps.setString(5, delivery.getDelIdentityid());
 				ps.setInt(6, delivery.getDelState());
+				ps.setInt(7, delivery.getDelArea());
 				count = ps.executeUpdate();
 			}
 		} catch (SQLException e) {
